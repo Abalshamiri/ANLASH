@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<localizationDictionary culture="ar">
+  <texts>
+    <text name="HomePage" value="الصفحة الرئيسية" />
+    <text name="About" value="حول" />
+    <text name="WelcomeMessage" value="مرحباً بك في ANLASH!" />
+    <text name="FormIsNotValidMessage" value="النموذج غير صالح. يرجى التحقق وإصلاح الأخطاء." />
+    <text name="TenantNameCanNotBeEmpty" value="اسم المستأجر لا يمكن أن يكون فارغاً" />
+    <text name="InvalidUserNameOrPassword" value="اسم المستخدم أو كلمة المرور غير صحيحة" />
+    <text name="ThereIsNoTenantDefinedWithName{0}" value="لا يوجد مستأجر معرّف بالاسم {0}" />
+    <text name="TenantIsNotActive" value="المستأجر {0} غير نشط." />
+    <text name="UserIsNotActiveAndCanNotLogin" value="المستخدم {0} غير نشط ولا يمكنه تسجيل الدخول." />
+    <text name="UserEmailIsNotConfirmedAndCanNotLogin">عنوان بريدك الإلكتروني غير مؤكد. لا يمكنك تسجيل الدخول.</text>
+    <text name="UserLockedOutMessage">تم تأمين حساب المستخدم. يرجى المحاولة لاحقاً.</text>
+    <text name="PleaseEnterLoginInformation" value="يرجى إدخال معلومات تسجيل الدخول" />
+    <text name="TenancyName" value="اسم المستأجر" />
+    <text name="UserNameOrEmail" value="اسم المستخدم أو البريد الإلكتروني" />
+    <text name="Password" value="كلمة المرور" />
+    <text name="ResetPassword" value="إعادة تعيين كلمة المرور" />
+    <text name="UpdatePassword" value="تحديث كلمة المرور" />
+    <text name="RememberMe" value="تذكرني" />
+    <text name="LogIn" value="تسجيل الدخول" />
+    <text name="LoginFailed" value="فشل تسجيل الدخول!" />
+    <text name="NameSurname" value="الاسم الكامل" />
+    <text name="UserName" value="اسم المستخدم" />
+    <text name="Name" value="الاسم" />
+    <text name="Surname" value="اللقب" />
+    <text name="EmailAddress" value="عنوان البريد الإلكتروني" />
+    <text name="Tenants" value="المستأجرون" />
+    <text name="SavedSuccessfully" value="تم الحفظ بنجاح" />
+    <text name="CreateNewTenant" value="إنشاء مستأجر جديد" />
+    <text name="AdminEmailAddress" value="البريد الإلكتروني للمسؤول" />
+    <text name="AdminPassword" value="كلمة مرور المسؤول" />
+    <text name="Save" value="حفظ" />
+    <text name="Cancel" value="إلغاء" />
+    <text name="TenantName_Regex_Description" value="يجب أن يكون اسم المستأجر حرفين على الأقل، يبدأ بحرف ويستمر بحرف أو رقم أو شرطة أو شرطة سفلية." />
+    <text name="DefaultPasswordIs" value="كلمة المرور الافتراضية هي {0}" />
+    <text name="CanBeEmptyToLoginAsHost" value="يمكن أن يكون فارغاً لتسجيل الدخول كمضيف." />
+    <text name="Register" value="تسجيل" />
+    <text name="OrLoginWith" value="أو سجل الدخول باستخدام" />
+    <text name="WaitingForActivationMessage" value="حسابك في انتظار التفعيل من قبل مسؤول النظام." />
+    <text name="TenantSelection" value="اختيار المستأجر" />
+    <text name="TenantSelection_Detail" value="يرجى اختيار أحد المستأجرين التاليين." />
+    <text name="Logout" value="تسجيل الخروج" />
+    <text name="RegisterFormUserNameInvalidMessage">يرجى عدم إدخال عنوان بريد إلكتروني لاسم المستخدم.</text>
+    <text name="DatabaseConnectionString" value="سلسلة اتصال قاعدة البيانات" />
+    <text name="Users" value="المستخدمون" />
+    <text name="IsActive" value="نشط" />
+    <text name="FullName" value="الاسم الكامل" />
+    <text name="CreateNewUser" value="إنشاء مستخدم جديد" />
+    <text name="Yes" value="نعم" />
+    <text name="No" value="لا" />
+    <text name="Optional" value="اختياري" />
+    <text name="LeaveEmptyToSwitchToHost">اتركه فارغاً للتبديل إلى المضيف</text>
+    <text name="CurrentTenant">المستأجر الحالي</text>
+    <text name="NotSelected">غير محدد</text>
+    <text name="Change">تغيير</text>
+    <text name="ChangeTenant">تغيير المستأجر</text>
+    <text name="MultiLevelMenu">قائمة متعددة المستويات</text>
+    <text name="Back">رجوع</text>
+    <text name="SuccessfullyRegistered">تم التسجيل بنجاح</text>
+    <text name="WaitingForEmailActivation">يجب تفعيل عنوان بريدك الإلكتروني</text>
+    <text name="Roles">الأدوار</text>
+    <text name="DisplayName">الاسم المعروض</text>
+    <text name="Edit">تعديل</text>
+    <text name="Delete">حذف</text>
+    <text name="CreateNewRole">إنشاء دور جديد</text>
+    <text name="RoleName">اسم الدور</text>
+    <text name="Actions">الإجراءات</text>
+    <text name="CouldNotCompleteLoginOperation">تعذر إكمال عملية تسجيل الدخول. يرجى المحاولة لاحقاً.</text>
+    <text name="CouldNotValidateExternalUser">تعذر التحقق من المستخدم الخارجي</text>
+    <text name="EditRole">تعديل الدور</text>
+    <text name="EditTenant">تعديل المستأجر</text>
+    <text name="EditUser">تعديل المستخدم</text>
+    <text name="TenantIdIsNotActive{0}">معرف المستأجر {0} غير نشط</text>
+    <text name="UnknownTenantId{0}">معرف مستأجر غير معروف {0}</text>
+    <text name="ThisFieldIsRequired">هذا الحقل مطلوب</text>
+    <text name="PleaseWait">يرجى الانتظار...</text>
+    <text name="Administration">الإدارة</text>
+    <text name="ClearAll">مسح الكل</text>
+    <text name="ClearOthers">مسح الآخرين</text>
+    <text name="LabelOptions">خيارات التسمية</text>
+    <text name="Permissions">الصلاحيات</text>
+    <text name="RoleDescription">وصف الدور</text>
+    <text name="Refresh">تحديث</text>
+    <text name="Create">إنشاء</text>
+    <text name="UserDetails">تفاصيل المستخدم</text>
+    <text name="UserRoles">أدوار المستخدم</text>
+    <text name="ConfirmPassword">تأكيد كلمة المرور</text>
+    <text name="Version">الإصدار</text>
+    <text name="On">تشغيل</text>
+    <text name="Off">إيقاف</text>
+    <text name="AreYouSureWantToDelete">هل أنت متأكد من حذف {0}؟</text>
+    <text name="SuccessfullyDeleted">تم الحذف بنجاح</text>
+    <text name="StartTyping">ابدأ الكتابة</text>
+    <text name="Skins">المظاهر</text>
+    <text name="Settings">الإعدادات</text>
+    <text name="Filter">تصفية</text>
+    <text name="CurrentPassword">كلمة المرور الحالية</text>
+    <text name="NewPassword">كلمة المرور الجديدة</text>
+    <text name="ConfirmNewPassword">تأكيد كلمة المرور الجديدة</text>
+    <text name="PasswordsDoNotMatch">كلمات المرور غير متطابقة</text>
+    <text name="PasswordsMustBeAtLeast8CharactersContainLowercaseUppercaseNumber">يجب أن تكون كلمة المرور 8 أحرف على الأقل، وتحتوي على حرف صغير وكبير ورقم</text>
+    <text name="UserDeleteWarningMessage">سيتم حذف المستخدم {0}.</text>
+    <text name="RoleDeleteWarningMessage">سيتم حذف الدور {0} وإلغاء تعيينه من جميع المستخدمين المعينين.</text>
+    <text name="TenantDeleteWarningMessage">سيتم حذف المستأجر {0}.</text>
+    <text name="SearchWithThreeDot">بحث...</text>
+    <text name="PleaseEnterAtLeastNCharacter">يرجى إدخال {0} أحرف على الأقل</text>
+    <text name="PleaseEnterNoMoreThanNCharacter">يرجى عدم إدخال أكثر من {0} حرف</text>
+    <text name="InvalidEmailAddress">عنوان بريد إلكتروني غير صالح</text>
+    <text name="InvalidPattern">غير صالح</text>
+    <text name="PairsDoNotMatch">غير متطابق</text>
+    <text name="All">الكل</text>
+    <text name="TotalRecordsCount">المجموع: {0}</text>
+    <text name="Search">بحث</text>
+    <text name="Clear">مسح</text>
+    <text name="ResetPasswordStepOneInfo">1. أدخل كلمة مرور المسؤول</text>
+    <text name="ResetPasswordStepTwoInfo">2. انسخ كلمة المرور العشوائية هذه حتى تتمكن من إرسالها إلى المستخدم</text>
+    <text name="UsersActivation">تفعيل المستخدمين</text>
+    <text name="403PageHeader">ممنوع</text>
+    <text name="403PageDescription">ليس لديك الإذن للوصول إلى هذا المورد. يرجى الاتصال بالمسؤول.</text>
+    <text name="403PageButton">العودة إلى لوحة التحكم</text>
+    
+    <!-- File Storage Localization - ترجمة خدمة إدارة الملفات -->
+    <text name="FileStorage:UploadSuccess">تم رفع الملف بنجاح</text>
+    <text name="FileStorage:DeleteSuccess">تم حذف الملف بنجاح</text>
+    <text name="FileStorage:FileNotFound">الملف غير موجود</text>
+    <text name="FileStorage:InvalidFileName">اسم الملف غير صالح</text>
+    <text name="FileStorage:InvalidFilePath">مسار الملف غير صالح</text>
+    <text name="FileStorage:EmptyFile">الملف فارغ</text>
+    <text name="FileStorage:SaveError">حدث خطأ أثناء حفظ الملف</text>
+    <text name="FileStorage:GetError">حدث خطأ أثناء جلب الملف</text>
+    <text name="FileStorage:DeleteError">حدث خطأ أثناء حذف الملف</text>
+    
+    <!-- Universities Localization - الجامعات -->
+    <text name="Universities">الجامعات</text>
+    <text name="CreateUniversity">إنشاء جامعة</text>
+    <text name="EditUniversity">تعديل جامعة</text>
+    <text name="DeleteUniversity">حذف جامعة</text>
+    <text name="University">جامعة</text>
+    <text name="UniversityName">اسم الجامعة</text>
+    <text name="UniversityType">نوع الجامعة</text>
+    <text name="Country">الدولة</text>
+    <text name="City">المدينة</text>
+    <text name="Rating">التقييم</text>
+    <text name="Featured">مميزة</text>
+    <text name="Active">نشطة</text>
+    <text name="Universities:DuplicateName">يوجد جامعة بهذا الاسم مسبقاً</text>
+    <text name="Universities:InvalidSlug">رابط URL غير صالح</text>
+    <text name="Universities:NotFound">الجامعة غير موجودة</text>
+    <text name="Universities:InvalidRating">التقييم يجب أن يكون بين 0 و 5</text>
+  </texts>
+</localizationDictionary>

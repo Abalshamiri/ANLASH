@@ -120,5 +120,35 @@
     <text name="403PageHeader">Forbidden</text>
     <text name="403PageDescription">You don't have permission to access this resource. Please contact your administrator.</text>
     <text name="403PageButton">Go back to Dashboard</text>
+    
+    <!-- File Storage Localization -->
+    <text name="FileStorage:UploadSuccess">File uploaded successfully</text>
+    <text name="FileStorage:DeleteSuccess">File deleted successfully</text>
+    <text name="FileStorage:FileNotFound">File not found</text>
+    <text name="FileStorage:InvalidFileName">Invalid file name</text>
+    <text name="FileStorage:InvalidFilePath">Invalid file path</text>
+    <text name="FileStorage:EmptyFile">File is empty</text>
+    <text name="FileStorage:SaveError">Error occurred while saving file</text>
+    <text name="FileStorage:GetError">Error occurred while retrieving file</text>
+    <text name="FileStorage:DeleteError">Error occurred while deleting file</text>
+    
+    <!-- Universities Localization -->
+    <text name="Universities">Universities</text>
+    <text name="CreateUniversity">Create University</text>
+    <text name="EditUniversity">Edit University</text>
+    <text name="DeleteUniversity">Delete University</text>
+    <text name="University">University</text>
+    <text name="UniversityName">University Name</text>
+    <text name="UniversityType">University Type</text>
+    <text name="Country">Country</text>
+    <text name="City">City</text>
+    <text name="Rating">Rating</text>
+    <text name="Featured">Featured</text>
+    <text name="Active">Active</text>
+    <text name="Universities:DuplicateName">A university with this name already exists</text>
+    <text name="Universities:InvalidSlug">Invalid URL slug</text>
+    <text name="Universities:NotFound">University not found</text>
+    <text name="Universities:InvalidRating">Rating must be between 0 and 5</text>
   </texts>
+
 </localizationDictionary>

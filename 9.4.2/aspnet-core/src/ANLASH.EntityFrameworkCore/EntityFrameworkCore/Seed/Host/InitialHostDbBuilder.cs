@@ -15,6 +15,9 @@
             new DefaultLanguagesCreator(_context).Create();
             new HostRoleAndUserCreator(_context).Create();
             new DefaultSettingsCreator(_context).Create();
+            
+            // Seed Universities ✨
+            new InitialUniversitiesCreator(_context).Create();
 
             _context.SaveChanges();
         }

@@ -18,12 +18,9 @@ namespace ANLASH.EntityFrameworkCore.Seed.Host
 
         public void Create()
         {
-            int? tenantId = null;
-
-            if (ANLASHConsts.MultiTenancyEnabled == false)
-            {
-                tenantId = MultiTenancyConsts.DefaultTenantId;
-            }
+            // Set tenantId based on multi-tenancy configuration
+            // If multi-tenancy is disabled, use default tenant; otherwise null for host settings
+            int? tenantId = GetTenantIdForSeedData();
 
             // Emailing
             AddSettingIfNotExists(EmailSettingNames.DefaultFromAddress, "admin@mydomain.com", tenantId);
@@ -31,6 +28,21 @@ namespace ANLASH.EntityFrameworkCore.Seed.Host
 
             // Languages
             AddSettingIfNotExists(LocalizationSettingNames.DefaultLanguage, "en", tenantId);
+        }
+
+        /// <summary>
+        /// Gets the appropriate tenant ID for seed data based on multi-tenancy configuration
+        /// </summary>
+        private int? GetTenantIdForSeedData()
+        {
+            // If multi-tenancy is disabled, seed data should belong to the default tenant
+            // If enabled, seed data belongs to host (null tenant)
+            if (!ANLASHConsts.MultiTenancyEnabled)
+            {
+                return MultiTenancyConsts.DefaultTenantId;
+            }
+            
+            return null; // Host settings
         }
 
         private void AddSettingIfNotExists(string name, string value, int? tenantId = null)
