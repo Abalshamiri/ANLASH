@@ -13,6 +13,7 @@ import {
 } from '@shared/service-proxies/service-proxies';
 import { CreateUniversityDialogComponent } from './create-university/create-university-dialog.component';
 import { EditUniversityDialogComponent } from './edit-university/edit-university-dialog.component';
+import { PermissionCheckerService } from 'abp-ng2-module';
 
 class PagedUniversitiesRequestDto extends PagedRequestDto {
     searchTerm: string;
@@ -37,6 +38,7 @@ export class UniversitiesComponent extends PagedListingComponentBase<UniversityD
     isFeatured: boolean | null = null;
     advancedFiltersVisible = false;
     currentLanguage: string;
+    permission: PermissionCheckerService;
 
     constructor(
         injector: Injector,
@@ -46,6 +48,11 @@ export class UniversitiesComponent extends PagedListingComponentBase<UniversityD
     ) {
         super(injector, cd);
         this.currentLanguage = abp.localization.currentLanguage.name;
+        this.permission = injector.get(PermissionCheckerService);
+    }
+
+    isGranted(permissionName: string): boolean {
+        return this.permission.isGranted(permissionName);
     }
 
     getDisplayName(university: UniversityDto): string {
@@ -92,12 +99,12 @@ export class UniversitiesComponent extends PagedListingComponentBase<UniversityD
 
         this._universityService
             .getAll(
-                request.searchTerm,
-                request.country,
-                request.city,
-                request.type,
-                request.isActive,
-                request.isFeatured,
+                request.searchTerm || undefined,
+                request.country || undefined,
+                request.city || undefined,
+                request.type !== null ? request.type : undefined,
+                request.isActive !== null ? request.isActive : undefined,
+                request.isFeatured !== null ? request.isFeatured : undefined,
                 undefined, // minRating
                 undefined, // orderBy
                 undefined, // isDescending

@@ -12,7 +12,6 @@ import { UniversityServiceProxy } from '@shared/service-proxies/service-proxies'
         CreateUniversityDialogComponent,
         EditUniversityDialogComponent
     ],
-    imports: [SharedModule, UniversitiesRoutingModule],
-    providers: [UniversityServiceProxy]
+    imports: [SharedModule, UniversitiesRoutingModule]
 })
 export class UniversitiesModule { }

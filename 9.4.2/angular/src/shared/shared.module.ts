@@ -44,6 +44,8 @@ import { TabsModule } from 'ngx-bootstrap/tabs';
         EqualValidator
     ],
     exports: [
+        CommonModule,
+        RouterModule,
         AbpPaginationControlsComponent,
         AbpValidationSummaryComponent,
         AbpModalHeaderComponent,
