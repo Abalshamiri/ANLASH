@@ -20,6 +20,7 @@ namespace ANLASH.Storage
         public LocalFileStorageService(IHostEnvironment hostEnvironment)
         {
             _hostEnvironment = hostEnvironment;
+            LocalizationSourceName = ANLASHConsts.LocalizationSourceName;
         }
 
         /// <summary>

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using NSubstitute;
 using Shouldly;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace ANLASH.Tests.Storage
 {
@@ -14,9 +15,11 @@ namespace ANLASH.Tests.Storage
     {
         private readonly IFileStorageService _fileStorageService;
         private readonly IHostEnvironment _hostEnvironment;
+        private readonly ITestOutputHelper _output;
 
-        public LocalFileStorageService_Tests()
+        public LocalFileStorageService_Tests(ITestOutputHelper output)
         {
+            _output = output;
             _hostEnvironment = Substitute.For<IHostEnvironment>();
             _hostEnvironment.ContentRootPath.Returns(Directory.GetCurrentDirectory());
             
@@ -53,14 +56,26 @@ namespace ANLASH.Tests.Storage
         {
             // Arrange
             var emptyStream = new MemoryStream();
+            _output.WriteLine($"Empty stream Length: {emptyStream.Length}");
+            _output.WriteLine($"Empty stream CanRead: {emptyStream.CanRead}");
+            
             var fileName = "test.txt";
             var folder = "profiles";
 
             // Act & Assert
-            await Should.ThrowAsync<UserFriendlyException>(async () =>
+            var exception = await Record.ExceptionAsync(async () =>
             {
+                _output.WriteLine("About to call SaveFileAsync with empty stream");
                 await _fileStorageService.SaveFileAsync(emptyStream, fileName, folder);
+                _output.WriteLine("SaveFileAsync completed without exception!");
             });
+
+            _output.WriteLine($"Exception caught: {exception?.GetType().Name ?? "NULL"}");
+            _output.WriteLine($"Exception message: {exception?.Message ?? "N/A"}");
+
+            // Assert
+            exception.ShouldNotBeNull("Expected an exception for empty file");
+            exception.ShouldBeOfType<UserFriendlyException>();
         }
 
         [Fact]
@@ -73,11 +88,22 @@ namespace ANLASH.Tests.Storage
             var fileName = ""; // Invalid
             var folder = "profiles";
 
+            _output.WriteLine($"Testing with empty fileName");
+
             // Act & Assert
-            await Should.ThrowAsync<UserFriendlyException>(async () =>
+            var exception = await Record.ExceptionAsync(async () =>
             {
+                _output.WriteLine("About to call SaveFileAsync with empty filename");
                 await _fileStorageService.SaveFileAsync(stream, fileName, folder);
+                _output.WriteLine("SaveFileAsync completed without exception!");
             });
+
+            _output.WriteLine($"Exception caught: {exception?.GetType().Name ?? "NULL"}");
+            _output.WriteLine($"Exception message: {exception?.Message ?? "N/A"}");
+
+            // Assert
+            exception.ShouldNotBeNull("Expected an exception for invalid filename");
+            exception.ShouldBeOfType<UserFriendlyException>();
         }
 
         [Fact]
