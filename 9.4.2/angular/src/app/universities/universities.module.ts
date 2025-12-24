@@ -4,6 +4,7 @@ import { UniversitiesRoutingModule } from './universities-routing.module';
 import { UniversitiesComponent } from './universities.component';
 import { CreateUniversityDialogComponent } from './create-university/create-university-dialog.component';
 import { EditUniversityDialogComponent } from './edit-university/edit-university-dialog.component';
+import { UniversityServiceProxy } from '@shared/service-proxies/service-proxies';
 
 @NgModule({
     declarations: [
@@ -12,5 +13,6 @@ import { EditUniversityDialogComponent } from './edit-university/edit-university
         EditUniversityDialogComponent
     ],
     imports: [SharedModule, UniversitiesRoutingModule],
+    providers: [UniversityServiceProxy]
 })
 export class UniversitiesModule { }
