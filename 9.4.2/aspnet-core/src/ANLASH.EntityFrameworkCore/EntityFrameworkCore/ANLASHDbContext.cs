@@ -36,6 +36,11 @@ namespace ANLASH.EntityFrameworkCore
         /// محتويات الجامعات - University Contents
         /// </summary>
         public DbSet<UniversityContent> UniversityContents { get; set; }
+
+        /// <summary>
+        /// برامج الجامعات - University Programs
+        /// </summary>
+        public DbSet<UniversityProgram> UniversityPrograms { get; set; }
         
         public ANLASHDbContext(DbContextOptions<ANLASHDbContext> options)
             : base(options)
@@ -258,6 +263,58 @@ namespace ANLASH.EntityFrameworkCore
                     .IsUnique()
                     .HasDatabaseName("UQ_UniversityContents_UniversityId_ContentType")
                     .HasFilter("[IsDeleted] = 0");
+            });
+
+            #endregion
+
+            #region Configure UniversityProgram Entity
+
+            modelBuilder.Entity<UniversityProgram>(entity =>
+            {
+                entity.ToTable("UniversityPrograms");
+
+                // Primary Key
+                entity.HasKey(p => p.Id);
+
+                // Foreign Keys
+                entity.HasOne(p => p.University)
+                    .WithMany(u => u.Programs)
+                    .HasForeignKey(p => p.UniversityId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(p => p.Currency)
+                    .WithMany()
+                    .HasForeignKey(p => p.CurrencyId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                // Required Fields
+                entity.Property(p => p.Name).IsRequired().HasMaxLength(300);
+                entity.Property(p => p.NameAr).IsRequired().HasMaxLength(300);
+
+                // Rich Content
+                entity.Property(p => p.Requirements).HasColumnType("NVARCHAR(MAX)");
+                entity.Property(p => p.RequirementsAr).HasColumnType("NVARCHAR(MAX)");
+
+                // Decimal Columns
+                entity.Property(p => p.TuitionFee).HasColumnType("decimal(18,2)");
+                entity.Property(p => p.ApplicationFee).HasColumnType("decimal(18,2)");
+
+                // Default Values
+                entity.Property(p => p.IsActive).HasDefaultValue(true);
+                entity.Property(p => p.IsFeatured).HasDefaultValue(false);
+
+                // Indexes
+                entity.HasIndex(p => p.UniversityId).HasDatabaseName("IX_UniversityPrograms_UniversityId");
+                entity.HasIndex(p => p.Level).HasDatabaseName("IX_UniversityPrograms_Level");
+                entity.HasIndex(p => p.Mode).HasDatabaseName("IX_UniversityPrograms_Mode");
+                entity.HasIndex(p => p.IsActive).HasDatabaseName("IX_UniversityPrograms_IsActive");
+                entity.HasIndex(p => p.IsFeatured).HasDatabaseName("IX_UniversityPrograms_IsFeatured");
+
+                // Unique Slugs
+                entity.HasIndex(p => p.Slug).IsUnique().HasDatabaseName("UQ_UniversityPrograms_Slug")
+                    .HasFilter("[Slug] IS NOT NULL AND [IsDeleted] = 0");
+                entity.HasIndex(p => p.SlugAr).IsUnique().HasDatabaseName("UQ_UniversityPrograms_SlugAr")
+                    .HasFilter("[SlugAr] IS NOT NULL AND [IsDeleted] = 0");
             });
 
             #endregion
