@@ -14,9 +14,9 @@ namespace ANLASH.Universities
     /// </summary>
     public class UniversityManager : DomainService
     {
-        private readonly IRepository<University> _universityRepository;
+        private readonly IRepository<University, long> _universityRepository;
 
-        public UniversityManager(IRepository<University> universityRepository)
+        public UniversityManager(IRepository<University, long> universityRepository)
         {
             _universityRepository = universityRepository;
         }
@@ -75,7 +75,7 @@ namespace ANLASH.Universities
         /// <summary>
         /// حذف جامعة - Delete university
         /// </summary>
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(long id)
         {
             var university = await _universityRepository.GetAsync(id);
             await _universityRepository.DeleteAsync(university);
@@ -100,7 +100,7 @@ namespace ANLASH.Universities
         /// <summary>
         /// التحقق من صحة الرابط - Validate unique slug
         /// </summary>
-        public async Task<bool> IsSlugUniqueAsync(string slug, int? excludeId = null)
+        public async Task<bool> IsSlugUniqueAsync(string slug, long? excludeId = null)
         {
             var query = _universityRepository.GetAll()
                 .Where(u => u.Slug == slug && !u.IsDeleted);

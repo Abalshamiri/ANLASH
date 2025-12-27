@@ -29,6 +29,15 @@ namespace ANLASH.EntityFrameworkCore.Seed.Host
                 return; // Universities already seeded
             }
 
+            // ✅ Get Country and City IDs from lookup tables
+            var saudiArabia = _context.Countries.FirstOrDefault(c => c.Code == "SA");
+            if (saudiArabia == null) return; // Lookups not seeded yet
+
+            var riyadh = _context.Cities.FirstOrDefault(c => c.CountryId == saudiArabia.Id && c.Name == "Riyadh");
+            var jeddah = _context.Cities.FirstOrDefault(c => c.CountryId == saudiArabia.Id && c.Name == "Jeddah");
+            var dhahran = _context.Cities.FirstOrDefault(c => c.CountryId == saudiArabia.Id && c.Name == "Dhahran");
+            var dammam = _context.Cities.FirstOrDefault(c => c.CountryId == saudiArabia.Id && c.Name == "Dammam");
+
             // Sample Saudi Universities
             var universities = new[]
             {
@@ -38,8 +47,8 @@ namespace ANLASH.EntityFrameworkCore.Seed.Host
                     NameAr = "جامعة الملك سعود",
                     Description = "The premier university in Saudi Arabia, established in 1957",
                     DescriptionAr = "الجامعة الرائدة في المملكة العربية السعودية، تأسست عام 1957",
-                    Country = "Saudi Arabia",
-                    City = "Riyadh",
+                    CountryId = saudiArabia.Id,  // ✅ Using CountryId
+                    CityId = riyadh?.Id,  // ✅ Using CityId
                     Address = "King Saud University, Riyadh 11451",
                     Type = UniversityType.Public,
                     Email = "info@ksu.edu.sa",
@@ -60,8 +69,8 @@ namespace ANLASH.EntityFrameworkCore.Seed.Host
                     NameAr = "جامعة الملك عبدالعزيز",
                     Description = "A leading research university in Jeddah",
                     DescriptionAr = "جامعة بحثية رائدة في جدة",
-                    Country = "Saudi Arabia",
-                    City = "Jeddah",
+                    CountryId = saudiArabia.Id,
+                    CityId = jeddah?.Id,
                     Address = "King Abdulaziz University, Jeddah 21589",
                     Type = UniversityType.Public,
                     Email = "info@kau.edu.sa",
@@ -82,8 +91,8 @@ namespace ANLASH.EntityFrameworkCore.Seed.Host
                     NameAr = "جامعة الملك فهد للبترول والمعادن",
                     Description = "Premier institution for science and engineering",
                     DescriptionAr = "مؤسسة رائدة في العلوم والهندسة",
-                    Country = "Saudi Arabia",
-                    City = "Dhahran",
+                    CountryId = saudiArabia.Id,
+                    CityId = dhahran?.Id,
                     Address = "KFUPM, Dhahran 31261",
                     Type = UniversityType.Public,
                     Email = "info@kfupm.edu.sa",
@@ -104,8 +113,8 @@ namespace ANLASH.EntityFrameworkCore.Seed.Host
                     NameAr = "جامعة الإمام عبدالرحمن بن فيصل",
                     Description = "Comprehensive university in the Eastern Province",
                     DescriptionAr = "جامعة شاملة في المنطقة الشرقية",
-                    Country = "Saudi Arabia",
-                    City = "Dammam",
+                    CountryId = saudiArabia.Id,
+                    CityId = dammam?.Id,
                     Address = "IAU, Dammam 31441",
                     Type = UniversityType.Public,
                     Email = "info@iau.edu.sa",
@@ -126,8 +135,8 @@ namespace ANLASH.EntityFrameworkCore.Seed.Host
                     NameAr = "جامعة الأميرة نورة بنت عبدالرحمن",
                     Description = "The largest women's university in the world",
                     DescriptionAr = "أكبر جامعة للبنات في العالم",
-                    Country = "Saudi Arabia",
-                    City = "Riyadh",
+                    CountryId = saudiArabia.Id,
+                    CityId = riyadh?.Id,
                     Address = "PNU, Riyadh 11671",
                     Type = UniversityType.Public,
                     Email = "info@pnu.edu.sa",
@@ -148,8 +157,8 @@ namespace ANLASH.EntityFrameworkCore.Seed.Host
                     NameAr = "جامعة الفيصل",
                     Description = "Private research university in Riyadh",
                     DescriptionAr = "جامعة بحثية خاصة في الرياض",
-                    Country = "Saudi Arabia",
-                    City = "Riyadh",
+                    CountryId = saudiArabia.Id,
+                    CityId = riyadh?.Id,
                     Address = "Alfaisal University, Riyadh 11533",
                     Type = UniversityType.Private,
                     Email = "info@alfaisal.edu",

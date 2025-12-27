@@ -28,8 +28,6 @@ namespace ANLASH.Tests.Universities
                 {
                     Name = "New Test University",
                     NameAr = "جامعة اختبار جديدة",
-                    Country = "Saudi Arabia",
-                    City = "Riyadh",
                     Type = UniversityType.Public,
                     Rating = 4.0m
                 };
@@ -53,8 +51,6 @@ namespace ANLASH.Tests.Universities
                 var university = new University
                 {
                     Name = "Another University",
-                    Country = "Saudi Arabia",
-                    City = "Jeddah",
                     Type = UniversityType.Private,
                     Rating = 3.5m,
                     Slug = "custom-slug"
@@ -79,8 +75,6 @@ namespace ANLASH.Tests.Universities
                 {
                     Name = "Test",
                     NameAr = "جامعة الاختبار الجديدة",
-                    Country = "Saudi Arabia",
-                    City = "Riyadh",
                     Type = UniversityType.Public,
                     Rating = 4.0m
                 };
@@ -106,8 +100,6 @@ namespace ANLASH.Tests.Universities
                 var university1 = new University
                 {
                     Name = uniqueName,
-                    Country = "Saudi Arabia",
-                    City = "Riyadh",
                     Type = UniversityType.Public,
                     Rating = 4.0m
                 };
@@ -124,8 +116,6 @@ namespace ANLASH.Tests.Universities
                     var university2 = new University
                     {
                         Name = uniqueName, // Same name
-                        Country = "Saudi Arabia",
-                        City = "Jeddah",
                         Type = UniversityType.Private,
                         Rating = 3.5m
                     };
@@ -155,8 +145,6 @@ namespace ANLASH.Tests.Universities
                     var university = new University
                     {
                         Name = "Invalid Rating Test " + Guid.NewGuid().ToString("N").Substring(0, 8),
-                        Country = "Saudi Arabia",
-                        City = "Riyadh",
                         Type = UniversityType.Public,
                         Rating = 6.0m // Invalid: > 5
                     };
@@ -186,19 +174,17 @@ namespace ANLASH.Tests.Universities
                 var university = new University
                 {
                     Name = "Original Name " + Guid.NewGuid().ToString("N").Substring(0, 8),
-                    Country = "Saudi Arabia",
-                    City = "Riyadh",
                     Type = UniversityType.Public,
                     Rating = 3.0m
                 };
                 var created = await _universityManager.CreateAsync(university);
-                universityId = created.Id;
+                universityId = (int)created.Id; // Cast long to int for test variable
             });
 
             // Update in second UnitOfWork
             await WithUnitOfWorkAsync(async () =>
             {
-                var repository = Resolve<Abp.Domain.Repositories.IRepository<University, int>>();
+                var repository = Resolve<Abp.Domain.Repositories.IRepository<University, long>>();
                 var university = await repository.GetAsync(universityId);
 
                 // Act - Update
@@ -241,8 +227,6 @@ namespace ANLASH.Tests.Universities
                 var university = new University
                 {
                     Name = "Slug Test " + Guid.NewGuid().ToString("N").Substring(0, 8),
-                    Country = "Saudi Arabia",
-                    City = "Riyadh",
                     Type = UniversityType.Public,
                     Rating = 4.0m,
                     Slug = uniqueSlug
@@ -273,14 +257,12 @@ namespace ANLASH.Tests.Universities
                 var university = new University
                 {
                     Name = "Same Slug Test " + Guid.NewGuid().ToString("N").Substring(0, 8),
-                    Country = "Saudi Arabia",
-                    City = "Riyadh",
                     Type = UniversityType.Public,
                     Rating = 4.0m,
                     Slug = uniqueSlug
                 };
                 var created = await _universityManager.CreateAsync(university);
-                universityId = created.Id;
+                universityId = (int)created.Id; // Cast long to int for test variable
             });
 
             // Check in second UnitOfWork

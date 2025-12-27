@@ -9,7 +9,7 @@ namespace ANLASH.Universities.Dto
     /// DTO لتحديث جامعة - Update University DTO
     /// </summary>
     [AutoMapTo(typeof(University))]
-    public class UpdateUniversityDto : EntityDto
+    public class UpdateUniversityDto : EntityDto<long>
     {
         // English Fields
         [Required]

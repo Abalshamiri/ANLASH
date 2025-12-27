@@ -138,28 +138,80 @@ namespace ANLASH.EntityFrameworkCore
 
             #region Configure Universities
 
-            // Configure Universities indexes
+            // ✅ Configure University Entity (Enhanced)
             modelBuilder.Entity<University>(entity =>
             {
-                // Unique indexes for SEO slugs
+                entity.ToTable("Universities");
+                
+                // Primary Key (Changed from int to long)
+                entity.HasKey(u => u.Id);
+                
+                // ✅ Foreign Key Relationships
+                
+                // Country relationship (optional)
+                entity.HasOne(u => u.Country)
+                    .WithMany()
+                    .HasForeignKey(u => u.CountryId)
+                    .OnDelete(DeleteBehavior.SetNull);  // Keep university if country is deleted
+                
+                // City relationship (optional)
+                entity.HasOne(u => u.City)
+                    .WithMany()
+                    .HasForeignKey(u => u.CityId)
+                    .OnDelete(DeleteBehavior.SetNull);  // Keep university if city is deleted
+                
+                // ✅ Required Fields
+                entity.Property(u => u.Name)
+                    .IsRequired()
+                    .HasMaxLength(300);
+                    
+                entity.Property(u => u.NameAr)
+                    .IsRequired()
+                    .HasMaxLength(300);
+                
+                // ✅ Rich Content Fields (NVARCHAR(MAX))
+                entity.Property(u => u.AboutText)
+                    .HasColumnType("NVARCHAR(MAX)");
+                    
+                entity.Property(u => u.AboutTextAr)
+                    .HasColumnType("NVARCHAR(MAX)");
+                
+                // ✅ Decimal Fields Precision
+                entity.Property(u => u.Rating)
+                    .HasPrecision(3, 2);  // 0.00 to 5.00
+                    
+                entity.Property(u => u.OfferLetterFee)
+                    .HasPrecision(18, 2);  // Up to 999,999,999,999,999.99
+                
+                // ✅ Unique Indexes for SEO Slugs
                 entity.HasIndex(u => u.Slug)
                     .IsUnique()
+                    .HasDatabaseName("IX_Universities_Slug")
                     .HasFilter("[Slug] IS NOT NULL");
 
                 entity.HasIndex(u => u.SlugAr)
                     .IsUnique()
+                    .HasDatabaseName("IX_Universities_SlugAr")
                     .HasFilter("[SlugAr] IS NOT NULL");
 
-                // Non-unique indexes for filtering
-                entity.HasIndex(u => u.Country);
-                entity.HasIndex(u => u.City);
-                entity.HasIndex(u => u.Rating);
-                entity.HasIndex(u => u.IsActive);
-                entity.HasIndex(u => u.IsFeatured);
-
-                // Configure decimal precision for Rating
-                entity.Property(u => u.Rating)
-                    .HasPrecision(3, 2); // Max value: 5.00
+                // ✅ Non-Unique Indexes for Filtering & Performance
+                entity.HasIndex(u => u.CountryId)
+                    .HasDatabaseName("IX_Universities_CountryId");
+                    
+                entity.HasIndex(u => u.CityId)
+                    .HasDatabaseName("IX_Universities_CityId");
+                    
+                entity.HasIndex(u => u.Rating)
+                    .HasDatabaseName("IX_Universities_Rating");
+                    
+                entity.HasIndex(u => u.IsActive)
+                    .HasDatabaseName("IX_Universities_IsActive");
+                    
+                entity.HasIndex(u => u.IsFeatured)
+                    .HasDatabaseName("IX_Universities_IsFeatured");
+                
+                entity.HasIndex(u => u.TenantId)
+                    .HasDatabaseName("IX_Universities_TenantId");
             });
 
             #endregion

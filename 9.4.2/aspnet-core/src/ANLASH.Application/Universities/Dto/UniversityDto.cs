@@ -9,7 +9,7 @@ namespace ANLASH.Universities.Dto
     /// University DTO - Data Transfer Object
     /// </summary>
     [AutoMapFrom(typeof(University))]
-    public class UniversityDto : FullAuditedEntityDto
+    public class UniversityDto : FullAuditedEntityDto<long>
     {
         // English Fields
         public string Name { get; set; }

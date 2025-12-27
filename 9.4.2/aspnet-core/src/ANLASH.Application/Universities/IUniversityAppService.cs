@@ -8,7 +8,7 @@ namespace ANLASH.Universities
     /// <summary>
     /// خدمة التطبيق للجامعات - University Application Service Interface
     /// </summary>
-    public interface IUniversityAppService : IAsyncCrudAppService<UniversityDto, int, PagedUniversityRequestDto, CreateUniversityDto, UpdateUniversityDto>
+    public interface IUniversityAppService : IAsyncCrudAppService<UniversityDto, long, PagedUniversityRequestDto, CreateUniversityDto, UpdateUniversityDto>
     {
         /// <summary>
         /// جلب جميع الجامعات النشطة - Get all active universities
@@ -28,11 +28,11 @@ namespace ANLASH.Universities
         /// <summary>
         /// تفعيل/إلغاء تفعيل جامعة - Activate/Deactivate university
         /// </summary>
-        Task ToggleActiveAsync(int id);
+        Task ToggleActiveAsync(long id);
 
         /// <summary>
         /// جعل جامعة مميزة - Make university featured
         /// </summary>
-        Task ToggleFeaturedAsync(int id);
+        Task ToggleFeaturedAsync(long id);
     }
 }

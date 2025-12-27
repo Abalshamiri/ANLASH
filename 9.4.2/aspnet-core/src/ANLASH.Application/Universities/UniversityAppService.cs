@@ -18,12 +18,12 @@ namespace ANLASH.Universities
     /// <para>Handles all university operations with bilingual support</para>
     /// </summary>
     [AbpAuthorize(PermissionNames.Pages_Universities)]
-    public class UniversityAppService : AsyncCrudAppService<University, UniversityDto, int, PagedUniversityRequestDto, CreateUniversityDto, UpdateUniversityDto>, IUniversityAppService
+    public class UniversityAppService : AsyncCrudAppService<University, UniversityDto, long, PagedUniversityRequestDto, CreateUniversityDto, UpdateUniversityDto>, IUniversityAppService
     {
         private readonly UniversityManager _universityManager;
 
         public UniversityAppService(
-            IRepository<University, int> repository,
+            IRepository<University, long> repository,
             UniversityManager universityManager)
             : base(repository)
         {
@@ -54,7 +54,7 @@ namespace ANLASH.Universities
         /// <summary>
         /// جلب جامعة واحدة - Get single university
         /// </summary>
-        public override async Task<UniversityDto> GetAsync(EntityDto<int> input)
+        public override async Task<UniversityDto> GetAsync(EntityDto<long> input)
         {
             var university = await Repository.GetAsync(input.Id);
             return ObjectMapper.Map<UniversityDto>(university);
@@ -97,7 +97,7 @@ namespace ANLASH.Universities
         /// حذف جامعة - Delete university
         /// </summary>
         [AbpAuthorize(PermissionNames.Pages_Universities_Delete)]
-        public override async Task DeleteAsync(EntityDto<int> input)
+        public override async Task DeleteAsync(EntityDto<long> input)
         {
             CheckDeletePermission();
             await _universityManager.DeleteAsync(input.Id);
@@ -153,7 +153,7 @@ namespace ANLASH.Universities
         /// تفعيل/إلغاء تفعيل جامعة - Toggle university active status
         /// </summary>
         [AbpAuthorize(PermissionNames.Pages_Universities_Edit)]
-        public async Task ToggleActiveAsync(int id)
+        public async Task ToggleActiveAsync(long id)
         {
             var university = await Repository.GetAsync(id);
             university.IsActive = !university.IsActive;
@@ -164,7 +164,7 @@ namespace ANLASH.Universities
         /// جعل جامعة مميزة أو إلغاء تمييزها - Toggle featured status
         /// </summary>
         [AbpAuthorize(PermissionNames.Pages_Universities_Edit)]
-        public async Task ToggleFeaturedAsync(int id)
+        public async Task ToggleFeaturedAsync(long id)
         {
             var university = await Repository.GetAsync(id);
             university.IsFeatured = !university.IsFeatured;
@@ -178,24 +178,56 @@ namespace ANLASH.Universities
         /// </summary>
         protected override IQueryable<University> CreateFilteredQuery(PagedUniversityRequestDto input)
         {
-            return Repository.GetAll()
-                .WhereIf(!string.IsNullOrWhiteSpace(input.SearchTerm),
-                    u => u.Name.Contains(input.SearchTerm) || 
-                         u.NameAr.Contains(input.SearchTerm) ||
-                         u.Country.Contains(input.SearchTerm) ||
-                         u.City.Contains(input.SearchTerm))
-                .WhereIf(!string.IsNullOrWhiteSpace(input.Country),
-                    u => u.Country == input.Country)
-                .WhereIf(!string.IsNullOrWhiteSpace(input.City),
-                    u => u.City == input.City)
-                .WhereIf(input.Type.HasValue,
-                    u => u.Type == input.Type.Value)
-                .WhereIf(input.IsFeatured.HasValue,
-                    u => u.IsFeatured == input.IsFeatured.Value)
-                .WhereIf(input.IsActive.HasValue,
-                    u => u.IsActive == input.IsActive.Value)
-                .WhereIf(input.MinRating.HasValue,
-                    u => u.Rating >= input.MinRating.Value);
+            // ✅ Include Country and City for DTOs
+            var query = Repository.GetAllIncluding(u => u.Country, u => u.City);
+
+            // Filter by SearchTerm (search in Name, NameAr, Country.Name, City.Name)
+            if (!string.IsNullOrWhiteSpace(input.SearchTerm))
+            {
+                query = query.Where(u =>
+                    u.Name.Contains(input.SearchTerm) ||
+                    u.NameAr.Contains(input.SearchTerm) ||
+                    (u.Country != null && (u.Country.Name.Contains(input.SearchTerm) || u.Country.NameAr.Contains(input.SearchTerm))) ||
+                    (u.City != null && (u.City.Name.Contains(input.SearchTerm) || u.City.NameAr.Contains(input.SearchTerm))));
+            }
+
+            // Filter by Country (using string for backward compatibility)
+            if (!string.IsNullOrWhiteSpace(input.Country))
+            {
+                query = query.Where(u => u.Country.Name == input.Country || u.Country.NameAr == input.Country);
+            }
+
+            // Filter by City (using string for backward compatibility)
+            if (!string.IsNullOrWhiteSpace(input.City))
+            {
+                query = query.Where(u => u.City.Name == input.City || u.City.NameAr == input.City);
+            }
+
+            // Filter by Type
+            if (input.Type.HasValue)
+            {
+                query = query.Where(u => u.Type == input.Type.Value);
+            }
+
+            // Filter by IsFeatured
+            if (input.IsFeatured.HasValue)
+            {
+                query = query.Where(u => u.IsFeatured == input.IsFeatured.Value);
+            }
+
+            // Filter by IsActive
+            if (input.IsActive.HasValue)
+            {
+                query = query.Where(u => u.IsActive == input.IsActive.Value);
+            }
+
+            // Filter by MinRating
+            if (input.MinRating.HasValue)
+            {
+                query = query.Where(u => u.Rating >= input.MinRating.Value);
+            }
+
+            return query;
         }
 
         /// <summary>

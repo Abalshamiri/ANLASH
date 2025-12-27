@@ -4,6 +4,7 @@ using ANLASH.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ANLASH.Migrations
 {
     [DbContext(typeof(ANLASHDbContext))]
-    partial class ANLASHDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251227132321_EnhanceUniversityWithRebuild")]
+    partial class EnhanceUniversityWithRebuild
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

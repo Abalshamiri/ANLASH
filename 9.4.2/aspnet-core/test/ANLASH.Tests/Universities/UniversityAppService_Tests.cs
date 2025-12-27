@@ -120,12 +120,12 @@ namespace ANLASH.Tests.Universities
             var created = await _universityAppService.CreateAsync(createDto);
 
             // Act
-            await _universityAppService.DeleteAsync(new EntityDto<int>(created.Id));
+            await _universityAppService.DeleteAsync(new EntityDto<long>(created.Id));
 
             // Assert - Try to get deleted item
             await Should.ThrowAsync<Abp.Domain.Entities.EntityNotFoundException>(async () =>
             {
-                await _universityAppService.GetAsync(new EntityDto<int>(created.Id));
+                await _universityAppService.GetAsync(new EntityDto<long>(created.Id));
             });
         }
 
@@ -136,7 +136,7 @@ namespace ANLASH.Tests.Universities
             int universityId = 1;
 
             // Act
-            var result = await _universityAppService.GetAsync(new EntityDto<int>(universityId));
+            var result = await _universityAppService.GetAsync(new EntityDto<long>(universityId));
 
             // Assert
             result.ShouldNotBeNull();
@@ -199,7 +199,7 @@ namespace ANLASH.Tests.Universities
             await _universityAppService.ToggleActiveAsync(created.Id);
 
             // Assert
-            var updated = await _universityAppService.GetAsync(new EntityDto<int>(created.Id));
+            var updated = await _universityAppService.GetAsync(new EntityDto<long>(created.Id));
             updated.IsActive.ShouldBeFalse();
         }
 
