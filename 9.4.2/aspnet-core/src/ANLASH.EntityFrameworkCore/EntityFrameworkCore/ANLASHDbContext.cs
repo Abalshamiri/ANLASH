@@ -5,6 +5,7 @@ using ANLASH.Authorization.Users;
 using ANLASH.MultiTenancy;
 using ANLASH.Universities;
 using ANLASH.Lookups;
+using ANLASH.Storage;
 
 namespace ANLASH.EntityFrameworkCore
 {
@@ -41,6 +42,11 @@ namespace ANLASH.EntityFrameworkCore
         /// برامج الجامعات - University Programs
         /// </summary>
         public DbSet<UniversityProgram> UniversityPrograms { get; set; }
+
+        /// <summary>
+        /// الملفات المخزنة - Stored Files
+        /// </summary>
+        public DbSet<AppBinaryObject> AppBinaryObjects { get; set; }
         
         public ANLASHDbContext(DbContextOptions<ANLASHDbContext> options)
             : base(options)
@@ -315,6 +321,35 @@ namespace ANLASH.EntityFrameworkCore
                     .HasFilter("[Slug] IS NOT NULL AND [IsDeleted] = 0");
                 entity.HasIndex(p => p.SlugAr).IsUnique().HasDatabaseName("UQ_UniversityPrograms_SlugAr")
                     .HasFilter("[SlugAr] IS NOT NULL AND [IsDeleted] = 0");
+            });
+
+            #endregion
+
+            #region Configure AppBinaryObject Entity
+
+            modelBuilder.Entity<AppBinaryObject>(entity =>
+            {
+                entity.ToTable("AppBinaryObjects");
+
+                // Primary Key
+                entity.HasKey(b => b.Id);
+
+                // Required Fields
+                entity.Property(b => b.FileName).IsRequired().HasMaxLength(500);
+                entity.Property(b => b.ContentType).IsRequired().HasMaxLength(100);
+                entity.Property(b => b.FileSize).IsRequired();
+                entity.Property(b => b.Bytes).IsRequired();
+
+                // Optional Fields
+                entity.Property(b => b.Description).HasMaxLength(500);
+                entity.Property(b => b.Category).HasMaxLength(100);
+                entity.Property(b => b.EntityType).HasMaxLength(100);
+
+                // Indexes for Performance
+                entity.HasIndex(b => b.TenantId).HasDatabaseName("IX_AppBinaryObjects_TenantId");
+                entity.HasIndex(b => b.Category).HasDatabaseName("IX_AppBinaryObjects_Category");
+                entity.HasIndex(b => new { b.EntityType, b.EntityId }).HasDatabaseName("IX_AppBinaryObjects_Entity");
+                entity.HasIndex(b => b.CreationTime).HasDatabaseName("IX_AppBinaryObjects_CreationTime");
             });
 
             #endregion
