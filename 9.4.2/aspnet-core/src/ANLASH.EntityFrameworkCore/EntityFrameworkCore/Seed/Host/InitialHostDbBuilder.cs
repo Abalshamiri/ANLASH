@@ -16,6 +16,9 @@
             new HostRoleAndUserCreator(_context).Create();
             new DefaultSettingsCreator(_context).Create();
             
+            // ✅ Seed Lookups (Currencies, Countries, Cities)
+            new DefaultLookupsCreator(_context).Create();
+            
             // Seed Universities ✨
             new InitialUniversitiesCreator(_context).Create();
 
