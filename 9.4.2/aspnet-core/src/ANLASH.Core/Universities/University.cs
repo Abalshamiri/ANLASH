@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Abp.Domain.Entities;
@@ -256,6 +257,15 @@ namespace ANLASH.Universities
 
         #endregion
 
+        #region Navigation Properties - خصائص التنقل
+
+        /// <summary>
+        /// University contents collection | مجموعة محتويات الجامعة
+        /// </summary>
+        public virtual ICollection<UniversityContent> Contents { get; set; }
+
+        #endregion
+        
         // ✅ FullAuditedAggregateRoot<long> provides:
         // - Id (long primary key) ✨ Changed from int to long
         // - CreationTime, CreatorUserId

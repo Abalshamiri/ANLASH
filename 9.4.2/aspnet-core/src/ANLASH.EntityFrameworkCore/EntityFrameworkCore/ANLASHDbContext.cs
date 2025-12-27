@@ -13,11 +13,6 @@ namespace ANLASH.EntityFrameworkCore
         /* Define a DbSet for each entity of the application */
         
         /// <summary>
-        /// الجامعات - Universities
-        /// </summary>
-        public DbSet<University> Universities { get; set; }
-        
-        /// <summary>
         /// العملات - Currencies
         /// </summary>
         public DbSet<Currency> Currencies { get; set; }
@@ -31,6 +26,16 @@ namespace ANLASH.EntityFrameworkCore
         /// المدن - Cities
         /// </summary>
         public DbSet<City> Cities { get; set; }
+
+        /// <summary>
+        /// الجامعات - Universities
+        /// </summary>
+        public DbSet<University> Universities { get; set; }
+
+        /// <summary>
+        /// محتويات الجامعات - University Contents
+        /// </summary>
+        public DbSet<UniversityContent> UniversityContents { get; set; }
         
         public ANLASHDbContext(DbContextOptions<ANLASHDbContext> options)
             : base(options)
@@ -212,6 +217,47 @@ namespace ANLASH.EntityFrameworkCore
                 
                 entity.HasIndex(u => u.TenantId)
                     .HasDatabaseName("IX_Universities_TenantId");
+            });
+
+            #endregion
+
+            #region Configure UniversityContent Entity
+
+            modelBuilder.Entity<UniversityContent>(entity =>
+            {
+                entity.ToTable("UniversityContents");
+
+                // Primary Key
+                entity.HasKey(c => c.Id);
+
+                // Foreign Key to University
+                entity.HasOne(c => c.University)
+                    .WithMany(u => u.Contents)
+                    .HasForeignKey(c => c.UniversityId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // Required Fields
+                entity.Property(c => c.Title).IsRequired().HasMaxLength(200);
+                entity.Property(c => c.TitleAr).IsRequired().HasMaxLength(200);
+                entity.Property(c => c.Content).IsRequired().HasColumnType("NVARCHAR(MAX)");
+                entity.Property(c => c.ContentAr).IsRequired().HasColumnType("NVARCHAR(MAX)");
+                entity.Property(c => c.ContentType).IsRequired();
+
+                // Default Values
+                entity.Property(c => c.IsActive).HasDefaultValue(true);
+                entity.Property(c => c.DisplayOrder).HasDefaultValue(0);
+
+                // Indexes for Performance
+                entity.HasIndex(c => c.UniversityId).HasDatabaseName("IX_UniversityContents_UniversityId");
+                entity.HasIndex(c => c.ContentType).HasDatabaseName("IX_UniversityContents_ContentType");
+                entity.HasIndex(c => c.DisplayOrder).HasDatabaseName("IX_UniversityContents_DisplayOrder");
+                entity.HasIndex(c => c.IsActive).HasDatabaseName("IX_UniversityContents_IsActive");
+
+                // Unique Constraint: One content type per university
+                entity.HasIndex(c => new { c.UniversityId, c.ContentType })
+                    .IsUnique()
+                    .HasDatabaseName("UQ_UniversityContents_UniversityId_ContentType")
+                    .HasFilter("[IsDeleted] = 0");
             });
 
             #endregion
