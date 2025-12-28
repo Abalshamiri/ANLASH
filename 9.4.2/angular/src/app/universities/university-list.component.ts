@@ -90,7 +90,7 @@ export class UniversityListComponent extends AppComponentBase implements OnInit 
     getLogoUrl(university: UniversityDto): string {
         const uni: any = university; // Cast to any until DTO regenerated
         if (uni.logoBlobId) {
-            return `${abp.appPath}api/services/app/BlobStorage/Download?id=${uni.logoBlobId}`;
+            return `https://localhost:44311/api/services/app/BlobStorage/Download?id=${uni.logoBlobId}`;
         }
         return university.logoUrl || 'https://via.placeholder.com/60';
     }

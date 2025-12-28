@@ -47,7 +47,7 @@ export class UniversityFormComponent extends AppComponentBase implements OnInit 
 
                 // Load logo from BlobStorage if exists
                 if (this.university.logoBlobId) {
-                    this.university.logoUrl = `${abp.appPath}api/services/app/BlobStorage/Download?id=${this.university.logoBlobId}`;
+                    this.university.logoUrl = `https://localhost:44311/api/services/app/BlobStorage/Download?id=${this.university.logoBlobId}`;
                 }
 
                 this.cdr.detectChanges();
@@ -85,8 +85,10 @@ export class UniversityFormComponent extends AppComponentBase implements OnInit 
             const blobId = await this.uploadLogo();
             if (blobId) {
                 this.university.logoBlobId = blobId;
-                // Clear logoUrl when using blob
-                this.university.logoUrl = null;
+                // Update logoUrl to point to BlobStorage download URL
+                this.university.logoUrl = `https://localhost:44311/api/services/app/BlobStorage/Download?id=${blobId}`;
+                // Clear preview to use the new logoUrl
+                this.logoPreview = null;
             } else {
                 // Upload failed, stop save
                 this.saving = false;

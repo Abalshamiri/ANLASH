@@ -83,8 +83,22 @@ namespace ANLASH.Storage
             var id = await _binaryObjectRepository.InsertAndGetIdAsync(binaryObject);
             await CurrentUnitOfWork.SaveChangesAsync();
 
-            // Return file info
-            return ObjectMapper.Map<FileDto>(binaryObject);
+            // Return file info (manual mapping to avoid AutoMapper issues)
+            return new FileDto
+            {
+                Id = binaryObject.Id,
+                FileName = binaryObject.FileName,
+                ContentType = binaryObject.ContentType,
+                FileSize = binaryObject.FileSize,
+                Description = binaryObject.Description,
+                Category = binaryObject.Category,
+                EntityType = binaryObject.EntityType,
+                EntityId = binaryObject.EntityId,
+                Width = binaryObject.Width,
+                Height = binaryObject.Height,
+                CreationTime = binaryObject.CreationTime,
+                CreatorUserId = binaryObject.CreatorUserId
+            };
         }
 
         /// <summary>
@@ -108,7 +122,21 @@ namespace ANLASH.Storage
         public async Task<FileDto> GetFileInfoAsync(Guid id)
         {
             var binaryObject = await _binaryObjectRepository.GetAsync(id);
-            return ObjectMapper.Map<FileDto>(binaryObject);
+            return new FileDto
+            {
+                Id = binaryObject.Id,
+                FileName = binaryObject.FileName,
+                ContentType = binaryObject.ContentType,
+                FileSize = binaryObject.FileSize,
+                Description = binaryObject.Description,
+                Category = binaryObject.Category,
+                EntityType = binaryObject.EntityType,
+                EntityId = binaryObject.EntityId,
+                Width = binaryObject.Width,
+                Height = binaryObject.Height,
+                CreationTime = binaryObject.CreationTime,
+                CreatorUserId = binaryObject.CreatorUserId
+            };
         }
 
         /// <summary>
@@ -127,9 +155,24 @@ namespace ANLASH.Storage
             var files = await _binaryObjectRepository.GetAll()
                 .Where(f => f.EntityType == entityType && f.EntityId == entityId)
                 .OrderByDescending(f => f.CreationTime)
+                .Select(f => new FileDto
+                {
+                    Id = f.Id,
+                    FileName = f.FileName,
+                    ContentType = f.ContentType,
+                    FileSize = f.FileSize,
+                    Description = f.Description,
+                    Category = f.Category,
+                    EntityType = f.EntityType,
+                    EntityId = f.EntityId,
+                    Width = f.Width,
+                    Height = f.Height,
+                    CreationTime = f.CreationTime,
+                    CreatorUserId = f.CreatorUserId
+                })
                 .ToListAsync();
 
-            return ObjectMapper.Map<List<FileDto>>(files);
+            return files;
         }
 
         /// <summary>
@@ -140,9 +183,24 @@ namespace ANLASH.Storage
             var files = await _binaryObjectRepository.GetAll()
                 .Where(f => f.Category == category)
                 .OrderByDescending(f => f.CreationTime)
+                .Select(f => new FileDto
+                {
+                    Id = f.Id,
+                    FileName = f.FileName,
+                    ContentType = f.ContentType,
+                    FileSize = f.FileSize,
+                    Description = f.Description,
+                    Category = f.Category,
+                    EntityType = f.EntityType,
+                    EntityId = f.EntityId,
+                    Width = f.Width,
+                    Height = f.Height,
+                    CreationTime = f.CreationTime,
+                    CreatorUserId = f.CreatorUserId
+                })
                 .ToListAsync();
 
-            return ObjectMapper.Map<List<FileDto>>(files);
+            return files;
         }
 
         #region Private Methods
