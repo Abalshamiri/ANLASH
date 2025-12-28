@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { UniversitiesComponent } from './universities.component';
+import { UniversityListComponent } from './university-list.component';
 
 const routes: Routes = [
     {
         path: '',
-        component: UniversitiesComponent,
+        component: UniversityListComponent,
         pathMatch: 'full',
     },
 ];

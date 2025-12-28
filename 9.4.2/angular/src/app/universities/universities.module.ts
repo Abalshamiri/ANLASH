@@ -1,17 +1,28 @@
 import { NgModule } from '@angular/core';
-import { SharedModule } from '@shared/shared.module';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ModalModule } from 'ngx-bootstrap/modal';
+import { PaginationModule } from 'ngx-bootstrap/pagination';
+
 import { UniversitiesRoutingModule } from './universities-routing.module';
-import { UniversitiesComponent } from './universities.component';
-import { CreateUniversityDialogComponent } from './create-university/create-university-dialog.component';
-import { EditUniversityDialogComponent } from './edit-university/edit-university-dialog.component';
-import { UniversityServiceProxy } from '@shared/service-proxies/service-proxies';
+import { SharedModule } from '@shared/shared.module';
+
+// Components
+import { UniversityListComponent } from './university-list.component';
+import { UniversityFormComponent } from './university-form.component';
 
 @NgModule({
     declarations: [
-        UniversitiesComponent,
-        CreateUniversityDialogComponent,
-        EditUniversityDialogComponent
+        UniversityListComponent,
+        UniversityFormComponent
     ],
-    imports: [SharedModule, UniversitiesRoutingModule]
+    imports: [
+        CommonModule,
+        FormsModule,
+        SharedModule,
+        UniversitiesRoutingModule,
+        ModalModule.forChild(),
+        PaginationModule.forRoot()
+    ]
 })
 export class UniversitiesModule { }

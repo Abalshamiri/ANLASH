@@ -30,7 +30,12 @@ export class CreateUniversityDialogComponent extends AppComponentBase implements
     }
 
     ngOnInit(): void {
+        // Initialize with default values
         this.university.isActive = true;
+        this.university.isFeatured = false;
+        this.university.type = 1; // Public
+        this.university.rating = 0;
+        this.university.displayOrder = 0;
     }
 
     save(): void {
@@ -38,11 +43,14 @@ export class CreateUniversityDialogComponent extends AppComponentBase implements
 
         this._universityService.create(this.university).subscribe(
             () => {
-                this.notify.info(this.l('SavedSuccessfully'));
+                this.notify.success(this.l('SavedSuccessfully'));
                 this.bsModalRef.hide();
                 this.onSave.emit();
+                this.saving = false;
             },
-            () => {
+            (error) => {
+                console.error('Create error:', error);
+                this.notify.error(this.l('SaveFailed'));
                 this.saving = false;
             }
         );

@@ -2,54 +2,146 @@
     <h4 class="modal-title">
         <span>{{ "CreateNewUniversity" | localize }}</span>
     </h4>
-    <button type="button" class="close" (click)="bsModalRef.hide()" [attr.aria-label]="l('Close')">
-        <span aria-hidden="true">&times;</span>
-    </button>
+    <button type="button" class="btn-close" (click)="bsModalRef.hide()" [attr.aria-label]="l('Close')"></button>
 </div>
 
-<form #form="ngForm" (ngSubmit)="save()" autocomplete="off">
+<form #universityForm="ngForm" (ngSubmit)="save()" autocomplete="off">
     <div class="modal-body">
-        <div class="form-group">
-            <label for="name">{{ "Name" | localize }} (EN) *</label>
-            <input type="text" id="name" class="form-control" name="name" [(ngModel)]="university.name" required />
+
+        <!-- Name (EN) -->
+        <div class="mb-3">
+            <label class="form-label">{{ 'Name' | localize }} (EN) *</label>
+            <input type="text" class="form-control" [(ngModel)]="university.name" name="name" required />
+            <span class="text-danger" *ngIf="universityForm.submitted && !university.name">
+                This field is required
+            </span>
         </div>
 
-        <div class="form-group">
-            <label for="nameAr">{{ "Name" | localize }} (AR) *</label>
-            <input type="text" id="nameAr" class="form-control" name="nameAr" [(ngModel)]="university.nameAr"
-                required />
+        <!-- Name (AR) -->
+        <div class="mb-3">
+            <label class="form-label">{{ 'Name' | localize }} (AR)</label>
+            <input type="text" class="form-control" [(ngModel)]="university.nameAr" name="nameAr" dir="rtl" />
         </div>
 
-        <div class="form-group">
-            <label for="country">{{ "Country" | localize }} *</label>
-            <input type="text" id="country" class="form-control" name="country" [(ngModel)]="university.country"
-                required />
+        <!-- Description (EN) -->
+        <div class="mb-3">
+            <label class="form-label">{{ 'Description' | localize }} (EN)</label>
+            <textarea class="form-control" rows="3" [(ngModel)]="university.description" name="description"></textarea>
         </div>
 
-        <div class="form-group">
-            <label for="city">{{ "City" | localize }} *</label>
-            <input type="text" id="city" class="form-control" name="city" [(ngModel)]="university.city" required />
+        <!-- Description (AR) -->
+        <div class="mb-3">
+            <label class="form-label">{{ 'Description' | localize }} (AR)</label>
+            <textarea class="form-control" rows="3" [(ngModel)]="university.descriptionAr" name="descriptionAr"
+                dir="rtl"></textarea>
         </div>
 
-        <div class="form-group">
-            <label>{{ "IsActive" | localize }}</label>
-            <div class="custom-control custom-checkbox">
-                <input type="checkbox" class="custom-control-input" id="isActive" name="isActive"
-                    [(ngModel)]="university.isActive" />
-                <label class="custom-control-label" for="isActive">
-                    {{ "Active" | localize }}
-                </label>
-            </div>
+        <!-- Country -->
+        <div class="mb-3">
+            <label class="form-label">{{ 'Country' | localize }} *</label>
+            <input type="text" class="form-control" [(ngModel)]="university.country" name="country" required />
+            <span class="text-danger" *ngIf="universityForm.submitted && !university.country">
+                This field is required
+            </span>
         </div>
+
+        <!-- City -->
+        <div class="mb-3">
+            <label class="form-label">{{ 'City' | localize }} *</label>
+            <input type="text" class="form-control" [(ngModel)]="university.city" name="city" required />
+            <span class="text-danger" *ngIf="universityForm.submitted && !university.city">
+                This field is required
+            </span>
+        </div>
+
+        <!-- Address -->
+        <div class="mb-3">
+            <label class="form-label">{{ 'Address' | localize }}</label>
+            <textarea class="form-control" rows="2" [(ngModel)]="university.address" name="address"></textarea>
+        </div>
+
+        <!-- Type -->
+        <div class="mb-3">
+            <label class="form-label">{{ 'Type' | localize }}</label>
+            <select class="form-select" [(ngModel)]="university.type" name="type">
+                <option [value]="1">{{ 'Public' | localize }}</option>
+                <option [value]="2">{{ 'Private' | localize }}</option>
+                <option [value]="3">{{ 'International' | localize }}</option>
+            </select>
+        </div>
+
+        <!-- Establishment Year -->
+        <div class="mb-3">
+            <label class="form-label">{{ 'EstablishmentYear' | localize }}</label>
+            <input type="number" class="form-control" [(ngModel)]="university.establishmentYear"
+                name="establishmentYear" min="1800" max="2025" />
+        </div>
+
+        <!-- Website URL -->
+        <div class="mb-3">
+            <label class="form-label">{{ 'WebsiteUrl' | localize }}</label>
+            <input type="url" class="form-control" [(ngModel)]="university.websiteUrl" name="websiteUrl"
+                placeholder="https://..." />
+        </div>
+
+        <!-- Email -->
+        <div class="mb-3">
+            <label class="form-label">{{ 'Email' | localize }}</label>
+            <input type="email" class="form-control" [(ngModel)]="university.email" name="email" />
+        </div>
+
+        <!-- Phone -->
+        <div class="mb-3">
+            <label class="form-label">{{ 'Phone' | localize }}</label>
+            <input type="tel" class="form-control" [(ngModel)]="university.phone" name="phone" />
+        </div>
+
+        <!-- Slug (EN) -->
+        <div class="mb-3">
+            <label class="form-label">{{ 'Slug' | localize }} (EN)</label>
+            <input type="text" class="form-control" [(ngModel)]="university.slug" name="slug" />
+            <small class="form-text text-muted">
+                Leave empty to auto-generate from name
+            </small>
+        </div>
+
+        <!-- Slug (AR) -->
+        <div class="mb-3">
+            <label class="form-label">{{ 'Slug' | localize }} (AR)</label>
+            <input type="text" class="form-control" [(ngModel)]="university.slugAr" name="slugAr" dir="rtl" />
+        </div>
+
+        <!-- Is Active -->
+        <div class="form-check mb-2">
+            <input type="checkbox" class="form-check-input" [(ngModel)]="university.isActive" name="isActive"
+                id="isActive" />
+            <label class="form-check-label" for="isActive">
+                {{ 'IsActive' | localize }}
+            </label>
+        </div>
+
+        <!-- Is Featured -->
+        <div class="form-check">
+            <input type="checkbox" class="form-check-input" [(ngModel)]="university.isFeatured" name="isFeatured"
+                id="isFeatured" />
+            <label class="form-check-label" for="isFeatured">
+                {{ 'IsFeatured' | localize }}
+            </label>
+        </div>
+
     </div>
 
+    <!-- MODAL FOOTER -->
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="bsModalRef.hide()">
             {{ "Cancel" | localize }}
         </button>
-        <button type="submit" class="btn btn-primary" [disabled]="!form.form.valid || saving">
+        <button type="submit" class="btn btn-primary" [disabled]="saving">
             <i class="fa fa-save"></i>
-            <span>{{ "Save" | localize }}</span>
+            <span *ngIf="!saving">{{ "Save" | localize }}</span>
+            <span *ngIf="saving">
+                <i class="fa fa-spinner fa-spin"></i> {{ "Saving" | localize }}...
+            </span>
         </button>
     </div>
 </form>

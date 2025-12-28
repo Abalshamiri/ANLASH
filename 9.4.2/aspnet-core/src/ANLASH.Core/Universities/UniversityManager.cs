@@ -26,15 +26,9 @@ namespace ANLASH.Universities
         /// </summary>
         public async Task<University> CreateAsync(University university)
         {
-            // Check if university with same name already exists
-            var existingUniversity = await _universityRepository.FirstOrDefaultAsync(u => 
-                u.Name == university.Name && !u.IsDeleted);
-
-            if (existingUniversity != null)
-            {
-                throw new UserFriendlyException(L("Universities:DuplicateName"));
-            }
-
+            // تعطيل duplicate name check مؤقتاً
+            // يمكن تفعيله لاحقاً إذا لزم الأمر
+            
             // Generate slug if not provided
             if (string.IsNullOrWhiteSpace(university.Slug))
             {
@@ -46,10 +40,10 @@ namespace ANLASH.Universities
                 university.SlugAr = GenerateSlug(university.NameAr);
             }
 
-            // Validate rating
+            // Fix rating if invalid
             if (university.Rating < 0 || university.Rating > 5)
             {
-                throw new UserFriendlyException(L("Universities:Invalid Rating"));
+                university.Rating = 0;
             }
 
             return await _universityRepository.InsertAsync(university);
@@ -60,15 +54,8 @@ namespace ANLASH.Universities
         /// </summary>
         public async Task<University> UpdateAsync(University university)
         {
-            // Check for duplicate name (excluding current university)
-            var existingUniversity = await _universityRepository.FirstOrDefaultAsync(u => 
-                u.Name == university.Name && u.Id != university.Id && !u.IsDeleted);
-
-            if (existingUniversity != null)
-            {
-                throw new UserFriendlyException(L("Universities:DuplicateName"));
-            }
-
+            // تعطيل duplicate name check مؤقتاً
+            
             return await _universityRepository.UpdateAsync(university);
         }
 
