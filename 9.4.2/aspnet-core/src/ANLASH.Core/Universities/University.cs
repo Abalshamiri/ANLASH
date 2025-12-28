@@ -95,23 +95,21 @@ namespace ANLASH.Universities
 
         #endregion
 
-        #region OLD Location Fields - للتوافق المؤقت (سيتم حذفها لاحقاً)
+        #region Simple Location Fields - حقول الموقع البسيطة (للاستخدام المباشر)
 
         /// <summary>
-        /// [DEPRECATED] الدولة (نص) - استخدم CountryId بدلاً منها
-        /// <para>Will be removed after data migration</para>
+        /// اسم الدولة (نص) - Country name as text
+        /// <para>Used for direct input, can be migrated to CountryId later</para>
         /// </summary>
         [MaxLength(100)]
-        [NotMapped] // لن نستخدمها في قاعدة البيانات الآن
-        public string Country_Old { get; set; }
+        public string CountryName { get; set; }
 
         /// <summary>
-        /// [DEPRECATED] المدينة (نص) - استخدم CityId بدلاً منها
-        /// <para>Will be removed after data migration</para>
+        /// اسم المدينة (نص) - City name as text
+        /// <para>Used for direct input, can be migrated to CityId later</para>
         /// </summary>
         [MaxLength(100)]
-        [NotMapped]
-        public string City_Old { get; set; }
+        public string CityName { get; set; }
 
         #endregion
 

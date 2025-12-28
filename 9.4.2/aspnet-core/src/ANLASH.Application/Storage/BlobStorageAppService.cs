@@ -39,14 +39,25 @@ namespace ANLASH.Storage
             // Validate input
             ValidateFile(input);
 
+            // Convert base64 string to byte array
+            byte[] fileBytes;
+            try
+            {
+                fileBytes = Convert.FromBase64String(input.FileBytes);
+            }
+            catch (Exception ex)
+            {
+                throw new UserFriendlyException($"Invalid file data: {ex.Message}");
+            }
+
             // Create binary object
             var binaryObject = new AppBinaryObject
             {
                 TenantId = AbpSession.TenantId,
                 FileName = input.FileName,
                 ContentType = input.ContentType,
-                FileSize = input.FileBytes.Length,
-                Bytes = input.FileBytes,
+                FileSize = fileBytes.Length,
+                Bytes = fileBytes,
                 Description = input.Description,
                 Category = input.Category,
                 EntityType = input.EntityType,
@@ -58,7 +69,7 @@ namespace ANLASH.Storage
             {
                 try
                 {
-                    var dimensions = GetImageDimensions(input.FileBytes);
+                    var dimensions = GetImageDimensions(fileBytes);
                     binaryObject.Width = dimensions.width;
                     binaryObject.Height = dimensions.height;
                 }
@@ -141,7 +152,7 @@ namespace ANLASH.Storage
             if (input == null)
                 throw new UserFriendlyException("File input is required");
 
-            if (input.FileBytes == null || input.FileBytes.Length == 0)
+            if (string.IsNullOrWhiteSpace(input.FileBytes))
                 throw new UserFriendlyException("File is empty");
 
             if (string.IsNullOrWhiteSpace(input.FileName))
@@ -150,13 +161,24 @@ namespace ANLASH.Storage
             if (string.IsNullOrWhiteSpace(input.ContentType))
                 throw new UserFriendlyException("Content type is required");
 
+            // Convert base64 to get actual size
+            byte[] fileBytes;
+            try
+            {
+                fileBytes = Convert.FromBase64String(input.FileBytes);
+            }
+            catch
+            {
+                throw new UserFriendlyException("Invalid file data");
+            }
+
             // Validate file type and size
             if (IsImage(input.ContentType))
             {
                 if (!AllowedImageTypes.Contains(input.ContentType.ToLower()))
                     throw new UserFriendlyException($"Image type '{input.ContentType}' is not allowed");
 
-                if (input.FileBytes.Length > MaxImageSize)
+                if (fileBytes.Length > MaxImageSize)
                     throw new UserFriendlyException($"Image size exceeds maximum allowed size of {MaxImageSize / 1024 / 1024}MB");
             }
             else if (IsDocument(input.ContentType))
@@ -164,7 +186,7 @@ namespace ANLASH.Storage
                 if (!AllowedDocumentTypes.Contains(input.ContentType.ToLower()))
                     throw new UserFriendlyException($"Document type '{input.ContentType}' is not allowed");
 
-                if (input.FileBytes.Length > MaxDocumentSize)
+                if (fileBytes.Length > MaxDocumentSize)
                     throw new UserFriendlyException($"Document size exceeds maximum allowed size of {MaxDocumentSize / 1024 / 1024}MB");
             }
             else

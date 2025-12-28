@@ -10,10 +10,10 @@ namespace ANLASH.Storage.Dto
     public class UploadFileInput
     {
         /// <summary>
-        /// File binary data | البيانات الثنائية للملف
+        /// File binary data (base64 encoded) | البيانات الثنائية للملف (مشفرة base64)
         /// </summary>
         [Required]
-        public byte[] FileBytes { get; set; }
+        public string FileBytes { get; set; }
 
         /// <summary>
         /// Original file name | اسم الملف الأصلي

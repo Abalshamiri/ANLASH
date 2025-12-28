@@ -1,4 +1,4 @@
-import { Component, Injector, OnInit } from '@angular/core';
+import { Component, Injector, OnInit, ChangeDetectorRef } from '@angular/core';
 import { appModuleAnimation } from '@shared/animations/routerTransition';
 import { AppComponentBase } from '@shared/app-component-base';
 import { BsModalService, BsModalRef } from 'ngx-bootstrap/modal';
@@ -24,7 +24,8 @@ export class UniversityListComponent extends AppComponentBase implements OnInit 
     constructor(
         injector: Injector,
         private _universityService: UniversityServiceProxy,
-        private _modalService: BsModalService
+        private _modalService: BsModalService,
+        private cdr: ChangeDetectorRef
     ) {
         super(injector);
     }
@@ -51,6 +52,7 @@ export class UniversityListComponent extends AppComponentBase implements OnInit 
             .subscribe((result: UniversityDtoPagedResultDto) => {
                 this.universities = result.items;
                 this.totalCount = result.totalCount;
+                this.cdr.detectChanges(); // Force UI update
             });
     }
 
@@ -80,6 +82,17 @@ export class UniversityListComponent extends AppComponentBase implements OnInit 
     pageChanged(event: any): void {
         this.skipCount = (event.page - 1) * this.maxResultCount;
         this.getUniversities();
+    }
+
+    /**
+     * Get logo URL (from BlobStorage or direct URL)
+     */
+    getLogoUrl(university: UniversityDto): string {
+        const uni: any = university; // Cast to any until DTO regenerated
+        if (uni.logoBlobId) {
+            return `${abp.appPath}api/services/app/BlobStorage/Download?id=${uni.logoBlobId}`;
+        }
+        return university.logoUrl || 'https://via.placeholder.com/60';
     }
 
     private showFormModal(id?: number): void {
