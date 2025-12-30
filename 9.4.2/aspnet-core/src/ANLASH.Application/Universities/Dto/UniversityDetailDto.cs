@@ -87,6 +87,11 @@ namespace ANLASH.Universities.Dto
         public List<UniversityContentDto> Contents { get; set; }
 
         /// <summary>
+        /// University FAQs | الأسئلة الشائعة للجامعة
+        /// </summary>
+        public List<UniversityFAQDto> FAQs { get; set; }
+
+        /// <summary>
         /// Gallery images | صور المعرض
         /// </summary>
         public List<MediaItemDto> Gallery { get; set; }

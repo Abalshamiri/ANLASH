@@ -267,6 +267,11 @@ namespace ANLASH.Universities
         /// </summary>
         public virtual ICollection<UniversityProgram> Programs { get; set; }
 
+        /// <summary>
+        /// University FAQs collection | مجموعة الأسئلة الشائعة للجامعة
+        /// </summary>
+        public virtual ICollection<UniversityFAQ> FAQs { get; set; }
+
         #endregion
         
         // ✅ FullAuditedAggregateRoot<long> provides:

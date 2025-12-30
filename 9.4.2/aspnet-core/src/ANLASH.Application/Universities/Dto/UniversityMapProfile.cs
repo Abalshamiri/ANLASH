@@ -25,6 +25,21 @@ namespace ANLASH.Universities.Dto
                 .ForMember(dest => dest.CityName, opt => opt.MapFrom(src => src.City))
                 .ForMember(dest => dest.Country, opt => opt.Ignore())
                 .ForMember(dest => dest.City, opt => opt.Ignore());
+
+            // UniversityProgram Mappings
+            CreateMap<UniversityProgram, UniversityProgramDto>();
+            CreateMap<CreateUniversityProgramDto, UniversityProgram>();
+            CreateMap<UpdateUniversityProgramDto, UniversityProgram>();
+
+            // UniversityContent Mappings
+            CreateMap<UniversityContent, UniversityContentDto>();
+            CreateMap<CreateUniversityContentDto, UniversityContent>();
+            CreateMap<UpdateUniversityContentDto, UniversityContent>();
+
+            // UniversityFAQ Mappings
+            CreateMap<UniversityFAQ, UniversityFAQDto>();
+            CreateMap<CreateUniversityFAQDto, UniversityFAQ>();
+            CreateMap<UpdateUniversityFAQDto, UniversityFAQ>();
         }
     }
 }

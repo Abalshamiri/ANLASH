@@ -171,6 +171,59 @@ namespace ANLASH.Universities
             await CurrentUnitOfWork.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// Get complete university details with all related data
+        /// الحصول على تفاصيل الجامعة الكاملة مع جميع البيانات المرتبطة
+        /// </summary>
+        public async Task<UniversityDetailDto> GetUniversityDetailAsync(long id)
+        {
+            var university = await Repository.GetAll()
+                .Include(u => u.Country)
+                .Include(u => u.City)
+                .Include(u => u.Programs)
+                .Include(u => u.Contents)
+                .Include(u => u.FAQs)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (university == null)
+            {
+                throw new UserFriendlyException(L("Universities:NotFound"));
+            }
+
+            var detailDto = ObjectMapper.Map<UniversityDetailDto>(university);
+            
+            // Calculate statistics
+            if (university.Programs != null)
+            {
+                detailDto.TotalPrograms = university.Programs.Count;
+                detailDto.ActivePrograms = university.Programs.Count(p => p.IsActive && !p.IsDeleted);
+            }
+
+            return detailDto;
+        }
+
+        /// <summary>
+        /// Get complete university details by slug (for public pages)
+        /// الحصول على تفاصيل الجامعة بواسطة Slug (للصفحات العامة)
+        /// </summary>
+        public async Task<UniversityDetailDto> GetUniversityDetailBySlugAsync(string slug)
+        {
+            if (string.IsNullOrWhiteSpace(slug))
+            {
+                throw new UserFriendlyException(L("Universities:InvalidSlug"));
+            }
+
+            var university = await Repository.GetAll()
+                .FirstOrDefaultAsync(u => (u.Slug == slug || u.SlugAr == slug) && u.IsActive);
+
+            if (university == null)
+            {
+                throw new UserFriendlyException(L("Universities:NotFound"));
+            }
+
+            return await GetUniversityDetailAsync(university.Id);
+        }
+
         #region Helper Methods
 
         /// <summary>

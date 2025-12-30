@@ -26,6 +26,18 @@ namespace ANLASH.Universities
         Task<UniversityDto> GetBySlugAsync(string slug);
 
         /// <summary>
+        /// Get complete university details with all related data (Programs, FAQs, Contents)
+        /// الحصول على تفاصيل الجامعة الكاملة مع جميع البيانات المرتبطة
+        /// </summary>
+        Task<UniversityDetailDto> GetUniversityDetailAsync(long id);
+
+        /// <summary>
+        /// Get complete university details by slug (for public pages)
+        /// الحصول على تفاصيل الجامعة بواسطة Slug (للصفحات العامة)
+        /// </summary>
+        Task<UniversityDetailDto> GetUniversityDetailBySlugAsync(string slug);
+
+        /// <summary>
         /// تفعيل/إلغاء تفعيل جامعة - Activate/Deactivate university
         /// </summary>
         Task ToggleActiveAsync(long id);
