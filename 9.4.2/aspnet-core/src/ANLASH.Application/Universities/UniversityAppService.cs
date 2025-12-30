@@ -3,6 +3,7 @@ using Abp.Application.Services.Dto;
 using Abp.Authorization;
 using Abp.Domain.Repositories;
 using Abp.Linq.Extensions;
+using Abp.Runtime.Caching;
 using Abp.UI;
 using ANLASH.Authorization;
 using ANLASH.Universities.Dto;
@@ -21,13 +22,17 @@ namespace ANLASH.Universities
     public class UniversityAppService : AsyncCrudAppService<University, UniversityDto, long, PagedUniversityRequestDto, CreateUniversityDto, UpdateUniversityDto>, IUniversityAppService
     {
         private readonly UniversityManager _universityManager;
+        private readonly ICacheManager _cacheManager;
+        private const string UniversityCacheName = "UniversityCache";
 
         public UniversityAppService(
             IRepository<University, long> repository,
-            UniversityManager universityManager)
+            UniversityManager universityManager,
+            ICacheManager cacheManager)
             : base(repository)
         {
             _universityManager = universityManager;
+            _cacheManager = cacheManager;
         }
 
         /// <summary>
@@ -117,15 +122,24 @@ namespace ANLASH.Universities
         /// </summary>
         public async Task<ListResultDto<UniversityDto>> GetFeaturedAsync(int count = 10)
         {
-            var universities = await Repository.GetAll()
-                .Where(u => u.IsFeatured && u.IsActive)
-                .OrderByDescending(u => u.Rating)
-                .Take(count)
-                .ToListAsync();
+            var cacheKey = $"FeaturedUniversities:{count}";
+            
+            return await _cacheManager.GetCache(UniversityCacheName).GetAsync(
+                cacheKey,
+                async (key) =>
+                {
+                    var universities = await Repository.GetAll()
+                        .AsNoTracking()
+                        .Where(u => u.IsFeatured && u.IsActive)
+                        .OrderByDescending(u => u.Rating)
+                        .Take(count)
+                        .ToListAsync();
 
-            return new ListResultDto<UniversityDto>(
-                ObjectMapper.Map<System.Collections.Generic.List<UniversityDto>>(universities)
-            );
+                    return new ListResultDto<UniversityDto>(
+                        ObjectMapper.Map<System.Collections.Generic.List<UniversityDto>>(universities)
+                    ) as object;
+                }
+            ) as ListResultDto<UniversityDto>;
         }
 
         /// <summary>
@@ -177,29 +191,38 @@ namespace ANLASH.Universities
         /// </summary>
         public async Task<UniversityDetailDto> GetUniversityDetailAsync(long id)
         {
-            var university = await Repository.GetAll()
-                .Include(u => u.Country)
-                .Include(u => u.City)
-                .Include(u => u.Programs)
-                .Include(u => u.Contents)
-                .Include(u => u.FAQs)
-                .FirstOrDefaultAsync(u => u.Id == id);
-
-            if (university == null)
-            {
-                throw new UserFriendlyException(L("Universities:NotFound"));
-            }
-
-            var detailDto = ObjectMapper.Map<UniversityDetailDto>(university);
+            var cacheKey = $"UniversityDetail:{id}";
             
-            // Calculate statistics
-            if (university.Programs != null)
-            {
-                detailDto.TotalPrograms = university.Programs.Count;
-                detailDto.ActivePrograms = university.Programs.Count(p => p.IsActive && !p.IsDeleted);
-            }
+            return await _cacheManager.GetCache(UniversityCacheName).GetAsync(
+                cacheKey,
+                async (key) =>
+                {
+                    var university = await Repository.GetAll()
+                        .AsNoTracking()
+                        .Include(u => u.Country)
+                        .Include(u => u.City)
+                        .Include(u => u.Programs)
+                        .Include(u => u.Contents)
+                        .Include(u => u.FAQs)
+                        .FirstOrDefaultAsync(u => u.Id == id);
 
-            return detailDto;
+                    if (university == null)
+                    {
+                        throw new UserFriendlyException(L("Universities:NotFound"));
+                    }
+
+                    var detailDto = ObjectMapper.Map<UniversityDetailDto>(university);
+                    
+                    // Calculate statistics
+                    if (university.Programs != null)
+                    {
+                        detailDto.TotalPrograms = university.Programs.Count;
+                        detailDto.ActivePrograms = university.Programs.Count(p => p.IsActive && !p.IsDeleted);
+                    }
+
+                    return detailDto as object;
+                }
+            ) as UniversityDetailDto;
         }
 
         /// <summary>

@@ -13,10 +13,12 @@ namespace ANLASH.Universities.Dto
         [Required]
         public long UniversityId { get; set; }
         
-        [Required, MaxLength(300)]
+        [Required(ErrorMessage = "Program name is required | اسم البرنامج مطلوب")]
+        [MaxLength(300)]
         public string Name { get; set; }
         
-        [Required, MaxLength(300)]
+        [Required(ErrorMessage = "Arabic program name is required | اسم البرنامج بالعربية مطلوب")]
+        [MaxLength(300)]
         public string NameAr { get; set; }
         
         [MaxLength(2000)]
@@ -25,10 +27,10 @@ namespace ANLASH.Universities.Dto
         [MaxLength(2000)]
         public string DescriptionAr { get; set; }
         
-        [Required]
+        [Required(ErrorMessage = "Program level is required | مستوى البرنامج مطلوب")]
         public ProgramLevel Level { get; set; }
         
-        [Required]
+        [Required(ErrorMessage = "Study mode is required | نوع الدراسة مطلوب")]
         public StudyMode Mode { get; set; }
         
         [MaxLength(200)]
@@ -37,12 +39,14 @@ namespace ANLASH.Universities.Dto
         [MaxLength(200)]
         public string FieldAr { get; set; }
         
+        [Range(1, 10, ErrorMessage = "Duration must be between 1-10 years | المدة يجب أن تكون بين 1-10 سنوات")]
         public int DurationYears { get; set; }
         public int? DurationSemesters { get; set; }
         public int? DurationMonths { get; set; }
         
         public int? TotalCredits { get; set; }
         
+        [Range(0, double.MaxValue, ErrorMessage = "Tuition fee must be positive | الرسوم يجب أن تكون موجبة")]
         public decimal? TuitionFee { get; set; }
         public int? CurrencyId { get; set; }
         
