@@ -1,0 +1,231 @@
+<div class="university-detail" *ngIf="!isLoading && university">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-2 text-center">
+                    <img [src]="university.logoUrl || 'assets/img/default-university.jpg'" [alt]="university.name"
+                        class="university-logo">
+                </div>
+                <div class="col-md-10">
+                    <h1 class="university-name">{{ university.name }}</h1>
+                    <h2 class="university-name-ar">{{ university.nameAr }}</h2>
+                    <div class="university-meta">
+                        <span class="meta-item">
+                            <i class="fa fa-map-marker-alt"></i>
+                            {{ university.city }}, {{ university.country }}
+                        </span>
+                        <span class="meta-item" *ngIf="university.rating">
+                            <i class="fa fa-star text-warning"></i>
+                            {{ university.rating }} / 5.0
+                        </span>
+                        <span class="meta-item" *ngIf="university.worldRanking">
+                            <i class="fa fa-trophy"></i>
+                            #{{ university.worldRanking }} {{ 'Globally' | localize }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Navigation Tabs -->
+    <section class="tabs-section sticky-top">
+        <div class="container">
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link" [class.active]="activeTab === 'overview'" (click)="setActiveTab('overview')">
+                        <i class="fa fa-home"></i> {{ 'Overview' | localize }}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" [class.active]="activeTab === 'programs'" (click)="setActiveTab('programs')">
+                        <i class="fa fa-graduation-cap"></i> {{ 'Programs' | localize }}
+                        <span class="badge badge-primary">{{ university.programs?.length || 0 }}</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" [class.active]="activeTab === 'faqs'" (click)="setActiveTab('faqs')">
+                        <i class="fa fa-question-circle"></i> {{ 'FAQs' | localize }}
+                        <span class="badge badge-primary">{{ getPublishedFAQs().length }}</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" [class.active]="activeTab === 'contact'" (click)="setActiveTab('contact')">
+                        <i class="fa fa-envelope"></i> {{ 'Contact' | localize }}
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Overview Tab -->
+    <section class="tab-content-section" *ngIf="activeTab === 'overview'">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8">
+                    <!-- About -->
+                    <div class="content-card">
+                        <h3><i class="fa fa-info-circle"></i> {{ 'About' | localize }}</h3>
+                        <p>{{ university.about }}</p>
+                        <p *ngIf="university.aboutAr" dir="rtl">{{ university.aboutAr }}</p>
+                    </div>
+
+                    <!-- Contents Sections -->
+                    <div class="content-card" *ngFor="let type of [1,2,3,4,5,6,7]">
+                        <div *ngIf="getContentByType(type) as content">
+                            <h3>{{ content.contentType }}</h3>
+                            <div [innerHTML]="content.content"></div>
+                            <div *ngIf="content.contentAr" [innerHTML]="content.contentAr" dir="rtl" class="mt-3"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <!-- Statistics -->
+                    <div class="sidebar-card">
+                        <h4>{{ 'Statistics' | localize }}</h4>
+                        <div class="stat-item">
+                            <span class="stat-label">{{ 'Programs' | localize }}:</span>
+                            <span class="stat-value">{{ university.totalPrograms }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">{{ 'Rating' | localize }}:</span>
+                            <span class="stat-value">{{ university.rating }} / 5.0</span>
+                        </div>
+                        <div class="stat-item" *ngIf="university.worldRanking">
+                            <span class="stat-label">{{ 'WorldRanking' | localize }}:</span>
+                            <span class="stat-value">#{{ university.worldRanking }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Quick Links -->
+                    <div class="sidebar-card">
+                        <h4>{{ 'QuickLinks' | localize }}</h4>
+                        <a [href]="university.websiteUrl" target="_blank" class="btn btn-outline-primary btn-block"
+                            *ngIf="university.websiteUrl">
+                            <i class="fa fa-external-link-alt"></i> {{ 'VisitWebsite' | localize }}
+                        </a>
+                        <button class="btn btn-primary btn-block mt-2" (click)="setActiveTab('programs')">
+                            <i class="fa fa-graduation-cap"></i> {{ 'BrowsePrograms' | localize }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Programs Tab -->
+    <section class="tab-content-section" *ngIf="activeTab === 'programs'">
+        <div class="container">
+            <h2 class="section-title">{{ 'Programs' | localize }}</h2>
+
+            <!-- Filters -->
+            <div class="filters-row mb-4">
+                <select class="form-control" [(ngModel)]="programLevelFilter">
+                    <option [ngValue]="undefined">{{ 'AllLevels' | localize }}</option>
+                    <option [ngValue]="1">Foundation</option>
+                    <option [ngValue]="2">Bachelor</option>
+                    <option [ngValue]="3">Master</option>
+                    <option [ngValue]="4">PhD</option>
+                </select>
+                <input type="text" class="form-control ml-2" [(ngModel)]="programFieldFilter"
+                    placeholder="{{ 'SearchByField' | localize }}">
+            </div>
+
+            <!-- Programs Grid -->
+            <div class="row">
+                <div class="col-md-6" *ngFor="let program of getFilteredPrograms()">
+                    <div class="program-card">
+                        <h4>{{ program.name }}</h4>
+                        <p class="text-muted">{{ program.nameAr }}</p>
+                        <div class="program-info">
+                            <span class="info-badge">{{ program.level }}</span>
+                            <span class="info-badge">{{ program.mode }}</span>
+                            <span class="info-badge">{{ program.durationYears }} {{ 'Years' | localize }}</span>
+                        </div>
+                        <p>{{ program.description | slice:0:150 }}...</p>
+                        <div class="program-footer">
+                            <span class="fee" *ngIf="program.tuitionFee">
+                                <strong>{{ program.tuitionFee }}</strong> / {{ program.feeType || 'Year' }}
+                            </span>
+                            <button class="btn btn-sm btn-primary">{{ 'LearnMore' | localize }}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center py-5" *ngIf="getFilteredPrograms().length === 0">
+                <i class="fa fa-graduation-cap fa-3x text-muted mb-3"></i>
+                <p>{{ 'NoProgramsFound' | localize }}</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQs Tab -->
+    <section class="tab-content-section" *ngIf="activeTab === 'faqs'">
+        <div class="container">
+            <h2 class="section-title">{{ 'FrequentlyAskedQuestions' | localize }}</h2>
+
+            <div class="accordion" id="faqsAccordion">
+                <div class="card" *ngFor="let faq of getPublishedFAQs(); let i = index">
+                    <div class="card-header" [attr.id]="'heading' + i">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link" type="button" data-toggle="collapse"
+                                [attr.data-target]="'#collapse' + i">
+                                {{ faq.question }}
+                                <i class="fa fa-chevron-down float-right"></i>
+                            </button>
+                        </h5>
+                    </div>
+
+                    <div [attr.id]="'collapse' + i" class="collapse" [attr.aria-labelledby]="'heading' + i"
+                        data-parent="#faqsAccordion">
+                        <div class="card-body">
+                            <p>{{ faq.answer }}</p>
+                            <p *ngIf="faq.answerAr" dir="rtl" class="mt-3">{{ faq.answerAr }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center py-5" *ngIf="getPublishedFAQs().length === 0">
+                <i class="fa fa-question-circle fa-3x text-muted mb-3"></i>
+                <p>{{ 'NoFAQsAvailable' | localize }}</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Tab -->
+    <section class="tab-content-section" *ngIf="activeTab === 'contact'">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h2 class="section-title">{{ 'ContactInformation' | localize }}</h2>
+                    <div class="contact-info">
+                        <p><i class="fa fa-map-marker-alt"></i> {{ university.city }}, {{ university.country }}</p>
+                        <p *ngIf="university.websiteUrl">
+                            <i class="fa fa-globe"></i>
+                            <a [href]="university.websiteUrl" target="_blank">{{ university.websiteUrl }}</a>
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <!-- Could add map here -->
+                    <div class="map-placeholder">
+                        <i class="fa fa-map fa-3x text-muted"></i>
+                        <p>{{ 'MapComingSoon' | localize }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Loading State -->
+<div class="loading-state" *ngIf="isLoading">
+    <div class="container text-center py-5">
+        <i class="fa fa-spinner fa-spin fa-3x text-primary mb-3"></i>
+        <p>{{ 'Loading' | localize }}...</p>
+    </div>
+</div>

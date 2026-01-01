@@ -1,0 +1,138 @@
+<div [@routerTransition]>
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-6">
+                    <h1>{{ "UniversityContents" | localize }}</h1>
+                </div>
+                <div class="col-6 text-right">
+                    <button class="btn btn-primary" (click)="createContent()">
+                        <i class="fa fa-plus"></i> {{ "CreateNew" | localize }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content">
+        <div class="container-fluid">
+            <!-- Tabs for Content Types -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <tabset>
+                        <tab heading="{{ 'AllContents' | localize }}" (selectTab)="filterByType(undefined)">
+                        </tab>
+                        <tab *ngFor="let type of contentTypes" [heading]="type.label"
+                            (selectTab)="filterByType(type.value)">
+                        </tab>
+                    </tabset>
+                </div>
+            </div>
+
+            <div class="card">
+                <!-- Filters -->
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <select class="form-control" [(ngModel)]="universityFilter" (change)="loadContents()">
+                                <option [ngValue]="undefined">{{ 'AllUniversities' | localize }}</option>
+                                <option *ngFor="let uni of universities" [ngValue]="uni.id">
+                                    {{ uni.name }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content Cards -->
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6" *ngFor="let content of contents">
+                            <div class="content-card">
+                                <div class="content-header">
+                                    <div class="content-type-badge">
+                                        <i class="fa" [ngClass]="getContentTypeIcon(content.contentType)"></i>
+                                        {{ getContentTypeLabel(content.contentType) }}
+                                    </div>
+                                    <div class="content-actions">
+                                        <div class="btn-group btn-group-sm" dropdown>
+                                            <button class="btn btn-outline-primary dropdown-toggle" dropdownToggle>
+                                                {{ 'Actions' | localize }}
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-right" *dropdownMenu>
+                                                <li>
+                                                    <a class="dropdown-item" (click)="editContent(content)">
+                                                        <i class="fa fa-edit"></i> {{ 'Edit' | localize }}
+                                                    </a>
+                                                </li>
+                                                <li class="divider dropdown-divider"></li>
+                                                <li>
+                                                    <a class="dropdown-item text-danger"
+                                                        (click)="deleteContent(content)">
+                                                        <i class="fa fa-trash"></i> {{ 'Delete' | localize }}
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="content-body">
+                                    <h5>{{ getUniversityName(content.universityId) }}</h5>
+                                    <div class="content-preview">
+                                        <div class="lang-section">
+                                            <strong>{{ 'English' | localize }}:</strong>
+                                            <div [innerHTML]="content.content | slice:0:200"></div>
+                                            <span *ngIf="content.content?.length > 200">...</span>
+                                        </div>
+                                        <div class="lang-section mt-3" *ngIf="content.contentAr">
+                                            <strong>{{ 'Arabic' | localize }}:</strong>
+                                            <div [innerHTML]="content.contentAr | slice:0:200" dir="rtl"></div>
+                                            <span *ngIf="content.contentAr?.length > 200">...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div class="text-center py-5" *ngIf="!isTableLoading && contents.length === 0">
+                        <i class="fa fa-file-text fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">{{ 'NoContentsFound' | localize }}</p>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="card-footer" *ngIf="contents.length > 0">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <span class="text-muted">
+                                {{ 'TotalRecordsCount' | localize: totalCount }}
+                            </span>
+                        </div>
+                        <div class="col-sm-8 text-right">
+                            <!-- Simple pagination buttons -->
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-outline-primary" [disabled]="pageNumber === 1"
+                                    (click)="pageNumber = 1; loadContents()">
+                                    <i class="fa fa-angle-double-left"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-primary" [disabled]="pageNumber === 1"
+                                    (click)="pageNumber = pageNumber - 1; loadContents()">
+                                    <i class="fa fa-angle-left"></i> {{ 'Previous' | localize }}
+                                </button>
+                                <span class="btn btn-sm btn-light disabled">
+                                    {{ 'Page' | localize }} {{ pageNumber }}
+                                </span>
+                                <button class="btn btn-sm btn-outline-primary" [disabled]="contents.length < pageSize"
+                                    (click)="pageNumber = pageNumber + 1; loadContents()">
+                                    {{ 'Next' | localize }} <i class="fa fa-angle-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

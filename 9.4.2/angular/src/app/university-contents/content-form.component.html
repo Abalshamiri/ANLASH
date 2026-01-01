@@ -1,0 +1,99 @@
+<div class="modal-header">
+    <h4 class="modal-title pull-left">
+        <span *ngIf="!isEditMode">{{ 'CreateNewContent' | localize }}</span>
+        <span *ngIf="isEditMode">{{ 'EditContent' | localize }}</span>
+    </h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="close()">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
+<form [formGroup]="contentForm" (ngSubmit)="save()">
+    <div class="modal-body">
+
+        <!-- University & Content Type -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>{{ 'University' | localize }} *</label>
+                    <select class="form-control" formControlName="universityId"
+                        [class.is-invalid]="contentForm.get('universityId').invalid && contentForm.get('universityId').touched">
+                        <option [ngValue]="null">-- {{ 'SelectUniversity' | localize }} --</option>
+                        <option *ngFor="let uni of universities" [ngValue]="uni.id">
+                            {{ uni.name }}
+                        </option>
+                    </select>
+                    <div class="invalid-feedback">{{ 'UniversityIsRequired' | localize }}</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>{{ 'ContentType' | localize }} *</label>
+                    <select class="form-control" formControlName="contentType"
+                        [class.is-invalid]="contentForm.get('contentType').invalid && contentForm.get('contentType').touched">
+                        <option [ngValue]="null">-- {{ 'SelectContentType' | localize }} --</option>
+                        <option *ngFor="let type of contentTypes" [ngValue]="type.value">
+                            {{ type.label }}
+                        </option>
+                    </select>
+                    <div class="invalid-feedback">{{ 'ContentTypeIsRequired' | localize }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content (English) -->
+        <div class="form-group">
+            <label>{{ 'Content' | localize }} (EN) *</label>
+            <textarea class="form-control" formControlName="content" rows="10"
+                [class.is-invalid]="contentForm.get('content').invalid && contentForm.get('content').touched"
+                placeholder="Write content in English (HTML supported)..."></textarea>
+            <div class="invalid-feedback">
+                {{ 'ContentIsRequired' | localize }} ({{ 'Minimum' | localize }}: 50 {{ 'Characters' | localize }})
+            </div>
+            <small class="form-text text-muted">
+                <i class="fa fa-info-circle"></i> {{ 'HTMLSupported' | localize }} |
+                {{ contentForm.get('content').value?.length || 0 }} {{ 'Characters' | localize }}
+            </small>
+        </div>
+
+        <!-- Content (Arabic) -->
+        <div class="form-group">
+            <label>{{ 'Content' | localize }} (AR) *</label>
+            <textarea class="form-control" formControlName="contentAr" rows="10"
+                [class.is-invalid]="contentForm.get('contentAr').invalid && contentForm.get('contentAr').touched"
+                placeholder="اكتب المحتوى بالعربية (HTML مدعوم)..." dir="rtl"></textarea>
+            <div class="invalid-feedback">
+                {{ 'ContentIsRequired' | localize }} ({{ 'Minimum' | localize }}: 50 {{ 'Characters' | localize }})
+            </div>
+            <small class="form-text text-muted">
+                <i class="fa fa-info-circle"></i> {{ 'HTMLSupported' | localize }} |
+                {{ contentForm.get('contentAr').value?.length || 0 }} {{ 'Characters' | localize }}
+            </small>
+        </div>
+
+        <!-- Preview Tabs -->
+        <div class="preview-section">
+            <h5>{{ 'Preview' | localize }}</h5>
+            <tabset>
+                <tab heading="{{ 'English' | localize }}">
+                    <div class="preview-content" [innerHTML]="contentForm.get('content').value"></div>
+                </tab>
+                <tab heading="{{ 'Arabic' | localize }}">
+                    <div class="preview-content" [innerHTML]="contentForm.get('contentAr').value" dir="rtl"></div>
+                </tab>
+            </tabset>
+        </div>
+
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="close()" [disabled]="saving">
+            {{ 'Cancel' | localize }}
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="saving">
+            <i class="fa fa-save"></i>
+            <span *ngIf="!saving">{{ 'Save' | localize }}</span>
+            <span *ngIf="saving">{{ 'Saving' | localize }}...</span>
+        </button>
+    </div>
+</form>

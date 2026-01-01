@@ -1,0 +1,68 @@
+/* Modal Size */
+:host ::ng-deep .modal-dialog {
+    max-width: 900px;
+}
+
+/* Card Headers */
+.card-header {
+    font-weight: 600;
+}
+
+.card-header i {
+    margin-right: 8px;
+}
+
+/* Form Controls */
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.invalid-feedback {
+    display: block;
+}
+
+/* Checkboxes */
+.custom-control-label {
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Readonly Fields */
+.form-control[readonly] {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+/* Textarea */
+textarea.form-control {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Modal Footer */
+.modal-footer {
+    justify-content: space-between;
+}
+
+.modal-footer .btn {
+    min-width: 100px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    :host ::ng-deep .modal-dialog {
+        max-width: 95%;
+        margin: 10px auto;
+    }
+
+    .card-body .row>div {
+        margin-bottom: 15px !important;
+    }
+}
+
+/* Loading State */
+.btn[disabled] {
+    cursor: not-allowed;
+    opacity: 0.6;
+}

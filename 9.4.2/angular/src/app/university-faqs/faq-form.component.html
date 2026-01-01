@@ -1,0 +1,112 @@
+<div class="modal-header">
+    <h4 class="modal-title pull-left">
+        <span *ngIf="!isEditMode">{{ 'CreateNewFAQ' | localize }}</span>
+        <span *ngIf="isEditMode">{{ 'EditFAQ' | localize }}</span>
+    </h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="close()">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
+<form [formGroup]="faqForm" (ngSubmit)="save()">
+    <div class="modal-body">
+
+        <!-- University Selection -->
+        <div class="form-group">
+            <label>{{ 'University' | localize }} *</label>
+            <select class="form-control" formControlName="universityId"
+                [class.is-invalid]="faqForm.get('universityId').invalid && faqForm.get('universityId').touched">
+                <option [ngValue]="null">-- {{ 'SelectUniversity' | localize }} --</option>
+                <option *ngFor="let uni of universities" [ngValue]="uni.id">
+                    {{ uni.name }} {{ uni.nameAr ? '(' + uni.nameAr + ')' : '' }}
+                </option>
+            </select>
+            <div class="invalid-feedback">{{ 'UniversityIsRequired' | localize }}</div>
+        </div>
+
+        <!-- Question (English) -->
+        <div class="form-group">
+            <label>{{ 'Question' | localize }} (EN) *</label>
+            <textarea class="form-control" formControlName="question" rows="2"
+                [class.is-invalid]="faqForm.get('question').invalid && faqForm.get('question').touched"
+                placeholder="e.g., What are the admission requirements?"></textarea>
+            <div class="invalid-feedback">
+                {{ 'QuestionIsRequired' | localize }} (5-500 {{ 'Characters' | localize }})
+            </div>
+        </div>
+
+        <!-- Question (Arabic) -->
+        <div class="form-group">
+            <label>{{ 'Question' | localize }} (AR) *</label>
+            <textarea class="form-control" formControlName="questionAr" rows="2"
+                [class.is-invalid]="faqForm.get('questionAr').invalid && faqForm.get('questionAr').touched"
+                placeholder="مثال: ما هي شروط القبول؟" dir="rtl"></textarea>
+            <div class="invalid-feedback">
+                {{ 'QuestionIsRequired' | localize }} (5-500 {{ 'Characters' | localize }})
+            </div>
+        </div>
+
+        <!-- Answer (English) -->
+        <div class="form-group">
+            <label>{{ 'Answer' | localize }} (EN) *</label>
+            <textarea class="form-control" formControlName="answer" rows="4"
+                [class.is-invalid]="faqForm.get('answer').invalid && faqForm.get('answer').touched"
+                placeholder="Provide a detailed answer in English..."></textarea>
+            <div class="invalid-feedback">
+                {{ 'AnswerIsRequired' | localize }} (10-2000 {{ 'Characters' | localize }})
+            </div>
+            <small class="form-text text-muted">
+                {{ faqForm.get('answer').value?.length || 0 }} / 2000
+            </small>
+        </div>
+
+        <!-- Answer (Arabic) -->
+        <div class="form-group">
+            <label>{{ 'Answer' | localize }} (AR) *</label>
+            <textarea class="form-control" formControlName="answerAr" rows="4"
+                [class.is-invalid]="faqForm.get('answerAr').invalid && faqForm.get('answerAr').touched"
+                placeholder="قدم إجابة مفصلة بالعربية..." dir="rtl"></textarea>
+            <div class="invalid-feedback">
+                {{ 'AnswerIsRequired' | localize }} (10-2000 {{ 'Characters' | localize }})
+            </div>
+            <small class="form-text text-muted">
+                {{ faqForm.get('answerAr').value?.length || 0 }} / 2000
+            </small>
+        </div>
+
+        <!-- Settings -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>{{ 'DisplayOrder' | localize }}</label>
+                    <input type="number" class="form-control" formControlName="displayOrder" min="0">
+                    <small class="form-text text-muted">{{ 'LowerOrderAppearsFirst' | localize }}</small>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mt-4">
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="isPublished"
+                            formControlName="isPublished">
+                        <label class="custom-control-label" for="isPublished">
+                            {{ 'PublishImmediately' | localize }}
+                        </label>
+                    </div>
+                    <small class="form-text text-muted">{{ 'MakeVisibleToPublic' | localize }}</small>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="close()" [disabled]="saving">
+            {{ 'Cancel' | localize }}
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="saving">
+            <i class="fa fa-save"></i>
+            <span *ngIf="!saving">{{ 'Save' | localize }}</span>
+            <span *ngIf="saving">{{ 'Saving' | localize }}...</span>
+        </button>
+    </div>
+</form>

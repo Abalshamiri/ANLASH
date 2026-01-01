@@ -1,0 +1,310 @@
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 60px 0;
+}
+
+.university-logo {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    background: white;
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.university-name {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.university-name-ar {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    opacity: 0.9;
+}
+
+.university-meta {
+    display: flex;
+    gap: 25px;
+    flex-wrap: wrap;
+}
+
+.meta-item {
+    font-size: 1rem;
+}
+
+.meta-item i {
+    margin-right: 8px;
+}
+
+/* Tabs Section */
+.tabs-section {
+    background: white;
+    border-bottom: 2px solid #dee2e6;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+.nav-tabs {
+    border-bottom: none;
+}
+
+.nav-link {
+    color: #495057;
+    font-weight: 500;
+    padding: 15px 25px;
+    border: none;
+    transition: all 0.3s;
+}
+
+.nav-link:hover {
+    color: #007bff;
+    background: #f8f9fa;
+}
+
+.nav-link.active {
+    color: #007bff;
+    background: transparent;
+    border-bottom: 3px solid #007bff;
+}
+
+.nav-link i {
+    margin-right: 8px;
+}
+
+.nav-link .badge {
+    margin-left: 8px;
+}
+
+/* Tab Content */
+.tab-content-section {
+    padding: 50px 0;
+    min-height: 500px;
+}
+
+.section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 30px;
+    color: #212529;
+}
+
+/* Content Cards */
+.content-card {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.content-card h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.content-card p {
+    line-height: 1.8;
+    color: #495057;
+}
+
+/* Sidebar Cards */
+.sidebar-card {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 25px;
+    margin-bottom: 25px;
+}
+
+.sidebar-card h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+}
+
+.stat-label {
+    color: #6c757d;
+}
+
+.stat-value {
+    font-weight: 600;
+    color: #333;
+}
+
+/* Program Cards */
+.program-card {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 25px;
+    margin-bottom: 25px;
+    transition: all 0.3s;
+}
+
+.program-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-4px);
+}
+
+.program-card h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #212529;
+}
+
+.program-info {
+    margin: 15px 0;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.info-badge {
+    background: #e9ecef;
+    color: #495057;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.program-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #dee2e6;
+}
+
+.fee {
+    color: #28a745;
+    font-weight: 600;
+}
+
+/* Filters */
+.filters-row {
+    display: flex;
+    gap: 15px;
+}
+
+.filters-row .form-control {
+    max-width: 250px;
+}
+
+/* Accordion (FAQs) */
+.accordion .card {
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #dee2e6;
+}
+
+.accordion .card-header {
+    background: #f8f9fa;
+    border-bottom: none;
+    padding: 0;
+}
+
+.accordion .btn-link {
+    width: 100%;
+    text-align: left;
+    text-decoration: none;
+    color: #212529;
+    padding: 15px 20px;
+    font-weight: 500;
+}
+
+.accordion .btn-link:hover {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.accordion .card-body {
+    padding: 20px;
+    line-height: 1.8;
+}
+
+/* Contact */
+.contact-info {
+    font-size: 1.1rem;
+}
+
+.contact-info p {
+    margin-bottom: 15px;
+}
+
+.contact-info i {
+    width: 30px;
+    color: #007bff;
+}
+
+.map-placeholder {
+    height: 300px;
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Loading State */
+.loading-state {
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .university-name {
+        font-size: 1.75rem;
+    }
+
+    .university-name-ar {
+        font-size: 1.25rem;
+    }
+
+    .nav-link {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+
+    .filters-row {
+        flex-direction: column;
+    }
+
+    .filters-row .form-control {
+        max-width: 100%;
+    }
+}
+
+/* Sticky Tabs */
+.sticky-top {
+    position: sticky;
+    top: 0;
+}

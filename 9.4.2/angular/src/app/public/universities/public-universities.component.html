@@ -1,0 +1,168 @@
+<div class="public-universities">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="hero-title">{{ 'DiscoverUniversities' | localize }}</h1>
+            <p class="hero-subtitle">{{ 'FindYourPerfectUniversity' | localize }}</p>
+
+            <!-- Search Bar -->
+            <div class="search-box">
+                <div class="input-group input-group-lg">
+                    <span class="input-group-text">
+                        <i class="fa fa-search"></i>
+                    </span>
+                    <input type="text" class="form-control" [(ngModel)]="searchText" (keyup.enter)="search()"
+                        placeholder="{{ 'SearchUniversities' | localize }}...">
+                    <button class="btn btn-primary" (click)="search()">
+                        {{ 'Search' | localize }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filters Section -->
+    <section class="filters-section">
+        <div class="container">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <select class="form-select" [(ngModel)]="selectedCountry" (change)="search()">
+                        <option [ngValue]="undefined">{{ 'AllCountries' | localize }}</option>
+                        <option *ngFor="let country of countries" [value]="country">{{ country }}</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" [(ngModel)]="selectedType" (change)="search()">
+                        <option [ngValue]="undefined">{{ 'AllTypes' | localize }}</option>
+                        <option *ngFor="let type of universityTypes" [ngValue]="type.value">
+                            {{ type.label }}
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" [(ngModel)]="minRating" (change)="search()">
+                        <option [ngValue]="undefined">{{ 'AllRatings' | localize }}</option>
+                        <option [ngValue]="4">4+ ⭐</option>
+                        <option [ngValue]="3">3+ ⭐</option>
+                        <option [ngValue]="2">2+ ⭐</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-outline-secondary w-100" (click)="clearFilters()">
+                        <i class="fa fa-times"></i> {{ 'ClearFilters' | localize }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- View Toggle -->
+            <div class="view-toggle mt-3">
+                <span class="results-count">{{ totalCount }} {{ 'ResultsFound' | localize }}</span>
+                <div class="btn-group">
+                    <button class="btn btn-sm" [class.btn-primary]="viewMode === 'grid'"
+                        [class.btn-outline-primary]="viewMode !== 'grid'" (click)="setViewMode('grid')">
+                        <i class="fa fa-th"></i>
+                    </button>
+                    <button class="btn btn-sm" [class.btn-primary]="viewMode === 'list'"
+                        [class.btn-outline-primary]="viewMode !== 'list'" (click)="setViewMode('list')">
+                        <i class="fa fa-list"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Universities Grid/List -->
+    <section class="universities-section">
+        <div class="container">
+            <!-- Loading -->
+            <div class="text-center py-5" *ngIf="isLoading">
+                <i class="fa fa-spinner fa-spin fa-3x text-primary"></i>
+                <p class="mt-3">{{ 'Loading' | localize }}...</p>
+            </div>
+
+            <!-- Grid View -->
+            <div class="row g-4" *ngIf="!isLoading && viewMode === 'grid'">
+                <div class="col-md-4" *ngFor="let uni of universities">
+                    <div class="university-card" (click)="viewUniversity(uni)">
+                        <div class="card-image">
+                            <img [src]="uni.logoUrl || 'assets/img/default-university.jpg'" [alt]="uni.name"
+                                class="img-fluid">
+                            <span class="featured-badge" *ngIf="uni.isFeatured">
+                                <i class="fa fa-star"></i> {{ 'Featured' | localize }}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="card-title">{{ uni.name }}</h3>
+                            <p class="card-subtitle">{{ uni.nameAr }}</p>
+                            <div class="card-info">
+                                <span class="info-item">
+                                    <i class="fa fa-map-marker-alt"></i>
+                                    {{ uni.city }}, {{ uni.country }}
+                                </span>
+                                <span class="info-item" *ngIf="uni.rating">
+                                    <i class="fa fa-star text-warning"></i>
+                                    {{ uni.rating }}
+                                </span>
+                            </div>
+                            <p class="card-description">{{ uni.about | slice:0:120 }}...</p>
+                            <button class="btn btn-primary btn-sm w-100">
+                                {{ 'ViewDetails' | localize }} <i class="fa fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- List View -->
+            <div class="universities-list" *ngIf="!isLoading && viewMode === 'list'">
+                <div class="university-list-item" *ngFor="let uni of universities" (click)="viewUniversity(uni)">
+                    <div class="row align-items-center">
+                        <div class="col-md-2">
+                            <img [src]="uni.logoUrl || 'assets/img/default-university.jpg'" [alt]="uni.name"
+                                class="img-fluid rounded">
+                        </div>
+                        <div class="col-md-8">
+                            <h4>{{ uni.name }}</h4>
+                            <p class="text-muted mb-2">{{ uni.nameAr }}</p>
+                            <div class="list-info">
+                                <span class="badge bg-secondary me-2">
+                                    <i class="fa fa-map-marker-alt"></i> {{ uni.city }}, {{ uni.country }}
+                                </span>
+                                <span class="badge bg-warning" *ngIf="uni.rating">
+                                    <i class="fa fa-star"></i> {{ uni.rating }}
+                                </span>
+                                <span class="badge bg-success ms-2" *ngIf="uni.isFeatured">
+                                    <i class="fa fa-star"></i> {{ 'Featured' | localize }}
+                                </span>
+                            </div>
+                            <p class="mt-2">{{ uni.about | slice:0:200 }}...</p>
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <button class="btn btn-outline-primary">
+                                {{ 'ViewDetails' | localize }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div class="text-center py-5" *ngIf="!isLoading && universities.length === 0">
+                <i class="fa fa-university fa-3x text-muted mb-3"></i>
+                <h4>{{ 'NoUniversitiesFound' | localize }}</h4>
+                <p class="text-muted">{{ 'TryAdjustingFilters' | localize }}</p>
+                <button class="btn btn-primary" (click)="clearFilters()">
+                    {{ 'ClearFilters' | localize }}
+                </button>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination-section" *ngIf="!isLoading && universities.length > 0">
+                <pagination [boundaryLinks]="true" [totalItems]="totalCount" [(ngModel)]="pageNumber"
+                    [itemsPerPage]="pageSize" (pageChanged)="pageChanged($event)" previousText="&lsaquo;"
+                    nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;" class="justify-content-center">
+                </pagination>
+            </div>
+        </div>
+    </section>
+</div>

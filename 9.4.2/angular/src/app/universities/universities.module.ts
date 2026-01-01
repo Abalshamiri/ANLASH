@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { PaginationModule } from 'ngx-bootstrap/pagination';
+import { TabsModule } from 'ngx-bootstrap/tabs';
 
 import { UniversitiesRoutingModule } from './universities-routing.module';
 import { SharedModule } from '@shared/shared.module';
@@ -22,7 +23,8 @@ import { UniversityFormComponent } from './university-form.component';
         SharedModule,
         UniversitiesRoutingModule,
         ModalModule.forChild(),
-        PaginationModule.forRoot()
+        PaginationModule.forRoot(),
+        TabsModule.forRoot()
     ]
 })
 export class UniversitiesModule { }

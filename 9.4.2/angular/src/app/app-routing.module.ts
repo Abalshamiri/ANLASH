@@ -20,6 +20,11 @@ import { AppComponent } from './app.component';
                         loadChildren: () => import('./about/about.module').then((m) => m.AboutModule),
                         canActivate: [AppRouteGuard]
                     },
+                    // TODO: Re-enable after fixing backend DTOs and methods
+                    // {
+                    //     path: 'universities',
+                    //     loadChildren: () => import('./public/universities/public-universities.module').then((m) => m.PublicUniversitiesModule)
+                    // },
                     {
                         path: 'users',
                         loadChildren: () => import('./users/users.module').then((m) => m.UsersModule),
@@ -41,6 +46,25 @@ import { AppComponent } from './app.component';
                     {
                         path: 'universities',
                         loadChildren: () => import('./universities/universities.module').then((m) => m.UniversitiesModule),
+                        data: { permission: 'Pages.Universities' },
+                        canActivate: [AppRouteGuard]
+                    },
+                    {
+                        path: 'university-programs',
+                        loadChildren: () => import('./university-programs/university-programs.module').then((m) => m.UniversityProgramsModule),
+                        data: { permission: 'Pages.Universities' },
+                        canActivate: [AppRouteGuard]
+                    },
+                    // TODO: Re-enable after backend generates FAQs DTOs
+                    // {
+                    //     path: 'university-faqs',
+                    //     loadChildren: () => import('./university-faqs/university-faqs.module').then((m) => m.UniversityFaqsModule),
+                    //     data: { permission: 'Pages.Universities' },
+                    //     canActivate: [AppRouteGuard]
+                    // },
+                    {
+                        path: 'university-contents',
+                        loadChildren: () => import('./university-contents/university-contents.module').then((m) => m.UniversityContentsModule),
                         data: { permission: 'Pages.Universities' },
                         canActivate: [AppRouteGuard]
                     },

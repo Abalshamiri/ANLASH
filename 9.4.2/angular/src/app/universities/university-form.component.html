@@ -1,317 +1,415 @@
 <div class="modal-header">
     <h4 class="modal-title">
         <span *ngIf="!isEditMode">{{ "CreateNewUniversity" | localize }}</span>
-        <span *ngIf="isEditMode">{{ "Edit" | localize }} {{ "University" | localize }}</span>
+        <span *ngIf="isEditMode">{{ "Edit" | localize }}: {{ university?.name }}</span>
     </h4>
-    <button type="button" class="btn-close" (click)="bsModalRef.hide()" [attr.aria-label]="l('Close')"></button>
+    <button type="button" class="btn-close" (click)="bsModalRef.hide()"></button>
 </div>
 
 <form #universityForm="ngForm" (ngSubmit)="save()" autocomplete="off">
-    <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+    <div class="modal-body p-0">
 
-        <!-- Custom Tabs Navigation -->
-        <div class="custom-tabs-nav">
-            <button type="button" class="tab-button" [class.active]="activeTab === 'basic'"
-                (click)="switchTab('basic')">
+        <!-- Tab Navigation -->
+        <div class="tabs-nav">
+            <button type="button" class="tab-btn" [class.active]="activeTab === 'basic'" (click)="switchTab('basic')">
                 <i class="fa fa-info-circle"></i> {{ 'BasicInfo' | localize }}
             </button>
-            <button type="button" class="tab-button" [class.active]="activeTab === 'location'"
+            <button type="button" class="tab-btn" [class.active]="activeTab === 'content'"
+                (click)="switchTab('content')">
+                <i class="fa fa-file-text"></i> {{ 'RichContent' | localize }}
+            </button>
+            <button type="button" class="tab-btn" [class.active]="activeTab === 'location'"
                 (click)="switchTab('location')">
                 <i class="fa fa-map-marker"></i> {{ 'Location' | localize }}
             </button>
-            <button type="button" class="tab-button" [class.active]="activeTab === 'contact'"
+            <button type="button" class="tab-btn" [class.active]="activeTab === 'contact'"
                 (click)="switchTab('contact')">
-                <i class="fa fa-phone"></i> {{ 'ContactDetails' | localize }}
+                <i class="fa fa-phone"></i> {{ 'Contact' | localize }}
             </button>
-            <button type="button" class="tab-button" [class.active]="activeTab === 'settings'"
-                (click)="switchTab('settings')">
-                <i class="fa fa-cog"></i> {{ 'Settings' | localize }}
+            <button type="button" class="tab-btn" [class.active]="activeTab === 'fees'" (click)="switchTab('fees')">
+                <i class="fa fa-dollar"></i> {{ 'Fees' | localize }}
             </button>
-            <button type="button" *ngIf="isEditMode" class="tab-button" [class.active]="activeTab === 'audit'"
+            <button type="button" class="tab-btn" [class.active]="activeTab === 'media'" (click)="switchTab('media')">
+                <i class="fa fa-image"></i> {{ 'Media' | localize }}
+            </button>
+            <button type="button" class="tab-btn" [class.active]="activeTab === 'seo'" (click)="switchTab('seo')">
+                <i class="fa fa-search"></i> {{ 'SEO' | localize }}
+            </button>
+            <button type="button" *ngIf="isEditMode" class="tab-btn" [class.active]="activeTab === 'related'"
+                (click)="switchTab('related')">
+                <i class="fa fa-link"></i> {{ 'RelatedData' | localize }}
+            </button>
+            <button type="button" *ngIf="isEditMode" class="tab-btn" [class.active]="activeTab === 'audit'"
                 (click)="switchTab('audit')">
-                <i class="fa fa-history"></i> {{ 'AuditInfo' | localize }}
+                <i class="fa fa-history"></i> {{ 'AuditTrail' | localize }}
             </button>
         </div>
 
         <!-- Tab Content -->
-        <div class="tabs-content">
+        <div class="tab-content">
 
             <!-- Tab 1: Basic Info -->
-            <div class="tab-pane" *ngIf="activeTab === 'basic'">
-                <div class="row">
-                    <!-- Name (EN) -->
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">{{ 'Name' | localize }} (EN) <span
-                                class="text-danger">*</span></label>
-                        <input type="text" class="form-control" [(ngModel)]="university.name" name="name" required
-                            [class.is-invalid]="universityForm.submitted && !university.name" />
-                        <div class="invalid-feedback" *ngIf="universityForm.submitted && !university.name">
-                            {{ 'ThisFieldIsRequired' | localize }}
+            <div class="tab-pane" [class.active]="activeTab === 'basic'">
+                <div class="p-4">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">{{ 'Name' | localize }} (EN) <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" [(ngModel)]="university.name" name="name"
+                                (blur)="generateSlug()" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">{{ 'Name' | localize }} (AR) <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" [(ngModel)]="university.nameAr" name="nameAr"
+                                dir="rtl" required>
                         </div>
                     </div>
 
-                    <!-- Name (AR) -->
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">{{ 'Name' | localize }} (AR)</label>
-                        <input type="text" class="form-control" [(ngModel)]="university.nameAr" name="nameAr"
-                            dir="rtl" />
-                    </div>
-                </div>
-
-                <!-- Description (EN) -->
-                <div class="mb-3">
-                    <label class="form-label">{{ 'Description' | localize }} (EN)</label>
-                    <textarea class="form-control" rows="3" [(ngModel)]="university.description"
-                        name="description"></textarea>
-                </div>
-
-                <!-- Description (AR) -->
-                <div class="mb-3">
-                    <label class="form-label">{{ 'Description' | localize }} (AR)</label>
-                    <textarea class="form-control" rows="3" [(ngModel)]="university.descriptionAr" name="descriptionAr"
-                        dir="rtl"></textarea>
-                </div>
-
-                <div class="row">
-                    <!-- Type -->
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">{{ 'Type' | localize }}</label>
-                        <select class="form-select" [(ngModel)]="university.type" name="type">
-                            <option [value]="1">{{ 'Public' | localize }}</option>
-                            <option [value]="2">{{ 'Private' | localize }}</option>
-                            <option [value]="3">{{ 'International' | localize }}</option>
-                        </select>
-                    </div>
-
-                    <!-- Establishment Year -->
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">{{ 'EstablishmentYear' | localize }}</label>
-                        <input type="number" class="form-control" [(ngModel)]="university.establishmentYear"
-                            name="establishmentYear" min="1800" max="2025" />
-                    </div>
-                </div>
-
-                <!-- Logo Upload -->
-                <div class="mb-3">
-                    <label class="form-label">{{ 'Logo' | localize }}</label>
-
-                    <!-- Current Logo Preview -->
-                    <div *ngIf="logoPreview || university.logoUrl" class="mb-3">
-                        <img [src]="logoPreview || university.logoUrl" alt="University Logo" class="img-thumbnail"
-                            style="max-width: 200px; max-height: 200px; object-fit: cover;">
-                        <button type="button" class="btn btn-sm btn-danger ms-2" (click)="removeLogo()"
-                            *ngIf="university.logoBlobId || logoPreview || university.logoUrl">
-                            <i class="fa fa-trash"></i> {{ 'Remove' | localize }}
-                        </button>
-                    </div>
-
-                    <!-- File Input -->
-                    <input type="file" class="form-control" accept="image/*" (change)="onLogoSelected($event)"
-                        #logoInput>
-                    <small class="form-text text-muted">
-                        {{ 'AcceptedFormats' | localize }}: JPG, PNG, GIF. {{ 'MaxSize' | localize }}: 2MB
-                    </small>
-
-                    <!-- Upload Progress -->
-                    <div *ngIf="uploadingLogo" class="progress mt-2" style="height: 25px;">
-                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
-                            style="width: 100%">
-                            <i class="fa fa-spinner fa-spin"></i> {{ 'Uploading' | localize }}...
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">{{ 'Type' | localize }} <span class="text-danger">*</span></label>
+                            <select class="form-control" [(ngModel)]="university.type" name="type" required>
+                                <option *ngFor="let type of universityTypes" [ngValue]="type.value">{{ type.label }}
+                                </option>
+                            </select>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tab 2: Location -->
-            <div class="tab-pane" *ngIf="activeTab === 'location'">
-                <div class="row">
-                    <!-- Country -->
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">{{ 'Country' | localize }} <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" [(ngModel)]="university.country" name="country" required
-                            [class.is-invalid]="universityForm.submitted && !university.country" />
-                        <div class="invalid-feedback" *ngIf="universityForm.submitted && !university.country">
-                            {{ 'ThisFieldIsRequired' | localize }}
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">{{ 'EstablishmentYear' | localize }}</label>
+                            <input type="number" class="form-control" [(ngModel)]="university.establishmentYear"
+                                name="establishmentYear" min="1800" max="2025">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">{{ 'Rating' | localize }} (0-5)</label>
+                            <input type="number" class="form-control" [(ngModel)]="university.rating" name="rating"
+                                min="0" max="5" step="0.1">
                         </div>
                     </div>
 
-                    <!-- City -->
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">{{ 'City' | localize }} <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" [(ngModel)]="university.city" name="city" required
-                            [class.is-invalid]="universityForm.submitted && !university.city" />
-                        <div class="invalid-feedback" *ngIf="universityForm.submitted && !university.city">
-                            {{ 'ThisFieldIsRequired' | localize }}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Address -->
-                <div class="mb-3">
-                    <label class="form-label">{{ 'Address' | localize }}</label>
-                    <textarea class="form-control" rows="3" [(ngModel)]="university.address" name="address"></textarea>
-                </div>
-            </div>
-
-            <!-- Tab 3: Contact & Details -->
-            <div class="tab-pane" *ngIf="activeTab === 'contact'">
-                <div class="row">
-                    <!-- Website -->
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">{{ 'WebsiteUrl' | localize }}</label>
-                        <input type="url" class="form-control" [(ngModel)]="university.websiteUrl" name="websiteUrl"
-                            placeholder="https://" />
-                    </div>
-
-                    <!-- Email -->
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">{{ 'Email' | localize }}</label>
-                        <input type="email" class="form-control" [(ngModel)]="university.email" name="email" />
-                    </div>
-                </div>
-
-                <!-- Phone -->
-                <div class="mb-3">
-                    <label class="form-label">{{ 'Phone' | localize }}</label>
-                    <input type="tel" class="form-control" [(ngModel)]="university.phone" name="phone" />
-                </div>
-
-                <div class="row">
-                    <!-- Rating -->
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">{{ 'Rating' | localize }} (0-5)</label>
-                        <input type="number" class="form-control" [(ngModel)]="university.rating" name="rating" min="0"
-                            max="5" step="0.1" />
-                    </div>
-
-                    <!-- World Ranking -->
-                    <div class="col-md-6 mb-3">
+                    <div class="mb-3">
                         <label class="form-label">{{ 'WorldRanking' | localize }}</label>
                         <input type="number" class="form-control" [(ngModel)]="university.worldRanking"
-                            name="worldRanking" min="0" />
+                            name="worldRanking" min="1">
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">{{ 'Description' | localize }} (EN)</label>
+                            <textarea class="form-control" rows="3" [(ngModel)]="university.description"
+                                name="description" maxlength="2000"></textarea>
+                            <small class="text-muted">{{ university.description?.length || 0 }} / 2000</small>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">{{ 'Description' | localize }} (AR)</label>
+                            <textarea class="form-control" rows="3" [(ngModel)]="university.descriptionAr"
+                                name="descriptionAr" dir="rtl" maxlength="2000"></textarea>
+                            <small class="text-muted">{{ university.descriptionAr?.length || 0 }} / 2000</small>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Tab 4: Settings -->
-            <div class="tab-pane" *ngIf="activeTab === 'settings'">
-                <div class="row">
-                    <!-- Slug (EN) -->
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">{{ 'Slug' | localize }} (EN)</label>
-                        <input type="text" class="form-control" [(ngModel)]="university.slug" name="slug" />
-                        <small class="form-text text-muted">{{ 'LeaveEmptyToAutoGenerate' | localize }}</small>
+            <!-- Tab 2: Rich Content -->
+            <div class="tab-pane" [class.active]="activeTab === 'content'">
+                <div class="p-4">
+                    <div class="mb-3">
+                        <label class="form-label">{{ 'AboutText' | localize }} (EN)</label>
+                        <textarea class="form-control" rows="8" [(ngModel)]="university.aboutText"
+                            name="aboutText"></textarea>
+                        <small class="text-muted">{{ 'RichHTMLSupported' | localize }}</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{{ 'AboutText' | localize }} (AR)</label>
+                        <textarea class="form-control" rows="8" [(ngModel)]="university.aboutTextAr" name="aboutTextAr"
+                            dir="rtl"></textarea>
                     </div>
 
-                    <!-- Slug (AR) -->
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">{{ 'Slug' | localize }} (AR)</label>
-                        <input type="text" class="form-control" [(ngModel)]="university.slugAr" name="slugAr"
-                            dir="rtl" />
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">{{ 'MetaDescription' | localize }} (EN)</label>
+                            <textarea class="form-control" rows="2" [(ngModel)]="university.metaDescription"
+                                name="metaDescription" maxlength="500"></textarea>
+                            <small class="text-muted">{{ 'ForSEO' | localize }} - {{ university.metaDescription?.length
+                                || 0 }} / 500</small>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">{{ 'MetaDescription' | localize }} (AR)</label>
+                            <textarea class="form-control" rows="2" [(ngModel)]="university.metaDescriptionAr"
+                                name="metaDescriptionAr" dir="rtl" maxlength="500"></textarea>
+                            <small class="text-muted">{{ university.metaDescriptionAr?.length || 0 }} / 500</small>
+                        </div>
                     </div>
-                </div>
-
-                <!-- Display Order -->
-                <div class="mb-3">
-                    <label class="form-label">{{ 'DisplayOrder' | localize }}</label>
-                    <input type="number" class="form-control" [(ngModel)]="university.displayOrder" name="displayOrder"
-                        min="0" />
-                    <small class="form-text text-muted">Lower numbers appear first</small>
-                </div>
-
-                <!-- Checkboxes -->
-                <div class="form-check mb-2">
-                    <input type="checkbox" class="form-check-input" [(ngModel)]="university.isActive" name="isActive"
-                        id="isActive" />
-                    <label class="form-check-label" for="isActive">
-                        {{ 'IsActive' | localize }}
-                    </label>
-                </div>
-
-                <div class="form-check mb-3">
-                    <input type="checkbox" class="form-check-input" [(ngModel)]="university.isFeatured"
-                        name="isFeatured" id="isFeatured" />
-                    <label class="form-check-label" for="isFeatured">
-                        {{ 'IsFeatured' | localize }}
-                    </label>
                 </div>
             </div>
 
-            <!-- Tab 5: Audit Trail (Edit Only) -->
-            <div class="tab-pane" *ngIf="activeTab === 'audit' && isEditMode">
-                <div class="row">
-                    <!-- Created By -->
-                    <div class="col-md-6 mb-3">
-                        <div class="audit-info-card">
-                            <div class="audit-label">
-                                <i class="fa fa-user-plus text-success"></i>
-                                {{ 'CreatedBy' | localize }}
-                            </div>
-                            <div class="audit-value">
-                                <strong>{{ getCreatorName() }}</strong>
-                                <br>
-                                <small class="text-muted">
-                                    <i class="fa fa-clock-o"></i>
-                                    {{ university.creationTime | date:'medium' }}
-                                </small>
-                            </div>
+            <!-- Tab 3: Location -->
+            <div class="tab-pane" [class.active]="activeTab === 'location'">
+                <div class="p-4">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">{{ 'Country' | localize }}</label>
+                            <select class="form-control" [(ngModel)]="university.countryId" name="countryId"
+                                (change)="onCountryChange($event.target.value)">
+                                <option [ngValue]="null">{{ 'SelectCountry' | localize }}</option>
+                                <option *ngFor="let country of countries" [ngValue]="country.id">
+                                    {{ country.name }} | {{ country.nameAr }}
+                                </option>
+                            </select>
+                            <small class="text-muted" *ngIf="loadingCountries">{{ 'Loading' | localize }}...</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">{{ 'City' | localize }}</label>
+                            <select class="form-control" [(ngModel)]="university.cityId" name="cityId"
+                                [disabled]="!university.countryId">
+                                <option [ngValue]="null">{{ 'SelectCity' | localize }}</option>
+                                <option *ngFor="let city of cities" [ngValue]="city.id">
+                                    {{ city.name }} | {{ city.nameAr }}
+                                </option>
+                            </select>
+                            <small class="text-muted" *ngIf="loadingCities">{{ 'Loading' | localize }}...</small>
                         </div>
                     </div>
 
-                    <!-- Last Modified By -->
-                    <div class="col-md-6 mb-3" *ngIf="university.lastModificationTime">
-                        <div class="audit-info-card">
-                            <div class="audit-label">
-                                <i class="fa fa-edit text-primary"></i>
-                                {{ 'LastModifiedBy' | localize }}
-                            </div>
-                            <div class="audit-value">
-                                <strong>{{ getLastModifierName() }}</strong>
-                                <br>
-                                <small class="text-muted">
-                                    <i class="fa fa-clock-o"></i>
-                                    {{ university.lastModificationTime | date:'medium' }}
-                                </small>
+                    <div class="alert alert-info">
+                        <i class="fa fa-info-circle"></i> {{ 'FallbackTextFields' | localize }}:
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">{{ 'CountryName' | localize }} ({{ 'Text' | localize }})</label>
+                            <input type="text" class="form-control" [(ngModel)]="university.countryName"
+                                name="countryName">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">{{ 'CityName' | localize }} ({{ 'Text' | localize }})</label>
+                            <input type="text" class="form-control" [(ngModel)]="university.cityName" name="cityName">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">{{ 'Address' | localize }}</label>
+                        <textarea class="form-control" rows="3" [(ngModel)]="university.address" name="address"
+                            maxlength="500"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 4: Contact -->
+            <div class="tab-pane" [class.active]="activeTab === 'contact'">
+                <div class="p-4">
+                    <div class="mb-3">
+                        <label class="form-label">{{ 'WebsiteURL' | localize }}</label>
+                        <input type="url" class="form-control" [(ngModel)]="university.websiteUrl" name="websiteUrl">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{{ 'Email' | localize }}</label>
+                        <input type="email" class="form-control" [(ngModel)]="university.email" name="email">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{{ 'Phone' | localize }}</label>
+                        <input type="tel" class="form-control" [(ngModel)]="university.phone" name="phone">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 5: Fees & Metadata -->
+            <div class="tab-pane" [class.active]="activeTab === 'fees'">
+                <div class="p-4">
+                    <div class="mb-3">
+                        <label class="form-label">{{ 'OfferLetterFee' | localize }}</label>
+                        <input type="number" class="form-control" [(ngModel)]="university.offerLetterFee"
+                            name="offerLetterFee" min="0" step="0.01">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">{{ 'IntakeMonths' | localize }}</label>
+                        <div class="intake-months">
+                            <div class="form-check form-check-inline" *ngFor="let month of months">
+                                <input class="form-check-input" type="checkbox" [value]="month.value"
+                                    [checked]="selectedIntakeMonths.includes(month.value)"
+                                    (change)="toggleIntakeMonth(month.value)">
+                                <label class="form-check-label">{{ month.label }}</label>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Deleted Info -->
-                <div class="row" *ngIf="university.isDeleted && university.deletionTime">
-                    <div class="col-md-12 mb-3">
-                        <div class="audit-info-card alert-danger">
-                            <div class="audit-label">
-                                <i class="fa fa-trash text-danger"></i>
-                                {{ 'DeletedBy' | localize }}
-                            </div>
-                            <div class="audit-value">
-                                <strong>{{ getDeleterName() }}</strong>
-                                <br>
-                                <small class="text-muted">
-                                    <i class="fa fa-clock-o"></i>
-                                    {{ university.deletionTime | date:'medium' }}
-                                </small>
-                            </div>
+            <!-- Tab 6: Media & Branding -->
+            <div class="tab-pane" [class.active]="activeTab === 'media'">
+                <div class="p-4">
+                    <div class="mb-4">
+                        <label class="form-label">{{ 'Logo' | localize }}</label>
+                        <div *ngIf="logoPreview || university.logoUrl" class="mb-2">
+                            <img [src]="logoPreview || university.logoUrl" class="img-thumbnail"
+                                style="max-height: 150px;">
+                        </div>
+                        <input #logoInput type="file" class="form-control" accept="image/*"
+                            (change)="onLogoSelected($event)">
+                        <small class="text-muted" *ngIf="uploadingLogo">{{ 'Uploading' | localize }}...</small>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">{{ 'CoverImage' | localize }}</label>
+                        <div *ngIf="coverPreview || university.coverImageUrl" class="mb-2">
+                            <img [src]="coverPreview || university.coverImageUrl" class="img-thumbnail"
+                                style="max-height: 200px; width: 100%; object-fit: cover;">
+                        </div>
+                        <input #coverInput type="file" class="form-control" accept="image/*"
+                            (change)="onCoverSelected($event)">
+                        <small class="text-muted" *ngIf="uploadingCover">{{ 'Uploading' | localize }}...</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">{{ 'LogoURL' | localize }} ({{ 'Legacy' | localize }})</label>
+                        <input type="url" class="form-control" [(ngModel)]="university.logoUrl" name="logoUrl">
+                        <small class="text-muted">{{ 'UseFileUploadInstead' | localize }}</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 7: SEO & Settings -->
+            <div class="tab-pane" [class.active]="activeTab === 'seo'">
+                <div class="p-4">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">{{ 'Slug' | localize }} (EN)</label>
+                            <input type="text" class="form-control" [(ngModel)]="university.slug" name="slug">
+                            <small class="text-muted">URL: /universities/{{ university.slug || '...' }}</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">{{ 'Slug' | localize }} (AR)</label>
+                            <input type="text" class="form-control" [(ngModel)]="university.slugAr" name="slugAr"
+                                dir="rtl">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">{{ 'DisplayOrder' | localize }}</label>
+                        <input type="number" class="form-control" [(ngModel)]="university.displayOrder"
+                            name="displayOrder" min="0">
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" [(ngModel)]="university.isActive"
+                                name="isActive" id="isActive">
+                            <label class="form-check-label" for="isActive">
+                                {{ 'IsActive' | localize }}
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" [(ngModel)]="university.isFeatured"
+                                name="isFeatured" id="isFeatured">
+                            <label class="form-check-label" for="isFeatured">
+                                {{ 'IsFeatured' | localize }}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 8: Related Data (Edit Mode Only) -->
+            <div class="tab-pane" [class.active]="activeTab === 'related' && isEditMode">
+                <div class="p-4">
+                    <h5 class="mb-3">{{ 'ManageRelatedData' | localize }}</h5>
+
+                    <div class="related-card">
+                        <div class="card-header">
+                            <i class="fa fa-graduation-cap text-primary"></i>
+                            <strong>{{ 'Programs' | localize }}</strong>
+                        </div>
+                        <div class="card-body">
+                            <p>{{ 'ManageProgramsForUniversity' | localize }}</p>
+                            <a href="/app/university-programs?universityId={{ id }}" target="_blank"
+                                class="btn btn-primary btn-sm">
+                                <i class="fa fa-external-link"></i> {{ 'ManagePrograms' | localize }}
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="related-card">
+                        <div class="card-header">
+                            <i class="fa fa-question-circle text-info"></i>
+                            <strong>{{ 'FAQs' | localize }}</strong>
+                        </div>
+                        <div class="card-body">
+                            <p>{{ 'ManageFAQsForUniversity' | localize }}</p>
+                            <a href="/app/university-faqs?universityId={{ id }}" target="_blank"
+                                class="btn btn-info btn-sm">
+                                <i class="fa fa-external-link"></i> {{ 'ManageFAQs' | localize }}
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="related-card">
+                        <div class="card-header">
+                            <i class="fa fa-file-text text-success"></i>
+                            <strong>{{ 'Contents' | localize }}</strong>
+                        </div>
+                        <div class="card-body">
+                            <p>{{ 'ManageContentsForUniversity' | localize }}</p>
+                            <a href="/app/university-contents?universityId={{ id }}" target="_blank"
+                                class="btn btn-success btn-sm">
+                                <i class="fa fa-external-link"></i> {{ 'ManageContents' | localize }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 9: Audit Trail (Edit Mode Only) -->
+            <div class="tab-pane" [class.active]="activeTab === 'audit' && isEditMode">
+                <div class="p-4">
+                    <h5 class="mb-3">{{ 'AuditTrail' | localize }}</h5>
+
+                    <div class="audit-row">
+                        <div class="audit-icon">
+                            <i class="fa fa-plus-circle text-success"></i>
+                        </div>
+                        <div class="audit-info">
+                            <strong>{{ 'CreatedBy' | localize }}:</strong> {{ creatorName || 'N/A' }}<br>
+                            <small class="text-muted">{{ university.creationTime | date:'medium' }}</small>
+                        </div>
+                    </div>
+
+                    <div class="audit-row" *ngIf="university.lastModificationTime">
+                        <div class="audit-icon">
+                            <i class="fa fa-edit text-primary"></i>
+                        </div>
+                        <div class="audit-info">
+                            <strong>{{ 'LastModifiedBy' | localize }}:</strong> {{ lastModifierName || 'N/A' }}<br>
+                            <small class="text-muted">{{ university.lastModificationTime | date:'medium' }}</small>
+                        </div>
+                    </div>
+
+                    <div class="audit-row" *ngIf="university.isDeleted">
+                        <div class="audit-icon">
+                            <i class="fa fa-trash text-danger"></i>
+                        </div>
+                        <div class="audit-info">
+                            <strong>{{ 'DeletedBy' | localize }}:</strong> {{ deleterName || 'N/A' }}<br>
+                            <small class="text-muted">{{ university.deletionTime | date:'medium' }}</small>
                         </div>
                     </div>
                 </div>
             </div>
 
         </div>
-
     </div>
 
+    <!-- Modal Footer -->
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" (click)="bsModalRef.hide()">
-            {{ 'Cancel' | localize }}
+            <i class="fa fa-times"></i> {{ 'Cancel' | localize }}
         </button>
-        <button type="submit" class="btn btn-primary" [disabled]="saving">
+        <button type="submit" class="btn btn-primary" [disabled]="!universityForm.form.valid || saving">
             <i class="fa fa-save"></i>
             <span *ngIf="!saving">{{ 'Save' | localize }}</span>
-            <span *ngIf="saving">
-                <i class="fa fa-spinner fa-spin"></i> {{ 'Saving' | localize }}...
-            </span>
+            <span *ngIf="saving">{{ 'Saving' | localize }}...</span>
         </button>
     </div>
 </form>

@@ -1,0 +1,235 @@
+<div class="modal-header">
+    <h4 class="modal-title pull-left">
+        <span *ngIf="!isEditMode">{{ 'CreateNewProgram' | localize }}</span>
+        <span *ngIf="isEditMode">{{ 'EditProgram' | localize }}</span>
+    </h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="close()">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
+<form [formGroup]="programForm" (ngSubmit)="save()">
+    <div class="modal-body">
+
+        <!-- Basic Information -->
+        <div class="card mb-3">
+            <div class="card-header bg-primary text-white">
+                <i class="fa fa-info-circle"></i> {{ 'BasicInformation' | localize }}
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label>{{ 'University' | localize }} *</label>
+                        <select class="form-control" formControlName="universityId"
+                            [class.is-invalid]="programForm.get('universityId').invalid && programForm.get('universityId').touched">
+                            <option [ngValue]="null">-- {{ 'SelectUniversity' | localize }} --</option>
+                            <option *ngFor="let uni of universities" [ngValue]="uni.id">
+                                {{ uni.name }} {{ uni.nameAr ? '(' + uni.nameAr + ')' : '' }}
+                            </option>
+                        </select>
+                        <div class="invalid-feedback">{{ 'UniversityIsRequired' | localize }}</div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label>{{ 'ProgramName' | localize }} (EN) *</label>
+                        <input type="text" class="form-control" formControlName="name"
+                            [class.is-invalid]="programForm.get('name').invalid && programForm.get('name').touched"
+                            placeholder="e.g., Computer Science">
+                        <div class="invalid-feedback">
+                            {{ 'ProgramNameIsRequired' | localize }} (3-300 {{ 'Characters' | localize }})
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>{{ 'ProgramName' | localize }} (AR) *</label>
+                        <input type="text" class="form-control" formControlName="nameAr"
+                            [class.is-invalid]="programForm.get('nameAr').invalid && programForm.get('nameAr').touched"
+                            placeholder="مثال: علوم الحاسب" dir="rtl">
+                        <div class="invalid-feedback">
+                            {{ 'ProgramNameIsRequired' | localize }} (3-300 {{ 'Characters' | localize }})
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label>{{ 'Field' | localize }} (EN)</label>
+                        <input type="text" class="form-control" formControlName="field" placeholder="e.g., Engineering">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>{{ 'Field' | localize }} (AR)</label>
+                        <input type="text" class="form-control" formControlName="fieldAr" placeholder="مثال: الهندسة"
+                            dir="rtl">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Academic Details -->
+        <div class="card mb-3">
+            <div class="card-header bg-info text-white">
+                <i class="fa fa-graduation-cap"></i> {{ 'AcademicDetails' | localize }}
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label>{{ 'Level' | localize }} *</label>
+                        <select class="form-control" formControlName="level"
+                            [class.is-invalid]="programForm.get('level').invalid && programForm.get('level').touched">
+                            <option [ngValue]="null">-- {{ 'Select' | localize }} --</option>
+                            <option *ngFor="let level of programLevels" [ngValue]="level.value">
+                                {{ level.label }}
+                            </option>
+                        </select>
+                        <div class="invalid-feedback">{{ 'LevelIsRequired' | localize }}</div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label>{{ 'StudyMode' | localize}}
+                            *</label>
+                        <select class="form-control" formControlName="mode"
+                            [class.is-invalid]="programForm.get('mode').invalid && programForm.get('mode').touched">
+                            <option [ngValue]="null">-- {{ 'Select' | localize }} --</option>
+                            <option *ngFor="let mode of studyModes" [ngValue]="mode.value">
+                                {{ mode.label }}
+                            </option>
+                        </select>
+                        <div class="invalid-feedback">{{ 'ModeIsRequired' | localize }}</div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label>{{ 'DurationYears' | localize }} *</label>
+                        <input type="number" class="form-control" formControlName="durationYears" min="1" max="10"
+                            [class.is-invalid]="programForm.get('durationYears').invalid && programForm.get('durationYears').touched">
+                        <div class="invalid-feedback">{{ 'DurationRequired' | localize }} (1-10)</div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label>{{ 'DurationSemesters' | localize }}</label>
+                        <input type="number" class="form-control" formControlName="durationSemesters" min="0">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>{{ 'TotalCredits' | localize }}</label>
+                        <input type="number" class="form-control" formControlName="totalCredits" min="0">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fees -->
+        <div class="card mb-3">
+            <div class="card-header bg-success text-white">
+                <i class="fa fa-dollar-sign"></i> {{ 'Fees' | localize }}
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label>{{ 'TuitionFee' | localize }}</label>
+                        <input type="number" class="form-control" formControlName="tuitionFee" min="0" step="100">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>{{ 'FeeType' | localize }}</label>
+                        <input type="text" class="form-control" formControlName="feeType"
+                            placeholder="e.g., Annual, Per Semester">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label>{{ 'ApplicationFee' | localize }}</label>
+                        <input type="number" class="form-control" formControlName="applicationFee" min="0">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>{{ 'ApplicationDeadline' | localize }}</label>
+                        <input type="date" class="form-control" formControlName="applicationDeadline">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Description & Requirements -->
+        <div class="card mb-3">
+            <div class="card-header bg-warning">
+                <i class="fa fa-file-text"></i> {{ 'DescriptionAndRequirements' | localize }}
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label>{{ 'Description' | localize }} (EN)</label>
+                        <textarea class="form-control" formControlName="description" rows="3"
+                            placeholder="Program description in English"></textarea>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label>{{ 'Description' | localize }} (AR)</label>
+                        <textarea class="form-control" formControlName="descriptionAr" rows="3"
+                            placeholder="وصف البرنامج بالعربية" dir="rtl"></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 mb-3">
+                        <label>{{ 'Requirements' | localize }} (EN)</label>
+                        <textarea class="form-control" formControlName="requirements" rows="3"
+                            placeholder="Admission requirements in English"></textarea>
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <label>{{ 'Requirements' | localize }} (AR)</label>
+                        <textarea class="form-control" formControlName="requirementsAr" rows="3"
+                            placeholder="متطلبات القبول بالعربية" dir="rtl"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings -->
+        <div class="card mb-3">
+            <div class="card-header bg-secondary text-white">
+                <i class="fa fa-cog"></i> {{ 'Settings' | localize }}
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label>{{ 'Slug' | localize }} (EN)</label>
+                        <input type="text" class="form-control" formControlName="slug" readonly>
+                        <small class="text-muted">{{ 'AutoGeneratedFromName' | localize }}</small>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>{{ 'Slug' | localize }} (AR)</label>
+                        <input type="text" class="form-control" formControlName="slugAr" readonly>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label>{{ 'DisplayOrder' | localize }}</label>
+                        <input type="number" class="form-control" formControlName="displayOrder" min="0">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="custom-control custom-checkbox mt-4">
+                            <input type="checkbox" class="custom-control-input" id="isActive"
+                                formControlName="isActive">
+                            <label class="custom-control-label" for="isActive">{{ 'IsActive' | localize }}</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="custom-control custom-checkbox mt-4">
+                            <input type="checkbox" class="custom-control-input" id="isFeatured"
+                                formControlName="isFeatured">
+                            <label class="custom-control-label" for="isFeatured">{{ 'IsFeatured' | localize }}</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="close()" [disabled]="saving">
+            {{ 'Cancel' | localize }}
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="saving">
+            <i class="fa fa-save"></i>
+            <span *ngIf="!saving">{{ 'Save' | localize }}</span>
+            <span *ngIf="saving">{{ 'Saving' | localize }}...</span>
+        </button>
+    </div>
+</form>

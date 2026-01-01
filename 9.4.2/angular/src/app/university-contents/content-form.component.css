@@ -1,0 +1,93 @@
+/* Modal Size */
+:host ::ng-deep .modal-xl {
+    max-width: 1200px;
+}
+
+/* Form Controls */
+textarea.form-control {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    resize: vertical;
+}
+
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.invalid-feedback {
+    display: block;
+}
+
+/* Preview Section */
+.preview-section {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.preview-section h5 {
+    margin-bottom: 15px;
+    color: #495057;
+}
+
+.preview-content {
+    padding: 20px;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    min-height: 200px;
+}
+
+/* Tabs */
+:host ::ng-deep .nav-tabs {
+    border-bottom: 2px solid #dee2e6;
+}
+
+:host ::ng-deep .nav-link {
+    color: #495057;
+}
+
+:host ::ng-deep .nav-link.active {
+    color: #007bff;
+    font-weight: 600;
+}
+
+:host ::ng-deep .tab-content {
+    padding: 20px 0;
+}
+
+/* Character Counter */
+.form-text.text-muted {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Modal Footer */
+.modal-footer {
+    justify-content: space-between;
+}
+
+.modal-footer .btn {
+    min-width: 100px;
+}
+
+/* Loading State */
+.btn[disabled] {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    :host ::ng-deep .modal-xl {
+        max-width: 95%;
+        margin: 10px auto;
+    }
+
+    textarea.form-control {
+        font-size: 0.85em;
+    }
+}

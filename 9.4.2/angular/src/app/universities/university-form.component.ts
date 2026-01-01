@@ -11,20 +11,63 @@ import {
 } from '@shared/service-proxies/service-proxies';
 
 @Component({
-    templateUrl: './university-form.component.html'
+    templateUrl: './university-form.component.html',
+    styleUrls: ['./university-form.component.css']
 })
 export class UniversityFormComponent extends AppComponentBase implements OnInit {
     saving = false;
     id: number;
     university: any = {};
     isEditMode = false;
-    activeTab: string = 'basic'; // Current active tab
+    activeTab: string = 'basic';
 
-    // Logo upload properties
+    // Lookups
+    countries: any[] = [];
+    cities: any[] = [];
+    loadingCountries = false;
+    loadingCities = false;
+
+    // Logo upload
     selectedLogoFile: File | null = null;
     logoPreview: string | null = null;
     uploadingLogo: boolean = false;
     @ViewChild('logoInput') logoInput: ElementRef;
+
+    // Cover image upload
+    selectedCoverFile: File | null = null;
+    coverPreview: string | null = null;
+    uploadingCover: boolean = false;
+    @ViewChild('coverInput') coverInput: ElementRef;
+
+    // University Types
+    universityTypes = [
+        { value: 1, label: 'Public | حكومية' },
+        { value: 2, label: 'Private | خاصة' },
+        { value: 3, label: 'NonProfit | غير ربحية' }
+    ];
+
+    // Intake Months
+    months = [
+        { value: 1, label: 'January | يناير' },
+        { value: 2, label: 'February | فبراير' },
+        { value: 3, label: 'March | مارس' },
+        { value: 4, label: 'April | أبريل' },
+        { value: 5, label: 'May | مايو' },
+        { value: 6, label: 'June | يونيو' },
+        { value: 7, label: 'July | يوليو' },
+        { value: 8, label: 'August | أغسطس' },
+        { value: 9, label: 'September | سبتمبر' },
+        { value: 10, label: 'October | أكتوبر' },
+        { value: 11, label: 'November | نوفمبر' },
+        { value: 12, label: 'December | ديسمبر' }
+    ];
+
+    selectedIntakeMonths: number[] = [];
+
+    // Audit info
+    creatorName: string = '';
+    lastModifierName: string = '';
+    deleterName: string = '';
 
     @Output() onSave = new EventEmitter<any>();
 
@@ -39,16 +82,34 @@ export class UniversityFormComponent extends AppComponentBase implements OnInit 
     }
 
     ngOnInit(): void {
+        this.loadCountries();
+
         if (this.id) {
             // Edit mode
             this.isEditMode = true;
             this._universityService.get(this.id).subscribe((result: UniversityDto) => {
                 this.university = result;
 
-                // Load logo from BlobStorage if exists
+                // Parse intake months
+                if (this.university.intakeMonths) {
+                    this.selectedIntakeMonths = this.university.intakeMonths.split(',').map(m => parseInt(m));
+                }
+
+                // Load cities for selected country
+                if (this.university.countryId) {
+                    this.loadCities(this.university.countryId);
+                }
+
+                // Load logo/cover URLs
                 if (this.university.logoBlobId) {
                     this.university.logoUrl = `https://localhost:44311/api/services/app/BlobStorage/Download?id=${this.university.logoBlobId}`;
                 }
+                if (this.university.coverImageBlobId) {
+                    this.university.coverImageUrl = `https://localhost:44311/api/services/app/BlobStorage/Download?id=${this.university.coverImageBlobId}`;
+                }
+
+                // Load audit info
+                this.loadAuditInfo();
 
                 this.cdr.detectChanges();
             });
@@ -58,26 +119,142 @@ export class UniversityFormComponent extends AppComponentBase implements OnInit 
             this.university = new CreateUniversityDto();
             this.university.isActive = true;
             this.university.isFeatured = false;
-            this.university.type = 1; // Public
+            this.university.type = 1;
             this.university.rating = 0;
             this.university.displayOrder = 0;
         }
     }
 
-    /**
-     * Switch between tabs
-     */
     switchTab(tabName: string): void {
         this.activeTab = tabName;
+    }
+
+    loadCountries(): void {
+        // Manual country list - in production, load from API
+        this.countries = [
+            { id: 1, name: 'Saudi Arabia', nameAr: 'السعودية' },
+            { id: 2, name: 'Egypt', nameAr: 'مصر' },
+            { id: 3, name: 'UAE', nameAr: 'الإمارات' },
+            { id: 4, name: 'Jordan', nameAr: 'الأردن' },
+            { id: 5, name: 'Kuwait', nameAr: 'الكويت' }
+        ];
+        this.loadingCountries = false;
+    }
+
+    onCountryChange(countryId: number): void {
+        this.university.cityId = null;
+        this.cities = [];
+        if (countryId) {
+            this.loadCities(countryId);
+        }
+    }
+
+    loadCities(countryId: number): void {
+        // Manual city list - in production, load from API based on country
+        this.cities = [
+            { id: 1, name: 'Riyadh', nameAr: 'الرياض' },
+            { id: 2, name: 'Jeddah', nameAr: 'جدة' },
+            { id: 3, name: 'Cairo', nameAr: 'القاهرة' },
+            { id: 4, name: 'Dubai', nameAr: 'دبي' }
+        ];
+        this.loadingCities = false;
+    }
+
+    onLogoSelected(event: any): void {
+        const file = event.target.files[0];
+        if (file) {
+            this.selectedLogoFile = file;
+            const reader = new FileReader();
+            reader.onload = (e: any) => {
+                this.logoPreview = e.target.result;
+                this.cdr.detectChanges();
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    onCoverSelected(event: any): void {
+        const file = event.target.files[0];
+        if (file) {
+            this.selectedCoverFile = file;
+            const reader = new FileReader();
+            reader.onload = (e: any) => {
+                this.coverPreview = e.target.result;
+                this.cdr.detectChanges();
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    async uploadLogo(): Promise<string | null> {
+        if (!this.selectedLogoFile) return null;
+
+        try {
+            this.uploadingLogo = true;
+            const input = new UploadFileInput();
+            input.init({ file: this.selectedLogoFile, fileName: this.selectedLogoFile.name });
+
+            const result = await this._blobStorageService.upload(input).toPromise();
+            this.uploadingLogo = false;
+            return result.id;
+        } catch (error) {
+            this.uploadingLogo = false;
+            this.notify.error(this.l('UploadFailed'));
+            return null;
+        }
+    }
+
+    async uploadCover(): Promise<string | null> {
+        if (!this.selectedCoverFile) return null;
+
+        try {
+            this.uploadingCover = true;
+            const input = new UploadFileInput();
+            input.init({ file: this.selectedCoverFile, fileName: this.selectedCoverFile.name });
+
+            const result = await this._blobStorageService.upload(input).toPromise();
+            this.uploadingCover = false;
+            return result.id;
+        } catch (error) {
+            this.uploadingCover = false;
+            this.notify.error(this.l('UploadFailed'));
+            return null;
+        }
+    }
+
+    generateSlug(): void {
+        if (this.university.name && !this.isEditMode) {
+            this.university.slug = this.university.name
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+        }
+    }
+
+    loadAuditInfo(): void {
+        // Load creator/modifier names from user IDs
+        // This would require a UserService call
+        // For now, placeholder
+        this.creatorName = 'Admin User';
+        this.lastModifierName = 'Admin User';
+    }
+
+    toggleIntakeMonth(monthValue: number): void {
+        const index = this.selectedIntakeMonths.indexOf(monthValue);
+        if (index > -1) {
+            this.selectedIntakeMonths.splice(index, 1);
+        } else {
+            this.selectedIntakeMonths.push(monthValue);
+        }
     }
 
     async save(): Promise<void> {
         this.saving = true;
         this.cdr.detectChanges();
 
-        // Ensure rating is a number
-        if (this.university.rating) {
-            this.university.rating = Number(this.university.rating);
+        // Convert intake months to comma-separated string
+        if (this.selectedIntakeMonths && this.selectedIntakeMonths.length > 0) {
+            this.university.intakeMonths = this.selectedIntakeMonths.join(',');
         }
 
         // Upload logo if selected
@@ -85,14 +262,19 @@ export class UniversityFormComponent extends AppComponentBase implements OnInit 
             const blobId = await this.uploadLogo();
             if (blobId) {
                 this.university.logoBlobId = blobId;
-                // Update logoUrl to point to BlobStorage download URL
-                this.university.logoUrl = `https://localhost:44311/api/services/app/BlobStorage/Download?id=${blobId}`;
-                // Clear preview to use the new logoUrl
-                this.logoPreview = null;
             } else {
-                // Upload failed, stop save
                 this.saving = false;
-                this.cdr.detectChanges();
+                return;
+            }
+        }
+
+        // Upload cover if selected
+        if (this.selectedCoverFile) {
+            const blobId = await this.uploadCover();
+            if (blobId) {
+                this.university.coverImageBlobId = blobId;
+            } else {
+                this.saving = false;
                 return;
             }
         }
@@ -106,161 +288,13 @@ export class UniversityFormComponent extends AppComponentBase implements OnInit 
                 this.notify.success(this.l('SavedSuccessfully'));
                 this.bsModalRef.hide();
                 this.onSave.emit();
+                this.saving = false;
             },
             (error) => {
-                this.saving = false;
-                this.cdr.detectChanges();
                 console.error('Save error:', error);
+                this.notify.error(this.l('SaveFailed'));
+                this.saving = false;
             }
         );
-    }
-
-    /**
-     * Get creator name for audit trail
-     */
-    getCreatorName(): string {
-        if (!this.university.creatorUserId) {
-            return this.l('Unknown');
-        }
-        // For now, show User ID. In future, fetch actual name from UserService
-        return `User #${this.university.creatorUserId}`;
-    }
-
-    /**
-     * Get last modifier name for audit trail
-     */
-    getLastModifierName(): string {
-        if (!this.university.lastModifierUserId) {
-            return this.l('Unknown');
-        }
-        // For now, show User ID. In future, fetch actual name from UserService
-        return `User #${this.university.lastModifierUserId}`;
-    }
-
-    /**
-     * Get deleter name for audit trail
-     */
-    getDeleterName(): string {
-        if (!this.university.deleterUserId) {
-            return this.l('Unknown');
-        }
-        // For now, show User ID. In future, fetch actual name from UserService
-        return `User #${this.university.deleterUserId}`;
-    }
-
-    /**
-     * Handle logo file selection
-     */
-    onLogoSelected(event: any): void {
-        const file = event.target?.files?.[0];
-        if (!file) return;
-
-        // Validate file type
-        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-        if (!allowedTypes.includes(file.type)) {
-            this.notify.error('Please select a valid image file (JPG, PNG, GIF)');
-            if (this.logoInput) {
-                this.logoInput.nativeElement.value = '';
-            }
-            return;
-        }
-
-        // Validate file size (2MB max)
-        const maxSize = 2 * 1024 * 1024; // 2MB
-        if (file.size > maxSize) {
-            this.notify.error('File size must be less than 2MB');
-            if (this.logoInput) {
-                this.logoInput.nativeElement.value = '';
-            }
-            return;
-        }
-
-        // Create preview
-        const reader = new FileReader();
-        reader.onload = (e: any) => {
-            this.logoPreview = e.target.result;
-            this.cdr.detectChanges();
-        };
-        reader.readAsDataURL(file);
-
-        this.selectedLogoFile = file;
-    }
-
-    /**
-     * Upload logo to BlobStorage
-     */
-    async uploadLogo(): Promise<string | null> {
-        if (!this.selectedLogoFile) return null;
-
-        this.uploadingLogo = true;
-        this.cdr.detectChanges();
-
-        try {
-            // Convert file to base64
-            const fileBytes = await this.fileToBase64(this.selectedLogoFile);
-
-            const fileExt = this.getFileExtension(this.selectedLogoFile.name);
-            const fileName = `university-logo-${Date.now()}.${fileExt}`;
-
-            // Create UploadFileInput
-            const input = new UploadFileInput({
-                fileBytes: fileBytes,
-                fileName: fileName,
-                contentType: this.selectedLogoFile.type,
-                category: 'UniversityLogos',
-                description: `Logo for ${this.university.name || 'University'}`,
-                entityType: undefined,
-                entityId: undefined
-            });
-
-            const result = await this._blobStorageService.upload(input).toPromise();
-
-            return result.id; // Return BlobId (Guid as string)
-        } catch (error) {
-            this.notify.error('Failed to upload logo');
-            console.error('Upload error:', error);
-            return null;
-        } finally {
-            this.uploadingLogo = false;
-            this.cdr.detectChanges();
-        }
-    }
-
-    /**
-     * Remove logo
-     */
-    removeLogo(): void {
-        this.selectedLogoFile = null;
-        this.logoPreview = null;
-        this.university.logoBlobId = null;
-        this.university.logoUrl = null;
-        if (this.logoInput) {
-            this.logoInput.nativeElement.value = '';
-        }
-        this.cdr.detectChanges();
-    }
-
-    /**
-     * Convert file to base64
-     */
-    private fileToBase64(file: File): Promise<string> {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-                // Remove data:image/...;base64, prefix
-                let result = reader.result as string;
-                const base64 = result.split(',')[1];
-                resolve(base64);
-            };
-            reader.onerror = error => reject(error);
-            reader.readAsDataURL(file);
-        });
-    }
-
-    /**
-     * Get file extension
-     */
-    private getFileExtension(filename: string): string {
-        return filename.split('.').pop()?.toLowerCase() || '';
     }
 }

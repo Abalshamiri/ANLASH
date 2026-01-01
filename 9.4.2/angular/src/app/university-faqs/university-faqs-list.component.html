@@ -1,0 +1,175 @@
+<div [@routerTransition]>
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-6">
+                    <h1>{{ "UniversityFAQs" | localize }}</h1>
+                </div>
+                <div class="col-6 text-right">
+                    <button class="btn btn-warning mr-2" (click)="toggleReorderMode()" *ngIf="!isReorderMode">
+                        <i class="fa fa-arrows-alt"></i> {{ "ReorderFAQs" | localize }}
+                    </button>
+                    <button class="btn btn-success mr-2" (click)="saveOrder()" *ngIf="isReorderMode"
+                        [disabled]="!hasUnsavedOrder">
+                        <i class="fa fa-save"></i> {{ "SaveOrder" | localize }}
+                    </button>
+                    <button class="btn btn-secondary mr-2" (click)="cancelReorder()" *ngIf="isReorderMode">
+                        <i class="fa fa-times"></i> {{ "Cancel" | localize }}
+                    </button>
+                    <button class="btn btn-primary" (click)="createFaq()" *ngIf="!isReorderMode">
+                        <i class="fa fa-plus"></i> {{ "CreateNew" | localize }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="card">
+                <!-- Filters -->
+                <div class="card-header" *ngIf="!isReorderMode">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" [(ngModel)]="searchText" (keyup.enter)="search()"
+                                placeholder="{{ 'SearchFAQs' | localize }}" />
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-control" [(ngModel)]="universityFilter" (change)="search()">
+                                <option [ngValue]="undefined">{{ 'AllUniversities' | localize }}</option>
+                                <option *ngFor="let uni of universities" [ngValue]="uni.id">
+                                    {{ uni.name }}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <select class="form-control" [(ngModel)]="isPublishedFilter" (change)="search()">
+                                <option [ngValue]="undefined">{{ 'AllStatuses' | localize }}</option>
+                                <option [ngValue]="true">{{ 'Published' | localize }}</option>
+                                <option [ngValue]="false">{{ 'Unpublished' | localize }}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-primary btn-block" (click)="search()">
+                                <i class="fa fa-search"></i> {{ 'Search' | localize }}
+                            </button>
+                        </div>
+                        <div class="col-md-1">
+                            <button class="btn btn-secondary btn-block" (click)="clearFilters()"
+                                title="{{ 'ClearFilters' | localize }}">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reorder Mode Alert -->
+                <div class="alert alert-info m-3" *ngIf="isReorderMode">
+                    <i class="fa fa-info-circle"></i>
+                    <strong>{{ 'ReorderMode' | localize }}:</strong>
+                    {{ 'DragAndDropToReorderFAQs' | localize }}
+                    <span *ngIf="hasUnsavedOrder" class="text-warning ml-3">
+                        <i class="fa fa-exclamation-triangle"></i>
+                        {{ 'UnsavedChanges' | localize }}
+                    </span>
+                </div>
+
+                <!-- Table -->
+                <div class="card-body">
+                    <div cdkDropList (cdkDropListDropped)="drop($event)" [cdkDropListDisabled]="!isReorderMode">
+                        <div *ngFor="let faq of faqs" cdkDrag class="faq-item" [class.reorder-mode]="isReorderMode"
+                            [class.published]="faq.isPublished">
+
+                            <!-- Drag Handle -->
+                            <div class="drag-handle" *ngIf="isReorderMode" cdkDragHandle>
+                                <i class="fa fa-grip-vertical"></i>
+                            </div>
+
+                            <!-- FAQ Content -->
+                            <div class="faq-content">
+                                <div class="row">
+                                    <div class="col-md-1 text-center">
+                                        <span class="badge badge-info">{{ faq.displayOrder }}</span>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <h5 class="mb-2">
+                                            {{ faq.question }}
+                                            <span *ngIf="faq.isPublished" class="badge badge-success ml-2">
+                                                <i class="fa fa-check"></i> {{ 'Published' | localize }}
+                                            </span>
+                                            <span *ngIf="!faq.isPublished" class="badge badge-secondary ml-2">
+                                                <i class="fa fa-eye-slash"></i> {{ 'Unpublished' | localize }}
+                                            </span>
+                                        </h5>
+                                        <small class="text-muted" *ngIf="faq.questionAr">{{ faq.questionAr }}</small>
+                                        <p class="mt-2 mb-1">{{ faq.answer }}</p>
+                                        <small class="text-muted" *ngIf="faq.answerAr" dir="rtl">{{ faq.answerAr
+                                            }}</small>
+                                        <div class="mt-2">
+                                            <small class="text-muted">
+                                                <i class="fa fa-university"></i> {{ getUniversityName(faq.universityId)
+                                                }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 text-right" *ngIf="!isReorderMode">
+                                        <div class="btn-group" dropdown>
+                                            <button class="btn btn-sm btn-primary dropdown-toggle" dropdownToggle>
+                                                {{ 'Actions' | localize }} <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-right" *dropdownMenu>
+                                                <li>
+                                                    <a class="dropdown-item" (click)="editFaq(faq)">
+                                                        <i class="fa fa-edit"></i> {{ 'Edit' | localize }}
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a class="dropdown-item" (click)="togglePublish(faq)">
+                                                        <i class="fa" [class.fa-eye]="!faq.isPublished"
+                                                            [class.fa-eye-slash]="faq.isPublished"></i>
+                                                        <span *ngIf="!faq.isPublished">{{ 'Publish' | localize }}</span>
+                                                        <span *ngIf="faq.isPublished">{{ 'Unpublish' | localize
+                                                            }}</span>
+                                                    </a>
+                                                </li>
+                                                <li class="divider dropdown-divider"></li>
+                                                <li>
+                                                    <a class="dropdown-item text-danger" (click)="deleteFaq(faq)">
+                                                        <i class="fa fa-trash"></i> {{ 'Delete' | localize }}
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div class="text-center py-5" *ngIf="!isTableLoading && faqs.length === 0">
+                        <i class="fa fa-question-circle fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">{{ 'NoFAQsFound' | localize }}</p>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="card-footer" *ngIf="!isReorderMode">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <span class="text-muted">
+                                {{ 'TotalRecordsCount' | localize: totalCount }}
+                            </span>
+                        </div>
+                        <div class="col-sm-8 text-right">
+                            <pagination [boundaryLinks]="true" [totalItems]="totalCount" [(ngModel)]="pageNumber"
+                                [itemsPerPage]="pageSize" (pageChanged)="pageChanged($event)" previousText="&lsaquo;"
+                                nextText="&rsaquo;" firstText="&laquo;" lastText="&raquo;">
+                            </pagination>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
