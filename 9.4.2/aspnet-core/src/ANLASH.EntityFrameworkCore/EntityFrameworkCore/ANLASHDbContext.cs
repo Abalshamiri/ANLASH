@@ -4,6 +4,7 @@ using ANLASH.Authorization.Roles;
 using ANLASH.Authorization.Users;
 using ANLASH.MultiTenancy;
 using ANLASH.Universities;
+using ANLASH.LanguageCenters;
 using ANLASH.Lookups;
 using ANLASH.Storage;
 
@@ -47,6 +48,30 @@ namespace ANLASH.EntityFrameworkCore
         /// الملفات المخزنة - Stored Files
         /// </summary>
         public DbSet<AppBinaryObject> AppBinaryObjects { get; set; }
+
+        #region Language Centers - معاهد اللغة
+
+        /// <summary>
+        /// معاهد اللغة - Language Centers
+        /// </summary>
+        public DbSet<LanguageCenter> LanguageCenters { get; set; }
+
+        /// <summary>
+        /// الدورات اللغوية - Language Courses
+        /// </summary>
+        public DbSet<LanguageCourse> LanguageCourses { get; set; }
+
+        /// <summary>
+        /// تسعير الدورات - Course Pricing
+        /// </summary>
+        public DbSet<CoursePricing> CoursePricing { get; set; }
+
+        /// <summary>
+        /// الأسئلة الشائعة للمعاهد - Language Center FAQs
+        /// </summary>
+        public DbSet<LanguageCenterFAQ> LanguageCenterFAQs { get; set; }
+
+        #endregion
         
         public ANLASHDbContext(DbContextOptions<ANLASHDbContext> options)
             : base(options)
@@ -350,6 +375,185 @@ namespace ANLASH.EntityFrameworkCore
                 entity.HasIndex(b => b.Category).HasDatabaseName("IX_AppBinaryObjects_Category");
                 entity.HasIndex(b => new { b.EntityType, b.EntityId }).HasDatabaseName("IX_AppBinaryObjects_Entity");
                 entity.HasIndex(b => b.CreationTime).HasDatabaseName("IX_AppBinaryObjects_CreationTime");
+            });
+
+            #endregion
+
+            #region Configure Language Centers
+
+            // ✅ Configure LanguageCenter Entity
+            modelBuilder.Entity<LanguageCenter>(entity =>
+            {
+                entity.ToTable("LanguageCenters");
+
+                // Primary Key
+                entity.HasKey(lc => lc.Id);
+
+                // Foreign Key Relationships
+                entity.HasOne(lc => lc.Country)
+                    .WithMany()
+                    .HasForeignKey(lc => lc.CountryId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(lc => lc.City)
+                    .WithMany()
+                    .HasForeignKey(lc => lc.CityId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+                // Required Fields
+                entity.Property(lc => lc.Name).IsRequired().HasMaxLength(300);
+                entity.Property(lc => lc.NameAr).IsRequired().HasMaxLength(300);
+
+                // Rich Content Fields
+                entity.Property(lc => lc.AboutText).HasColumnType("NVARCHAR(MAX)");
+                entity.Property(lc => lc.AboutTextAr).HasColumnType("NVARCHAR(MAX)");
+                entity.Property(lc => lc.RegistrationSteps).HasColumnType("NVARCHAR(MAX)");
+                entity.Property(lc => lc.RequiredDocuments).HasColumnType("NVARCHAR(MAX)");
+                entity.Property(lc => lc.AccommodationTypes).HasColumnType("NVARCHAR(MAX)");
+                entity.Property(lc => lc.AccommodationDetails).HasColumnType("NVARCHAR(MAX)");
+                entity.Property(lc => lc.AccommodationDetailsAr).HasColumnType("NVARCHAR(MAX)");
+                entity.Property(lc => lc.GalleryImages).HasColumnType("NVARCHAR(MAX)");
+
+                // Decimal Fields Precision
+                entity.Property(lc => lc.Rating).HasPrecision(3, 2);
+                entity.Property(lc => lc.Latitude).HasPrecision(10, 8);
+                entity.Property(lc => lc.Longitude).HasPrecision(11, 8);
+
+                // Unique Indexes for SEO Slugs
+                entity.HasIndex(lc => lc.Slug)
+                    .IsUnique()
+                    .HasDatabaseName("IX_LanguageCenters_Slug")
+                    .HasFilter("[Slug] IS NOT NULL");
+
+                entity.HasIndex(lc => lc.SlugAr)
+                    .IsUnique()
+                    .HasDatabaseName("IX_LanguageCenters_SlugAr")
+                    .HasFilter("[SlugAr] IS NOT NULL");
+
+                // Performance Indexes
+                entity.HasIndex(lc => lc.CountryId).HasDatabaseName("IX_LanguageCenters_CountryId");
+                entity.HasIndex(lc => lc.CityId).HasDatabaseName("IX_LanguageCenters_CityId");
+                entity.HasIndex(lc => lc.IsActive).HasDatabaseName("IX_LanguageCenters_IsActive");
+                entity.HasIndex(lc => lc.IsFeatured).HasDatabaseName("IX_LanguageCenters_IsFeatured");
+                entity.HasIndex(lc => lc.IsAccredited).HasDatabaseName("IX_LanguageCenters_IsAccredited");
+                entity.HasIndex(lc => lc.Rating).HasDatabaseName("IX_LanguageCenters_Rating");
+                entity.HasIndex(lc => lc.TenantId).HasDatabaseName("IX_LanguageCenters_TenantId");
+            });
+
+            // ✅ Configure LanguageCourse Entity
+            modelBuilder.Entity<LanguageCourse>(entity =>
+            {
+                entity.ToTable("LanguageCourses");
+
+                // Primary Key
+                entity.HasKey(c => c.Id);
+
+                // Foreign Key to LanguageCenter
+                entity.HasOne(c => c.LanguageCenter)
+                    .WithMany()
+                    .HasForeignKey(c => c.LanguageCenterId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // Required Fields
+                entity.Property(c => c.CourseName).IsRequired().HasMaxLength(300);
+                entity.Property(c => c.CourseNameAr).IsRequired().HasMaxLength(300);
+
+                // Rich Content
+                entity.Property(c => c.Highlights).HasColumnType("NVARCHAR(MAX)");
+                entity.Property(c => c.HighlightsAr).HasColumnType("NVARCHAR(MAX)");
+
+                // Default Values
+                entity.Property(c => c.IsActive).HasDefaultValue(true);
+                entity.Property(c => c.IsFeatured).HasDefaultValue(false);
+
+                // Indexes
+                entity.HasIndex(c => c.LanguageCenterId).HasDatabaseName("IX_LanguageCourses_LanguageCenterId");
+                entity.HasIndex(c => c.CourseType).HasDatabaseName("IX_LanguageCourses_CourseType");
+                entity.HasIndex(c => c.Level).HasDatabaseName("IX_LanguageCourses_Level");
+                entity.HasIndex(c => c.IsActive).HasDatabaseName("IX_LanguageCourses_IsActive");
+                entity.HasIndex(c => c.IsFeatured).HasDatabaseName("IX_LanguageCourses_IsFeatured");
+            });
+
+            // ✅ Configure CoursePricing Entity
+            modelBuilder.Entity<CoursePricing>(entity =>
+            {
+                entity.ToTable("CoursePricing");
+
+                // Primary Key
+                entity.HasKey(p => p.Id);
+
+                // Foreign Keys
+                entity.HasOne(p => p.LanguageCourse)
+                    .WithMany()
+                    .HasForeignKey(p => p.LanguageCourseId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(p => p.Currency)
+                    .WithMany()
+                    .HasForeignKey(p => p.CurrencyId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // Decimal Columns
+                entity.Property(p => p.Fee).HasColumnType("decimal(18,2)").IsRequired();
+                entity.Property(p => p.FeePerWeek).HasColumnType("decimal(18,2)");
+                entity.Property(p => p.RegistrationFee).HasColumnType("decimal(18,2)");
+                entity.Property(p => p.MaterialsFee).HasColumnType("decimal(18,2)");
+                entity.Property(p => p.ExamFee).HasColumnType("decimal(18,2)");
+                entity.Property(p => p.VisaProcessingFee).HasColumnType("decimal(18,2)");
+                entity.Property(p => p.DiscountPercentage).HasColumnType("decimal(5,2)");
+                entity.Property(p => p.DiscountAmount).HasColumnType("decimal(18,2)");
+                entity.Property(p => p.FinalPrice).HasColumnType("decimal(18,2)");
+
+                // Default Values
+                entity.Property(p => p.IsActive).HasDefaultValue(true);
+                entity.Property(p => p.IsMostPopular).HasDefaultValue(false);
+
+                // Indexes
+                entity.HasIndex(p => p.LanguageCourseId).HasDatabaseName("IX_CoursePricing_LanguageCourseId");
+                entity.HasIndex(p => p.DurationWeeks).HasDatabaseName("IX_CoursePricing_DurationWeeks");
+                entity.HasIndex(p => p.IsActive).HasDatabaseName("IX_CoursePricing_IsActive");
+                entity.HasIndex(p => p.IsMostPopular).HasDatabaseName("IX_CoursePricing_IsMostPopular");
+
+                // Unique Constraint: One pricing per course per duration
+                entity.HasIndex(p => new { p.LanguageCourseId, p.DurationWeeks })
+                    .IsUnique()
+                    .HasDatabaseName("UQ_CoursePricing_CourseId_Duration")
+                    .HasFilter("[IsDeleted] = 0");
+            });
+
+            // ✅ Configure LanguageCenterFAQ Entity
+            modelBuilder.Entity<LanguageCenterFAQ>(entity =>
+            {
+                entity.ToTable("LanguageCenterFAQs");
+
+                // Primary Key
+                entity.HasKey(f => f.Id);
+
+                // Foreign Key to LanguageCenter
+                entity.HasOne(f => f.LanguageCenter)
+                    .WithMany()
+                    .HasForeignKey(f => f.LanguageCenterId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // Required Fields
+                entity.Property(f => f.Question).IsRequired().HasMaxLength(500);
+                entity.Property(f => f.QuestionAr).IsRequired().HasMaxLength(500);
+                entity.Property(f => f.Answer).IsRequired().HasColumnType("NVARCHAR(MAX)");
+                entity.Property(f => f.AnswerAr).IsRequired().HasColumnType("NVARCHAR(MAX)");
+
+                // Default Values
+                entity.Property(f => f.IsPublished).HasDefaultValue(true);
+                entity.Property(f => f.IsFeatured).HasDefaultValue(false);
+                entity.Property(f => f.ViewCount).HasDefaultValue(0);
+                entity.Property(f => f.HelpfulCount).HasDefaultValue(0);
+                entity.Property(f => f.NotHelpfulCount).HasDefaultValue(0);
+
+                // Indexes
+                entity.HasIndex(f => f.LanguageCenterId).HasDatabaseName("IX_LanguageCenterFAQs_LanguageCenterId");
+                entity.HasIndex(f => f.Category).HasDatabaseName("IX_LanguageCenterFAQs_Category");
+                entity.HasIndex(f => f.IsPublished).HasDatabaseName("IX_LanguageCenterFAQs_IsPublished");
+                entity.HasIndex(f => f.IsFeatured).HasDatabaseName("IX_LanguageCenterFAQs_IsFeatured");
+                entity.HasIndex(f => f.DisplayOrder).HasDatabaseName("IX_LanguageCenterFAQs_DisplayOrder");
             });
 
             #endregion
