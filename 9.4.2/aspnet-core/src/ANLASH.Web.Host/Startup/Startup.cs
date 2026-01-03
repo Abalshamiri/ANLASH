@@ -141,6 +141,9 @@ namespace ANLASH.Web.Host.Startup
                 });
                 options.DocInclusionPredicate((docName, description) => true);
 
+                // Use full type names to avoid schema ID conflicts
+                options.CustomSchemaIds(type => type.FullName);
+
                 // Define the BearerAuth scheme that's in use
                 options.AddSecurityDefinition("bearerAuth", new OpenApiSecurityScheme()
                 {

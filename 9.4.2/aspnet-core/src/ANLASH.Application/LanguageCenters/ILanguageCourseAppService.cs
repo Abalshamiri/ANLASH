@@ -23,12 +23,12 @@ namespace ANLASH.LanguageCenters
         /// <summary>
         /// جلب الدورات حسب النوع - Get courses by type
         /// </summary>
-        Task<PagedResultDto<LanguageCourseDto>> GetByCourseTypeAsync(int courseType, PagedLanguageCourseRequestDto input);
+        Task<PagedResultDto<LanguageCourseDto>> GetByCourseTypeAsync(CourseType courseType, PagedLanguageCourseRequestDto input);
 
         /// <summary>
         /// جلب الدورات حسب المستوى - Get courses by level
         /// </summary>
-        Task<PagedResultDto<LanguageCourseDto>> GetByLevelAsync(int level, PagedLanguageCourseRequestDto input);
+        Task<PagedResultDto<LanguageCourseDto>> GetByLevelAsync(CourseLevel level, PagedLanguageCourseRequestDto input);
 
         /// <summary>
         /// جلب الدورات المميزة - Get featured courses

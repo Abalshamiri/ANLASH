@@ -7,6 +7,7 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 
 import { UniversityProgramsRoutingModule } from './university-programs-routing.module';
 import { SharedModule } from '@shared/shared.module';
+import { UniversityProgramServiceProxy } from '@shared/service-proxies/service-proxies';
 
 // Components
 import { UniversityProgramsListComponent } from './university-programs-list.component';
@@ -26,6 +27,9 @@ import { ProgramFormComponent } from './program-form.component';
         ModalModule.forChild(),
         PaginationModule.forRoot(),
         BsDropdownModule.forRoot()
+    ],
+    providers: [
+        UniversityProgramServiceProxy
     ]
 })
 export class UniversityProgramsModule { }

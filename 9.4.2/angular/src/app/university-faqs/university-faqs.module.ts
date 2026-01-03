@@ -1,13 +1,14 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-// import { DragDropModule } from '@angular/cdk/drag-drop';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { PaginationModule } from 'ngx-bootstrap/pagination';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 
 import { UniversityFaqsRoutingModule } from './university-faqs-routing.module';
 import { SharedModule } from '@shared/shared.module';
+import { UniversityFAQServiceProxy } from '@shared/service-proxies/service-proxies';
 
 // Components
 import { UniversityFaqsListComponent } from './university-faqs-list.component';
@@ -22,12 +23,15 @@ import { FaqFormComponent } from './faq-form.component';
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        // DragDropModule,
+        DragDropModule,
         SharedModule,
         UniversityFaqsRoutingModule,
         ModalModule.forChild(),
         PaginationModule.forRoot(),
         BsDropdownModule.forRoot()
+    ],
+    providers: [
+        UniversityFAQServiceProxy
     ]
 })
 export class UniversityFaqsModule { }

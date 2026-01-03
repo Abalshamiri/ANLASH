@@ -7,21 +7,26 @@ import {
     UniversityDto,
     FAQOrderDto
 } from '@shared/service-proxies/service-proxies';
-// import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { FaqFormComponent } from './faq-form.component';
 import { finalize } from 'rxjs/operators';
+import { appModuleAnimation } from '@shared/animations/routerTransition';
 
 @Component({
     selector: 'app-university-faqs-list',
     templateUrl: './university-faqs-list.component.html',
-    styleUrls: ['./university-faqs-list.component.css']
+    styleUrls: ['./university-faqs-list.component.css'],
+    animations: [appModuleAnimation()]
 })
 export class UniversityFaqsListComponent extends AppComponentBase implements OnInit {
 
     faqs: UniversityFAQDto[] = [];
     universities: UniversityDto[] = [];
     bsModalRef: BsModalRef;
+
+    // Current university ID (from route or filter)
+    universityId: number | undefined;
 
     // Filters
     universityFilter: number | undefined;
@@ -67,16 +72,17 @@ export class UniversityFaqsListComponent extends AppComponentBase implements OnI
     loadFaqs(): void {
         this.isTableLoading = true;
 
+        if (!this.universityId) {
+            this.isTableLoading = false;
+            return;
+        }
+
         this._faqService
-            .getAll(
-                'displayOrder ASC',
-                (this.pageNumber - 1) * this.pageSize,
-                this.pageSize
-            )
+            .getByUniversity(this.universityId)
             .pipe(finalize(() => { this.isTableLoading = false; }))
             .subscribe(result => {
                 this.faqs = result.items;
-                this.totalCount = result.totalCount;
+                this.totalCount = result.items.length;
                 this.hasUnsavedOrder = false;
             });
     }
@@ -139,21 +145,12 @@ export class UniversityFaqsListComponent extends AppComponentBase implements OnI
     }
 
     togglePublish(faq: UniversityFAQDto): void {
-        if (faq.isPublished) {
-            this._faqService
-                .unpublish(faq.id)
-                .subscribe(() => {
-                    abp.notify.success(this.l('UnpublishedSuccessfully'));
-                    this.loadFaqs();
-                });
-        } else {
-            this._faqService
-                .publish(faq.id)
-                .subscribe(() => {
-                    abp.notify.success(this.l('PublishedSuccessfully'));
-                    this.loadFaqs();
-                });
-        }
+        this._faqService
+            .togglePublish(faq.id)
+            .subscribe(() => {
+                abp.notify.success(this.l(faq.isPublished ? 'UnpublishedSuccessfully' : 'PublishedSuccessfully'));
+                this.loadFaqs();
+            });
     }
 
     // Reordering functionality
@@ -179,16 +176,15 @@ export class UniversityFaqsListComponent extends AppComponentBase implements OnI
     }
 
 
-    // TODO: Re-enable after installing @angular/cdk
-    // drop(event: CdkDragDrop<UniversityFAQDto[]>): void {
-    //     moveItemInArray(this.faqs, event.previousIndex, event.currentIndex);
-    //     this.hasUnsavedOrder = true;
+    drop(event: CdkDragDrop<UniversityFAQDto[]>): void {
+        moveItemInArray(this.faqs, event.previousIndex, event.currentIndex);
+        this.hasUnsavedOrder = true;
 
-    //     // Update displayOrder for all items
-    //     this.faqs.forEach((faq, index) => {
-    //         faq.displayOrder = index + 1;
-    //     });
-    // }
+        // Update displayOrder for all items
+        this.faqs.forEach((faq, index) => {
+            faq.displayOrder = index + 1;
+        });
+    }
 
     saveOrder(): void {
         const orders: FAQOrderDto[] = this.faqs.map(faq => ({
@@ -197,7 +193,7 @@ export class UniversityFaqsListComponent extends AppComponentBase implements OnI
         } as FAQOrderDto));
 
         this._faqService
-            .reorderFAQs(orders)
+            .reorder(orders)
             .subscribe(() => {
                 abp.notify.success(this.l('OrderSavedSuccessfully'));
                 this.hasUnsavedOrder = false;

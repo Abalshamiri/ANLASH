@@ -1,60 +1,203 @@
-/* Filters Section */
+/* ============================================
+   UNIVERSITY PROGRAMS - PROFESSIONAL DASHBOARD
+   ============================================ */
+
+/* ===== HEADER SECTION ===== */
+.content-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    border-radius: 0 0 15px 15px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.content-header h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.content-header .btn-primary {
+    background: white;
+    color: #667eea;
+    border: none;
+    font-weight: 600;
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.content-header .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    background: #f8f9fa;
+}
+
+/* ===== CARD STYLING ===== */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* ===== FILTERS SECTION ===== */
+.card-header {
+    background: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+    padding: 1.5rem;
+    border-radius: 12px 12px 0 0 !important;
+}
+
 .card-header .row {
     align-items: center;
 }
 
-/* Table Enhancements */
-.table td {
-    vertical-align: middle;
+.card-header .form-control,
+.card-header .btn {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    transition: all 0.2s ease;
+}
+
+.card-header .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.card-header .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    font-weight: 500;
+}
+
+.card-header .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+.card-header .btn-secondary {
+    background: #6c757d;
+    border: none;
+}
+
+.card-header .btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-1px);
+}
+
+/* ===== TABLE ENHANCEMENTS ===== */
+.table-responsive {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table thead {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
 }
 
 .table th {
+    border-top: none;
+    border-bottom: 2px solid #dee2e6;
+    color: #495057;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 1rem;
     white-space: nowrap;
 }
 
-/* Badge Styling */
+.table td {
+    vertical-align: middle;
+    padding: 1rem;
+    border-top: 1px solid #f1f3f5;
+}
+
+.table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: #f8f9fa;
+    transform: scale(1.01);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* ===== BADGE STYLING ===== */
 .badge {
-    padding: 0.35em 0.65em;
+    padding: 0.4em 0.8em;
     font-size: 0.85em;
+    font-weight: 500;
+    border-radius: 6px;
+    letter-spacing: 0.3px;
 }
 
 .badge-primary {
-    background-color: #007bff;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
 }
 
 .badge-info {
-    background-color: #17a2b8;
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    color: white;
 }
 
 .badge-success {
-    background-color: #28a745;
+    background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+    color: white;
 }
 
 .badge-warning {
-    background-color: #ffc107;
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
     color: #212529;
 }
 
 .badge-secondary {
-    background-color: #6c757d;
+    background: #6c757d;
+    color: white;
 }
 
-/* Actions Dropdown */
+/* ===== ACTIONS DROPDOWN ===== */
 .btn-group {
     width: 100%;
 }
 
+.btn-group .btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.875rem;
+    border-radius: 6px;
+}
+
 .dropdown-menu {
-    min-width: 180px;
+    min-width: 200px;
+    border: none;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    padding: 0.5rem 0;
 }
 
 .dropdown-item {
     cursor: pointer;
-    padding: 0.5rem 1rem;
+    padding: 0.6rem 1.2rem;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
 }
 
 .dropdown-item:hover {
     background-color: #f8f9fa;
+    padding-left: 1.5rem;
 }
 
 .dropdown-item.text-danger:hover {
@@ -64,27 +207,149 @@
 
 .dropdown-item i {
     width: 20px;
-    margin-right: 8px;
+    margin-right: 10px;
+    text-align: center;
 }
 
-/* Loading State */
+.dropdown-divider {
+    margin: 0.5rem 0;
+}
+
+/* ===== LOADING STATE ===== */
+.text-center.py-5 {
+    padding: 3rem 0 !important;
+}
+
+.fa-spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
 table.busy {
     opacity: 0.6;
     pointer-events: none;
 }
 
-/* Empty State */
+/* ===== EMPTY STATE ===== */
 .fa-inbox {
     color: #dee2e6;
+    opacity: 0.5;
 }
 
-/* Responsive */
+.text-center.py-4 p {
+    font-size: 1.1rem;
+    color: #6c757d;
+}
+
+/* ===== PAGINATION ===== */
+.card-footer {
+    background: #f8f9fa;
+    border-top: 2px solid #e9ecef;
+    padding: 1.25rem 1.5rem;
+    border-radius: 0 0 12px 12px;
+}
+
+.pagination {
+    margin-bottom: 0;
+}
+
+.pagination .page-link {
+    border-radius: 6px;
+    margin: 0 2px;
+    border: 1px solid #dee2e6;
+    color: #667eea;
+    transition: all 0.2s ease;
+}
+
+.pagination .page-link:hover {
+    background-color: #667eea;
+    border-color: #667eea;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.pagination .page-item.active .page-link {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 768px) {
-    .card-header .row > div {
+    .content-header {
+        padding: 1.5rem 0;
+    }
+
+    .content-header h1 {
+        font-size: 1.4rem;
+        margin-bottom: 1rem;
+    }
+
+    .card-header .row>div {
         margin-bottom: 10px;
     }
-    
+
     .table-responsive {
-        font-size: 0.9em;
+        font-size: 0.85em;
     }
+
+    .table th,
+    .table td {
+        padding: 0.75rem 0.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .content-header h1 {
+        font-size: 1.2rem;
+    }
+
+    .btn {
+        font-size: 0.85rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .table {
+        font-size: 0.8rem;
+    }
+}
+
+/* ===== SMOOTH ANIMATIONS ===== */
+* {
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.card,
+.btn,
+.form-control,
+.badge,
+.dropdown-menu {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== CUSTOM SCROLLBAR ===== */
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #764ba2;
 }

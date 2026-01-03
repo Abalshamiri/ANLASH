@@ -114,19 +114,37 @@ namespace ANLASH.LanguageCenters
         /// <summary>
         /// جلب الدورات حسب النوع
         /// </summary>
-        public async Task<PagedResultDto<LanguageCourseDto>> GetByCourseTypeAsync(int courseType, PagedLanguageCourseRequestDto input)
+        public async Task<PagedResultDto<LanguageCourseDto>> GetByCourseTypeAsync(CourseType courseType, PagedLanguageCourseRequestDto input)
         {
-            input.CourseType = (CourseType)courseType;
-            return await GetAllAsync(input);
+            var query = CreateFilteredQuery(input)
+                .Where(c => c.CourseType == courseType);
+            
+            var totalCount = await AsyncQueryableExecuter.CountAsync(query);
+            query = ApplySorting(query, input);
+            query = ApplyPaging(query, input);
+            
+            var entities = await AsyncQueryableExecuter.ToListAsync(query);
+            var dtos = ObjectMapper.Map<List<LanguageCourseDto>>(entities);
+            
+            return new PagedResultDto<LanguageCourseDto>(totalCount, dtos);
         }
 
         /// <summary>
         /// جلب الدورات حسب المستوى
         /// </summary>
-        public async Task<PagedResultDto<LanguageCourseDto>> GetByLevelAsync(int level, PagedLanguageCourseRequestDto input)
+        public async Task<PagedResultDto<LanguageCourseDto>> GetByLevelAsync(CourseLevel level, PagedLanguageCourseRequestDto input)
         {
-            input.Level = (CourseLevel)level;
-            return await GetAllAsync(input);
+            var query = CreateFilteredQuery(input)
+                .Where(c => c.Level == level);
+            
+            var totalCount = await AsyncQueryableExecuter.CountAsync(query);
+            query = ApplySorting(query, input);
+            query = ApplyPaging(query, input);
+            
+            var entities = await AsyncQueryableExecuter.ToListAsync(query);
+            var dtos = ObjectMapper.Map<List<LanguageCourseDto>>(entities);
+            
+            return new PagedResultDto<LanguageCourseDto>(totalCount, dtos);
         }
 
         /// <summary>
@@ -171,12 +189,6 @@ namespace ANLASH.LanguageCenters
 
             if (input.LanguageCenterId.HasValue)
                 query = query.Where(c => c.LanguageCenterId == input.LanguageCenterId.Value);
-
-            if (input.CourseType.HasValue)
-                query = query.Where(c => c.CourseType == input.CourseType.Value);
-
-            if (input.Level.HasValue)
-                query = query.Where(c => c.Level == input.Level.Value);
 
             if (input.IsActive.HasValue)
                 query = query.Where(c => c.IsActive == input.IsActive.Value);

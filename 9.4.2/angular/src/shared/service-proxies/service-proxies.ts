@@ -153,6 +153,114 @@ export class BlobStorageServiceProxy {
     }
 
     /**
+     * @param id (optional) 
+     * @return OK
+     */
+    downloadGet(id: string | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/BlobStorage/Download?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDownloadGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDownloadGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDownloadGet(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    downloadPost(id: string | undefined): Observable<DownloadFileOutput> {
+        let url_ = this.baseUrl + "/api/services/app/BlobStorage/Download?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDownloadPost(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDownloadPost(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<DownloadFileOutput>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<DownloadFileOutput>;
+        }));
+    }
+
+    protected processDownloadPost(response: HttpResponseBase): Observable<DownloadFileOutput> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = DownloadFileOutput.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
      * @param body (optional) 
      * @return OK
      */
@@ -198,62 +306,6 @@ export class BlobStorageServiceProxy {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = FileDto.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    /**
-     * @param id (optional) 
-     * @return OK
-     */
-    download(id: string | undefined): Observable<DownloadFileOutput> {
-        let url_ = this.baseUrl + "/api/services/app/BlobStorage/Download?";
-        if (id === null)
-            throw new Error("The parameter 'id' cannot be null.");
-        else if (id !== undefined)
-            url_ += "id=" + encodeURIComponent("" + id) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "text/plain"
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processDownload(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processDownload(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<DownloadFileOutput>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<DownloadFileOutput>;
-        }));
-    }
-
-    protected processDownload(response: HttpResponseBase): Observable<DownloadFileOutput> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = DownloadFileOutput.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -569,6 +621,3162 @@ export class ConfigurationServiceProxy {
 }
 
 @Injectable()
+export class CoursePricingServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    create(body: CreateCoursePricingDto | undefined): Observable<CoursePricingDto> {
+        let url_ = this.baseUrl + "/api/services/app/CoursePricing/Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CoursePricingDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CoursePricingDto>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<CoursePricingDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CoursePricingDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    update(body: UpdateCoursePricingDto | undefined): Observable<CoursePricingDto> {
+        let url_ = this.baseUrl + "/api/services/app/CoursePricing/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CoursePricingDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CoursePricingDto>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<CoursePricingDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CoursePricingDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param languageCourseId (optional) 
+     * @return OK
+     */
+    getByCourse(languageCourseId: number | undefined): Observable<ListResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        let url_ = this.baseUrl + "/api/services/app/CoursePricing/GetByCourse?";
+        if (languageCourseId === null)
+            throw new Error("The parameter 'languageCourseId' cannot be null.");
+        else if (languageCourseId !== undefined)
+            url_ += "languageCourseId=" + encodeURIComponent("" + languageCourseId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetByCourse(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetByCourse(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ListResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ListResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+        }));
+    }
+
+    protected processGetByCourse(response: HttpResponseBase): Observable<ListResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ListResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param languageCourseId (optional) 
+     * @return OK
+     */
+    getActiveByCourse(languageCourseId: number | undefined): Observable<ListResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        let url_ = this.baseUrl + "/api/services/app/CoursePricing/GetActiveByCourse?";
+        if (languageCourseId === null)
+            throw new Error("The parameter 'languageCourseId' cannot be null.");
+        else if (languageCourseId !== undefined)
+            url_ += "languageCourseId=" + encodeURIComponent("" + languageCourseId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetActiveByCourse(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetActiveByCourse(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ListResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ListResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+        }));
+    }
+
+    protected processGetActiveByCourse(response: HttpResponseBase): Observable<ListResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ListResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    createBulk(body: CreateCoursePricingDto[] | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/CoursePricing/CreateBulk";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateBulk(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateBulk(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processCreateBulk(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    updateBulk(body: UpdateCoursePricingDto[] | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/CoursePricing/UpdateBulk";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateBulk(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateBulk(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUpdateBulk(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param languageCourseId (optional) 
+     * @return OK
+     */
+    deleteByCourse(languageCourseId: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/CoursePricing/DeleteByCourse?";
+        if (languageCourseId === null)
+            throw new Error("The parameter 'languageCourseId' cannot be null.");
+        else if (languageCourseId !== undefined)
+            url_ += "languageCourseId=" + encodeURIComponent("" + languageCourseId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteByCourse(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteByCourse(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDeleteByCourse(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param languageCourseId (optional) 
+     * @param discountPercentage (optional) 
+     * @return OK
+     */
+    applyDiscountToCourse(languageCourseId: number | undefined, discountPercentage: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/CoursePricing/ApplyDiscountToCourse?";
+        if (languageCourseId === null)
+            throw new Error("The parameter 'languageCourseId' cannot be null.");
+        else if (languageCourseId !== undefined)
+            url_ += "languageCourseId=" + encodeURIComponent("" + languageCourseId) + "&";
+        if (discountPercentage === null)
+            throw new Error("The parameter 'discountPercentage' cannot be null.");
+        else if (discountPercentage !== undefined)
+            url_ += "discountPercentage=" + encodeURIComponent("" + discountPercentage) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processApplyDiscountToCourse(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processApplyDiscountToCourse(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processApplyDiscountToCourse(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param pricingId (optional) 
+     * @return OK
+     */
+    calculateFinalPrice(pricingId: number | undefined): Observable<number> {
+        let url_ = this.baseUrl + "/api/services/app/CoursePricing/CalculateFinalPrice?";
+        if (pricingId === null)
+            throw new Error("The parameter 'pricingId' cannot be null.");
+        else if (pricingId !== undefined)
+            url_ += "pricingId=" + encodeURIComponent("" + pricingId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCalculateFinalPrice(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCalculateFinalPrice(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<number>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<number>;
+        }));
+    }
+
+    protected processCalculateFinalPrice(response: HttpResponseBase): Observable<number> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    get(id: number | undefined): Observable<CoursePricingDto> {
+        let url_ = this.baseUrl + "/api/services/app/CoursePricing/Get?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CoursePricingDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CoursePricingDto>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<CoursePricingDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = CoursePricingDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param languageCourseId (optional) 
+     * @param durationWeeks (optional) 
+     * @param isActive (optional) 
+     * @param hasDiscount (optional) 
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getAll(languageCourseId: number | undefined, durationWeeks: number | undefined, isActive: boolean | undefined, hasDiscount: boolean | undefined, sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PagedResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        let url_ = this.baseUrl + "/api/services/app/CoursePricing/GetAll?";
+        if (languageCourseId === null)
+            throw new Error("The parameter 'languageCourseId' cannot be null.");
+        else if (languageCourseId !== undefined)
+            url_ += "LanguageCourseId=" + encodeURIComponent("" + languageCourseId) + "&";
+        if (durationWeeks === null)
+            throw new Error("The parameter 'durationWeeks' cannot be null.");
+        else if (durationWeeks !== undefined)
+            url_ += "DurationWeeks=" + encodeURIComponent("" + durationWeeks) + "&";
+        if (isActive === null)
+            throw new Error("The parameter 'isActive' cannot be null.");
+        else if (isActive !== undefined)
+            url_ += "IsActive=" + encodeURIComponent("" + isActive) + "&";
+        if (hasDiscount === null)
+            throw new Error("The parameter 'hasDiscount' cannot be null.");
+        else if (hasDiscount !== undefined)
+            url_ += "HasDiscount=" + encodeURIComponent("" + hasDiscount) + "&";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PagedResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PagedResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+        }));
+    }
+
+    protected processGetAll(response: HttpResponseBase): Observable<PagedResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PagedResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    delete(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/CoursePricing/Delete?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
+export class LanguageCenterServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param keyword (optional) 
+     * @param countryId (optional) 
+     * @param cityId (optional) 
+     * @param isActive (optional) 
+     * @param isFeatured (optional) 
+     * @param isAccredited (optional) 
+     * @param minRating (optional) 
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getAll(keyword: string | undefined, countryId: number | undefined, cityId: number | undefined, isActive: boolean | undefined, isFeatured: boolean | undefined, isAccredited: boolean | undefined, minRating: number | undefined, sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PagedResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenter/GetAll?";
+        if (keyword === null)
+            throw new Error("The parameter 'keyword' cannot be null.");
+        else if (keyword !== undefined)
+            url_ += "Keyword=" + encodeURIComponent("" + keyword) + "&";
+        if (countryId === null)
+            throw new Error("The parameter 'countryId' cannot be null.");
+        else if (countryId !== undefined)
+            url_ += "CountryId=" + encodeURIComponent("" + countryId) + "&";
+        if (cityId === null)
+            throw new Error("The parameter 'cityId' cannot be null.");
+        else if (cityId !== undefined)
+            url_ += "CityId=" + encodeURIComponent("" + cityId) + "&";
+        if (isActive === null)
+            throw new Error("The parameter 'isActive' cannot be null.");
+        else if (isActive !== undefined)
+            url_ += "IsActive=" + encodeURIComponent("" + isActive) + "&";
+        if (isFeatured === null)
+            throw new Error("The parameter 'isFeatured' cannot be null.");
+        else if (isFeatured !== undefined)
+            url_ += "IsFeatured=" + encodeURIComponent("" + isFeatured) + "&";
+        if (isAccredited === null)
+            throw new Error("The parameter 'isAccredited' cannot be null.");
+        else if (isAccredited !== undefined)
+            url_ += "IsAccredited=" + encodeURIComponent("" + isAccredited) + "&";
+        if (minRating === null)
+            throw new Error("The parameter 'minRating' cannot be null.");
+        else if (minRating !== undefined)
+            url_ += "MinRating=" + encodeURIComponent("" + minRating) + "&";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PagedResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PagedResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+        }));
+    }
+
+    protected processGetAll(response: HttpResponseBase): Observable<PagedResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PagedResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    get(id: number | undefined): Observable<LanguageCenterDto> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenter/Get?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<LanguageCenterDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<LanguageCenterDto>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<LanguageCenterDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LanguageCenterDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    create(body: CreateLanguageCenterDto | undefined): Observable<LanguageCenterDto> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenter/Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<LanguageCenterDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<LanguageCenterDto>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<LanguageCenterDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LanguageCenterDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    update(body: UpdateLanguageCenterDto | undefined): Observable<LanguageCenterDto> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenter/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<LanguageCenterDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<LanguageCenterDto>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<LanguageCenterDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LanguageCenterDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    delete(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenter/Delete?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param keyword (optional) 
+     * @param countryId (optional) 
+     * @param cityId (optional) 
+     * @param isActive (optional) 
+     * @param isFeatured (optional) 
+     * @param isAccredited (optional) 
+     * @param minRating (optional) 
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getAllActive(keyword: string | undefined, countryId: number | undefined, cityId: number | undefined, isActive: boolean | undefined, isFeatured: boolean | undefined, isAccredited: boolean | undefined, minRating: number | undefined, sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PagedResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenter/GetAllActive?";
+        if (keyword === null)
+            throw new Error("The parameter 'keyword' cannot be null.");
+        else if (keyword !== undefined)
+            url_ += "Keyword=" + encodeURIComponent("" + keyword) + "&";
+        if (countryId === null)
+            throw new Error("The parameter 'countryId' cannot be null.");
+        else if (countryId !== undefined)
+            url_ += "CountryId=" + encodeURIComponent("" + countryId) + "&";
+        if (cityId === null)
+            throw new Error("The parameter 'cityId' cannot be null.");
+        else if (cityId !== undefined)
+            url_ += "CityId=" + encodeURIComponent("" + cityId) + "&";
+        if (isActive === null)
+            throw new Error("The parameter 'isActive' cannot be null.");
+        else if (isActive !== undefined)
+            url_ += "IsActive=" + encodeURIComponent("" + isActive) + "&";
+        if (isFeatured === null)
+            throw new Error("The parameter 'isFeatured' cannot be null.");
+        else if (isFeatured !== undefined)
+            url_ += "IsFeatured=" + encodeURIComponent("" + isFeatured) + "&";
+        if (isAccredited === null)
+            throw new Error("The parameter 'isAccredited' cannot be null.");
+        else if (isAccredited !== undefined)
+            url_ += "IsAccredited=" + encodeURIComponent("" + isAccredited) + "&";
+        if (minRating === null)
+            throw new Error("The parameter 'minRating' cannot be null.");
+        else if (minRating !== undefined)
+            url_ += "MinRating=" + encodeURIComponent("" + minRating) + "&";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAllActive(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAllActive(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PagedResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PagedResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+        }));
+    }
+
+    protected processGetAllActive(response: HttpResponseBase): Observable<PagedResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PagedResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param count (optional) 
+     * @return OK
+     */
+    getFeatured(count: number | undefined): Observable<ListResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenter/GetFeatured?";
+        if (count === null)
+            throw new Error("The parameter 'count' cannot be null.");
+        else if (count !== undefined)
+            url_ += "count=" + encodeURIComponent("" + count) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetFeatured(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetFeatured(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ListResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ListResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+        }));
+    }
+
+    protected processGetFeatured(response: HttpResponseBase): Observable<ListResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ListResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param slug (optional) 
+     * @return OK
+     */
+    getBySlug(slug: string | undefined): Observable<LanguageCenterDto> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenter/GetBySlug?";
+        if (slug === null)
+            throw new Error("The parameter 'slug' cannot be null.");
+        else if (slug !== undefined)
+            url_ += "slug=" + encodeURIComponent("" + slug) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetBySlug(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetBySlug(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<LanguageCenterDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<LanguageCenterDto>;
+        }));
+    }
+
+    protected processGetBySlug(response: HttpResponseBase): Observable<LanguageCenterDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LanguageCenterDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    getLanguageCenterDetail(id: number | undefined): Observable<LanguageCenterDetailDto> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenter/GetLanguageCenterDetail?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetLanguageCenterDetail(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetLanguageCenterDetail(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<LanguageCenterDetailDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<LanguageCenterDetailDto>;
+        }));
+    }
+
+    protected processGetLanguageCenterDetail(response: HttpResponseBase): Observable<LanguageCenterDetailDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LanguageCenterDetailDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param slug (optional) 
+     * @return OK
+     */
+    getLanguageCenterDetailBySlug(slug: string | undefined): Observable<LanguageCenterDetailDto> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenter/GetLanguageCenterDetailBySlug?";
+        if (slug === null)
+            throw new Error("The parameter 'slug' cannot be null.");
+        else if (slug !== undefined)
+            url_ += "slug=" + encodeURIComponent("" + slug) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetLanguageCenterDetailBySlug(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetLanguageCenterDetailBySlug(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<LanguageCenterDetailDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<LanguageCenterDetailDto>;
+        }));
+    }
+
+    protected processGetLanguageCenterDetailBySlug(response: HttpResponseBase): Observable<LanguageCenterDetailDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LanguageCenterDetailDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param countryId (optional) 
+     * @return OK
+     */
+    getByCountry(countryId: number | undefined): Observable<ListResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenter/GetByCountry?";
+        if (countryId === null)
+            throw new Error("The parameter 'countryId' cannot be null.");
+        else if (countryId !== undefined)
+            url_ += "countryId=" + encodeURIComponent("" + countryId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetByCountry(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetByCountry(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ListResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ListResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+        }));
+    }
+
+    protected processGetByCountry(response: HttpResponseBase): Observable<ListResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ListResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param keyword (optional) 
+     * @param countryId (optional) 
+     * @param cityId (optional) 
+     * @param isActive (optional) 
+     * @param isFeatured (optional) 
+     * @param isAccredited (optional) 
+     * @param minRating (optional) 
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getAccredited(keyword: string | undefined, countryId: number | undefined, cityId: number | undefined, isActive: boolean | undefined, isFeatured: boolean | undefined, isAccredited: boolean | undefined, minRating: number | undefined, sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PagedResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenter/GetAccredited?";
+        if (keyword === null)
+            throw new Error("The parameter 'keyword' cannot be null.");
+        else if (keyword !== undefined)
+            url_ += "Keyword=" + encodeURIComponent("" + keyword) + "&";
+        if (countryId === null)
+            throw new Error("The parameter 'countryId' cannot be null.");
+        else if (countryId !== undefined)
+            url_ += "CountryId=" + encodeURIComponent("" + countryId) + "&";
+        if (cityId === null)
+            throw new Error("The parameter 'cityId' cannot be null.");
+        else if (cityId !== undefined)
+            url_ += "CityId=" + encodeURIComponent("" + cityId) + "&";
+        if (isActive === null)
+            throw new Error("The parameter 'isActive' cannot be null.");
+        else if (isActive !== undefined)
+            url_ += "IsActive=" + encodeURIComponent("" + isActive) + "&";
+        if (isFeatured === null)
+            throw new Error("The parameter 'isFeatured' cannot be null.");
+        else if (isFeatured !== undefined)
+            url_ += "IsFeatured=" + encodeURIComponent("" + isFeatured) + "&";
+        if (isAccredited === null)
+            throw new Error("The parameter 'isAccredited' cannot be null.");
+        else if (isAccredited !== undefined)
+            url_ += "IsAccredited=" + encodeURIComponent("" + isAccredited) + "&";
+        if (minRating === null)
+            throw new Error("The parameter 'minRating' cannot be null.");
+        else if (minRating !== undefined)
+            url_ += "MinRating=" + encodeURIComponent("" + minRating) + "&";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAccredited(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAccredited(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PagedResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PagedResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+        }));
+    }
+
+    protected processGetAccredited(response: HttpResponseBase): Observable<PagedResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PagedResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    toggleActive(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenter/ToggleActive?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processToggleActive(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processToggleActive(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processToggleActive(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    toggleFeatured(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenter/ToggleFeatured?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processToggleFeatured(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processToggleFeatured(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processToggleFeatured(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
+export class LanguageCenterFAQServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    create(body: CreateLanguageCenterFAQDto | undefined): Observable<LanguageCenterFAQDto> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenterFAQ/Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<LanguageCenterFAQDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<LanguageCenterFAQDto>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<LanguageCenterFAQDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LanguageCenterFAQDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    update(body: UpdateLanguageCenterFAQDto | undefined): Observable<LanguageCenterFAQDto> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenterFAQ/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<LanguageCenterFAQDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<LanguageCenterFAQDto>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<LanguageCenterFAQDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LanguageCenterFAQDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    delete(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenterFAQ/Delete?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param languageCenterId (optional) 
+     * @return OK
+     */
+    getByLanguageCenter(languageCenterId: number | undefined): Observable<ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenterFAQ/GetByLanguageCenter?";
+        if (languageCenterId === null)
+            throw new Error("The parameter 'languageCenterId' cannot be null.");
+        else if (languageCenterId !== undefined)
+            url_ += "languageCenterId=" + encodeURIComponent("" + languageCenterId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetByLanguageCenter(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetByLanguageCenter(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+        }));
+    }
+
+    protected processGetByLanguageCenter(response: HttpResponseBase): Observable<ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param languageCenterId (optional) 
+     * @return OK
+     */
+    getPublishedByLanguageCenter(languageCenterId: number | undefined): Observable<ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenterFAQ/GetPublishedByLanguageCenter?";
+        if (languageCenterId === null)
+            throw new Error("The parameter 'languageCenterId' cannot be null.");
+        else if (languageCenterId !== undefined)
+            url_ += "languageCenterId=" + encodeURIComponent("" + languageCenterId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetPublishedByLanguageCenter(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetPublishedByLanguageCenter(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+        }));
+    }
+
+    protected processGetPublishedByLanguageCenter(response: HttpResponseBase): Observable<ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param languageCenterId (optional) 
+     * @param category (optional) 
+     * @return OK
+     */
+    getByCategory(languageCenterId: number | undefined, category: string | undefined): Observable<ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenterFAQ/GetByCategory?";
+        if (languageCenterId === null)
+            throw new Error("The parameter 'languageCenterId' cannot be null.");
+        else if (languageCenterId !== undefined)
+            url_ += "languageCenterId=" + encodeURIComponent("" + languageCenterId) + "&";
+        if (category === null)
+            throw new Error("The parameter 'category' cannot be null.");
+        else if (category !== undefined)
+            url_ += "category=" + encodeURIComponent("" + category) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetByCategory(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetByCategory(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+        }));
+    }
+
+    protected processGetByCategory(response: HttpResponseBase): Observable<ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param languageCenterId (optional) 
+     * @return OK
+     */
+    getFeatured(languageCenterId: number | undefined): Observable<ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenterFAQ/GetFeatured?";
+        if (languageCenterId === null)
+            throw new Error("The parameter 'languageCenterId' cannot be null.");
+        else if (languageCenterId !== undefined)
+            url_ += "languageCenterId=" + encodeURIComponent("" + languageCenterId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetFeatured(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetFeatured(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+        }));
+    }
+
+    protected processGetFeatured(response: HttpResponseBase): Observable<ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    togglePublish(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenterFAQ/TogglePublish?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processTogglePublish(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processTogglePublish(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processTogglePublish(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    toggleFeatured(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenterFAQ/ToggleFeatured?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processToggleFeatured(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processToggleFeatured(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processToggleFeatured(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    recordView(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenterFAQ/RecordView?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRecordView(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRecordView(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processRecordView(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @param isHelpful (optional) 
+     * @return OK
+     */
+    recordRating(id: number | undefined, isHelpful: boolean | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenterFAQ/RecordRating?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        if (isHelpful === null)
+            throw new Error("The parameter 'isHelpful' cannot be null.");
+        else if (isHelpful !== undefined)
+            url_ += "isHelpful=" + encodeURIComponent("" + isHelpful) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processRecordRating(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processRecordRating(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processRecordRating(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    reorder(body: FAQOrderDto[] | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenterFAQ/Reorder";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processReorder(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processReorder(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processReorder(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    get(id: number | undefined): Observable<LanguageCenterFAQDto> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenterFAQ/Get?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<LanguageCenterFAQDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<LanguageCenterFAQDto>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<LanguageCenterFAQDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LanguageCenterFAQDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param keyword (optional) 
+     * @param languageCenterId (optional) 
+     * @param category (optional) 
+     * @param isPublished (optional) 
+     * @param isFeatured (optional) 
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getAll(keyword: string | undefined, languageCenterId: number | undefined, category: string | undefined, isPublished: boolean | undefined, isFeatured: boolean | undefined, sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PagedResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCenterFAQ/GetAll?";
+        if (keyword === null)
+            throw new Error("The parameter 'keyword' cannot be null.");
+        else if (keyword !== undefined)
+            url_ += "Keyword=" + encodeURIComponent("" + keyword) + "&";
+        if (languageCenterId === null)
+            throw new Error("The parameter 'languageCenterId' cannot be null.");
+        else if (languageCenterId !== undefined)
+            url_ += "LanguageCenterId=" + encodeURIComponent("" + languageCenterId) + "&";
+        if (category === null)
+            throw new Error("The parameter 'category' cannot be null.");
+        else if (category !== undefined)
+            url_ += "Category=" + encodeURIComponent("" + category) + "&";
+        if (isPublished === null)
+            throw new Error("The parameter 'isPublished' cannot be null.");
+        else if (isPublished !== undefined)
+            url_ += "IsPublished=" + encodeURIComponent("" + isPublished) + "&";
+        if (isFeatured === null)
+            throw new Error("The parameter 'isFeatured' cannot be null.");
+        else if (isFeatured !== undefined)
+            url_ += "IsFeatured=" + encodeURIComponent("" + isFeatured) + "&";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PagedResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PagedResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+        }));
+    }
+
+    protected processGetAll(response: HttpResponseBase): Observable<PagedResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PagedResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
+export class LanguageCourseServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param keyword (optional) 
+     * @param languageCenterId (optional) 
+     * @param isActive (optional) 
+     * @param isFeatured (optional) 
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getAll(keyword: string | undefined, languageCenterId: number | undefined, isActive: boolean | undefined, isFeatured: boolean | undefined, sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PagedResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCourse/GetAll?";
+        if (keyword === null)
+            throw new Error("The parameter 'keyword' cannot be null.");
+        else if (keyword !== undefined)
+            url_ += "Keyword=" + encodeURIComponent("" + keyword) + "&";
+        if (languageCenterId === null)
+            throw new Error("The parameter 'languageCenterId' cannot be null.");
+        else if (languageCenterId !== undefined)
+            url_ += "LanguageCenterId=" + encodeURIComponent("" + languageCenterId) + "&";
+        if (isActive === null)
+            throw new Error("The parameter 'isActive' cannot be null.");
+        else if (isActive !== undefined)
+            url_ += "IsActive=" + encodeURIComponent("" + isActive) + "&";
+        if (isFeatured === null)
+            throw new Error("The parameter 'isFeatured' cannot be null.");
+        else if (isFeatured !== undefined)
+            url_ += "IsFeatured=" + encodeURIComponent("" + isFeatured) + "&";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetAll(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetAll(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PagedResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PagedResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+        }));
+    }
+
+    protected processGetAll(response: HttpResponseBase): Observable<PagedResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PagedResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    create(body: CreateLanguageCourseDto | undefined): Observable<LanguageCourseDto> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCourse/Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<LanguageCourseDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<LanguageCourseDto>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<LanguageCourseDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LanguageCourseDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    update(body: UpdateLanguageCourseDto | undefined): Observable<LanguageCourseDto> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCourse/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<LanguageCourseDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<LanguageCourseDto>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<LanguageCourseDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LanguageCourseDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    delete(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCourse/Delete?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param languageCenterId (optional) 
+     * @return OK
+     */
+    getByLanguageCenter(languageCenterId: number | undefined): Observable<ListResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCourse/GetByLanguageCenter?";
+        if (languageCenterId === null)
+            throw new Error("The parameter 'languageCenterId' cannot be null.");
+        else if (languageCenterId !== undefined)
+            url_ += "languageCenterId=" + encodeURIComponent("" + languageCenterId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetByLanguageCenter(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetByLanguageCenter(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ListResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ListResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+        }));
+    }
+
+    protected processGetByLanguageCenter(response: HttpResponseBase): Observable<ListResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ListResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param languageCenterId (optional) 
+     * @return OK
+     */
+    getActiveByLanguageCenter(languageCenterId: number | undefined): Observable<ListResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCourse/GetActiveByLanguageCenter?";
+        if (languageCenterId === null)
+            throw new Error("The parameter 'languageCenterId' cannot be null.");
+        else if (languageCenterId !== undefined)
+            url_ += "languageCenterId=" + encodeURIComponent("" + languageCenterId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetActiveByLanguageCenter(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetActiveByLanguageCenter(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ListResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ListResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+        }));
+    }
+
+    protected processGetActiveByLanguageCenter(response: HttpResponseBase): Observable<ListResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ListResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param courseType (optional) 
+     * @param keyword (optional) 
+     * @param languageCenterId (optional) 
+     * @param isActive (optional) 
+     * @param isFeatured (optional) 
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getByCourseType(courseType: CourseType | undefined, keyword: string | undefined, languageCenterId: number | undefined, isActive: boolean | undefined, isFeatured: boolean | undefined, sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PagedResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCourse/GetByCourseType?";
+        if (courseType === null)
+            throw new Error("The parameter 'courseType' cannot be null.");
+        else if (courseType !== undefined)
+            url_ += "courseType=" + encodeURIComponent("" + courseType) + "&";
+        if (keyword === null)
+            throw new Error("The parameter 'keyword' cannot be null.");
+        else if (keyword !== undefined)
+            url_ += "Keyword=" + encodeURIComponent("" + keyword) + "&";
+        if (languageCenterId === null)
+            throw new Error("The parameter 'languageCenterId' cannot be null.");
+        else if (languageCenterId !== undefined)
+            url_ += "LanguageCenterId=" + encodeURIComponent("" + languageCenterId) + "&";
+        if (isActive === null)
+            throw new Error("The parameter 'isActive' cannot be null.");
+        else if (isActive !== undefined)
+            url_ += "IsActive=" + encodeURIComponent("" + isActive) + "&";
+        if (isFeatured === null)
+            throw new Error("The parameter 'isFeatured' cannot be null.");
+        else if (isFeatured !== undefined)
+            url_ += "IsFeatured=" + encodeURIComponent("" + isFeatured) + "&";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetByCourseType(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetByCourseType(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PagedResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PagedResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+        }));
+    }
+
+    protected processGetByCourseType(response: HttpResponseBase): Observable<PagedResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PagedResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param level (optional) 
+     * @param keyword (optional) 
+     * @param languageCenterId (optional) 
+     * @param isActive (optional) 
+     * @param isFeatured (optional) 
+     * @param sorting (optional) 
+     * @param skipCount (optional) 
+     * @param maxResultCount (optional) 
+     * @return OK
+     */
+    getByLevel(level: CourseLevel | undefined, keyword: string | undefined, languageCenterId: number | undefined, isActive: boolean | undefined, isFeatured: boolean | undefined, sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PagedResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCourse/GetByLevel?";
+        if (level === null)
+            throw new Error("The parameter 'level' cannot be null.");
+        else if (level !== undefined)
+            url_ += "level=" + encodeURIComponent("" + level) + "&";
+        if (keyword === null)
+            throw new Error("The parameter 'keyword' cannot be null.");
+        else if (keyword !== undefined)
+            url_ += "Keyword=" + encodeURIComponent("" + keyword) + "&";
+        if (languageCenterId === null)
+            throw new Error("The parameter 'languageCenterId' cannot be null.");
+        else if (languageCenterId !== undefined)
+            url_ += "LanguageCenterId=" + encodeURIComponent("" + languageCenterId) + "&";
+        if (isActive === null)
+            throw new Error("The parameter 'isActive' cannot be null.");
+        else if (isActive !== undefined)
+            url_ += "IsActive=" + encodeURIComponent("" + isActive) + "&";
+        if (isFeatured === null)
+            throw new Error("The parameter 'isFeatured' cannot be null.");
+        else if (isFeatured !== undefined)
+            url_ += "IsFeatured=" + encodeURIComponent("" + isFeatured) + "&";
+        if (sorting === null)
+            throw new Error("The parameter 'sorting' cannot be null.");
+        else if (sorting !== undefined)
+            url_ += "Sorting=" + encodeURIComponent("" + sorting) + "&";
+        if (skipCount === null)
+            throw new Error("The parameter 'skipCount' cannot be null.");
+        else if (skipCount !== undefined)
+            url_ += "SkipCount=" + encodeURIComponent("" + skipCount) + "&";
+        if (maxResultCount === null)
+            throw new Error("The parameter 'maxResultCount' cannot be null.");
+        else if (maxResultCount !== undefined)
+            url_ += "MaxResultCount=" + encodeURIComponent("" + maxResultCount) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetByLevel(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetByLevel(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<PagedResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<PagedResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+        }));
+    }
+
+    protected processGetByLevel(response: HttpResponseBase): Observable<PagedResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = PagedResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param count (optional) 
+     * @return OK
+     */
+    getFeatured(count: number | undefined): Observable<ListResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCourse/GetFeatured?";
+        if (count === null)
+            throw new Error("The parameter 'count' cannot be null.");
+        else if (count !== undefined)
+            url_ += "count=" + encodeURIComponent("" + count) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetFeatured(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetFeatured(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ListResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ListResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+        }));
+    }
+
+    protected processGetFeatured(response: HttpResponseBase): Observable<ListResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ListResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    toggleActive(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCourse/ToggleActive?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processToggleActive(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processToggleActive(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processToggleActive(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    get(id: number | undefined): Observable<LanguageCourseDto> {
+        let url_ = this.baseUrl + "/api/services/app/LanguageCourse/Get?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "Id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<LanguageCourseDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<LanguageCourseDto>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<LanguageCourseDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LanguageCourseDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
 export class LookupServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -582,7 +3790,7 @@ export class LookupServiceProxy {
     /**
      * @return OK
      */
-    getAllCurrencies(): Observable<CurrencyDtoListResultDto> {
+    getAllCurrencies(): Observable<ListResultDto_1OfOfCurrencyDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         let url_ = this.baseUrl + "/api/services/app/Lookup/GetAllCurrencies";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -601,14 +3809,14 @@ export class LookupServiceProxy {
                 try {
                     return this.processGetAllCurrencies(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<CurrencyDtoListResultDto>;
+                    return _observableThrow(e) as any as Observable<ListResultDto_1OfOfCurrencyDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<CurrencyDtoListResultDto>;
+                return _observableThrow(response_) as any as Observable<ListResultDto_1OfOfCurrencyDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
         }));
     }
 
-    protected processGetAllCurrencies(response: HttpResponseBase): Observable<CurrencyDtoListResultDto> {
+    protected processGetAllCurrencies(response: HttpResponseBase): Observable<ListResultDto_1OfOfCurrencyDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -619,7 +3827,7 @@ export class LookupServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = CurrencyDtoListResultDto.fromJS(resultData200);
+            result200 = ListResultDto_1OfOfCurrencyDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -633,7 +3841,7 @@ export class LookupServiceProxy {
     /**
      * @return OK
      */
-    getAllCountries(): Observable<CountryDtoListResultDto> {
+    getAllCountries(): Observable<ListResultDto_1OfOfCountryDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         let url_ = this.baseUrl + "/api/services/app/Lookup/GetAllCountries";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -652,14 +3860,14 @@ export class LookupServiceProxy {
                 try {
                     return this.processGetAllCountries(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<CountryDtoListResultDto>;
+                    return _observableThrow(e) as any as Observable<ListResultDto_1OfOfCountryDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<CountryDtoListResultDto>;
+                return _observableThrow(response_) as any as Observable<ListResultDto_1OfOfCountryDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
         }));
     }
 
-    protected processGetAllCountries(response: HttpResponseBase): Observable<CountryDtoListResultDto> {
+    protected processGetAllCountries(response: HttpResponseBase): Observable<ListResultDto_1OfOfCountryDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -670,7 +3878,7 @@ export class LookupServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = CountryDtoListResultDto.fromJS(resultData200);
+            result200 = ListResultDto_1OfOfCountryDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -684,7 +3892,7 @@ export class LookupServiceProxy {
     /**
      * @return OK
      */
-    getAllCities(): Observable<CityDtoListResultDto> {
+    getAllCities(): Observable<ListResultDto_1OfOfCityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         let url_ = this.baseUrl + "/api/services/app/Lookup/GetAllCities";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -703,14 +3911,14 @@ export class LookupServiceProxy {
                 try {
                     return this.processGetAllCities(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<CityDtoListResultDto>;
+                    return _observableThrow(e) as any as Observable<ListResultDto_1OfOfCityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<CityDtoListResultDto>;
+                return _observableThrow(response_) as any as Observable<ListResultDto_1OfOfCityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
         }));
     }
 
-    protected processGetAllCities(response: HttpResponseBase): Observable<CityDtoListResultDto> {
+    protected processGetAllCities(response: HttpResponseBase): Observable<ListResultDto_1OfOfCityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -721,7 +3929,7 @@ export class LookupServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = CityDtoListResultDto.fromJS(resultData200);
+            result200 = ListResultDto_1OfOfCityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -736,7 +3944,7 @@ export class LookupServiceProxy {
      * @param countryId (optional) 
      * @return OK
      */
-    getCitiesByCountry(countryId: number | undefined): Observable<CityDtoListResultDto> {
+    getCitiesByCountry(countryId: number | undefined): Observable<ListResultDto_1OfOfCityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         let url_ = this.baseUrl + "/api/services/app/Lookup/GetCitiesByCountry?";
         if (countryId === null)
             throw new Error("The parameter 'countryId' cannot be null.");
@@ -759,14 +3967,14 @@ export class LookupServiceProxy {
                 try {
                     return this.processGetCitiesByCountry(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<CityDtoListResultDto>;
+                    return _observableThrow(e) as any as Observable<ListResultDto_1OfOfCityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<CityDtoListResultDto>;
+                return _observableThrow(response_) as any as Observable<ListResultDto_1OfOfCityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
         }));
     }
 
-    protected processGetCitiesByCountry(response: HttpResponseBase): Observable<CityDtoListResultDto> {
+    protected processGetCitiesByCountry(response: HttpResponseBase): Observable<ListResultDto_1OfOfCityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -777,7 +3985,7 @@ export class LookupServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = CityDtoListResultDto.fromJS(resultData200);
+            result200 = ListResultDto_1OfOfCityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -860,7 +4068,7 @@ export class RoleServiceProxy {
      * @param permission (optional) 
      * @return OK
      */
-    getRoles(permission: string | undefined): Observable<RoleListDtoListResultDto> {
+    getRoles(permission: string | undefined): Observable<ListResultDto_1OfOfRoleListDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         let url_ = this.baseUrl + "/api/services/app/Role/GetRoles?";
         if (permission === null)
             throw new Error("The parameter 'permission' cannot be null.");
@@ -883,14 +4091,14 @@ export class RoleServiceProxy {
                 try {
                     return this.processGetRoles(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<RoleListDtoListResultDto>;
+                    return _observableThrow(e) as any as Observable<ListResultDto_1OfOfRoleListDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<RoleListDtoListResultDto>;
+                return _observableThrow(response_) as any as Observable<ListResultDto_1OfOfRoleListDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
         }));
     }
 
-    protected processGetRoles(response: HttpResponseBase): Observable<RoleListDtoListResultDto> {
+    protected processGetRoles(response: HttpResponseBase): Observable<ListResultDto_1OfOfRoleListDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -901,7 +4109,7 @@ export class RoleServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = RoleListDtoListResultDto.fromJS(resultData200);
+            result200 = ListResultDto_1OfOfRoleListDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -1023,7 +4231,7 @@ export class RoleServiceProxy {
     /**
      * @return OK
      */
-    getAllPermissions(): Observable<PermissionDtoListResultDto> {
+    getAllPermissions(): Observable<ListResultDto_1OfOfPermissionDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         let url_ = this.baseUrl + "/api/services/app/Role/GetAllPermissions";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1042,14 +4250,14 @@ export class RoleServiceProxy {
                 try {
                     return this.processGetAllPermissions(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<PermissionDtoListResultDto>;
+                    return _observableThrow(e) as any as Observable<ListResultDto_1OfOfPermissionDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<PermissionDtoListResultDto>;
+                return _observableThrow(response_) as any as Observable<ListResultDto_1OfOfPermissionDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
         }));
     }
 
-    protected processGetAllPermissions(response: HttpResponseBase): Observable<PermissionDtoListResultDto> {
+    protected processGetAllPermissions(response: HttpResponseBase): Observable<ListResultDto_1OfOfPermissionDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1060,7 +4268,7 @@ export class RoleServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = PermissionDtoListResultDto.fromJS(resultData200);
+            result200 = ListResultDto_1OfOfPermissionDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -1189,7 +4397,7 @@ export class RoleServiceProxy {
      * @param maxResultCount (optional) 
      * @return OK
      */
-    getAll(keyword: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<RoleDtoPagedResultDto> {
+    getAll(keyword: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PagedResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         let url_ = this.baseUrl + "/api/services/app/Role/GetAll?";
         if (keyword === null)
             throw new Error("The parameter 'keyword' cannot be null.");
@@ -1220,14 +4428,14 @@ export class RoleServiceProxy {
                 try {
                     return this.processGetAll(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<RoleDtoPagedResultDto>;
+                    return _observableThrow(e) as any as Observable<PagedResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<RoleDtoPagedResultDto>;
+                return _observableThrow(response_) as any as Observable<PagedResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
         }));
     }
 
-    protected processGetAll(response: HttpResponseBase): Observable<RoleDtoPagedResultDto> {
+    protected processGetAll(response: HttpResponseBase): Observable<PagedResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1238,7 +4446,7 @@ export class RoleServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = RoleDtoPagedResultDto.fromJS(resultData200);
+            result200 = PagedResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -1495,7 +4703,7 @@ export class TenantServiceProxy {
      * @param maxResultCount (optional) 
      * @return OK
      */
-    getAll(keyword: string | undefined, isActive: boolean | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<TenantDtoPagedResultDto> {
+    getAll(keyword: string | undefined, isActive: boolean | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PagedResultDto_1OfOfTenantDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         let url_ = this.baseUrl + "/api/services/app/Tenant/GetAll?";
         if (keyword === null)
             throw new Error("The parameter 'keyword' cannot be null.");
@@ -1530,14 +4738,14 @@ export class TenantServiceProxy {
                 try {
                     return this.processGetAll(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<TenantDtoPagedResultDto>;
+                    return _observableThrow(e) as any as Observable<PagedResultDto_1OfOfTenantDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<TenantDtoPagedResultDto>;
+                return _observableThrow(response_) as any as Observable<PagedResultDto_1OfOfTenantDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
         }));
     }
 
-    protected processGetAll(response: HttpResponseBase): Observable<TenantDtoPagedResultDto> {
+    protected processGetAll(response: HttpResponseBase): Observable<PagedResultDto_1OfOfTenantDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1548,7 +4756,7 @@ export class TenantServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = TenantDtoPagedResultDto.fromJS(resultData200);
+            result200 = PagedResultDto_1OfOfTenantDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -1709,7 +4917,7 @@ export class UniversityServiceProxy {
      * @param maxResultCount (optional) 
      * @return OK
      */
-    getAll(searchTerm: string | undefined, country: string | undefined, city: string | undefined, type: UniversityType | undefined, isFeatured: boolean | undefined, isActive: boolean | undefined, minRating: number | undefined, orderBy: string | undefined, isDescending: boolean | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<UniversityDtoPagedResultDto> {
+    getAll(searchTerm: string | undefined, country: string | undefined, city: string | undefined, type: UniversityType | undefined, isFeatured: boolean | undefined, isActive: boolean | undefined, minRating: number | undefined, orderBy: string | undefined, isDescending: boolean | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PagedResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         let url_ = this.baseUrl + "/api/services/app/University/GetAll?";
         if (searchTerm === null)
             throw new Error("The parameter 'searchTerm' cannot be null.");
@@ -1772,14 +4980,14 @@ export class UniversityServiceProxy {
                 try {
                     return this.processGetAll(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<UniversityDtoPagedResultDto>;
+                    return _observableThrow(e) as any as Observable<PagedResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<UniversityDtoPagedResultDto>;
+                return _observableThrow(response_) as any as Observable<PagedResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
         }));
     }
 
-    protected processGetAll(response: HttpResponseBase): Observable<UniversityDtoPagedResultDto> {
+    protected processGetAll(response: HttpResponseBase): Observable<PagedResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1790,7 +4998,7 @@ export class UniversityServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = UniversityDtoPagedResultDto.fromJS(resultData200);
+            result200 = PagedResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2035,7 +5243,7 @@ export class UniversityServiceProxy {
      * @param maxResultCount (optional) 
      * @return OK
      */
-    getAllActive(searchTerm: string | undefined, country: string | undefined, city: string | undefined, type: UniversityType | undefined, isFeatured: boolean | undefined, isActive: boolean | undefined, minRating: number | undefined, orderBy: string | undefined, isDescending: boolean | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<UniversityDtoPagedResultDto> {
+    getAllActive(searchTerm: string | undefined, country: string | undefined, city: string | undefined, type: UniversityType | undefined, isFeatured: boolean | undefined, isActive: boolean | undefined, minRating: number | undefined, orderBy: string | undefined, isDescending: boolean | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PagedResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         let url_ = this.baseUrl + "/api/services/app/University/GetAllActive?";
         if (searchTerm === null)
             throw new Error("The parameter 'searchTerm' cannot be null.");
@@ -2098,14 +5306,14 @@ export class UniversityServiceProxy {
                 try {
                     return this.processGetAllActive(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<UniversityDtoPagedResultDto>;
+                    return _observableThrow(e) as any as Observable<PagedResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<UniversityDtoPagedResultDto>;
+                return _observableThrow(response_) as any as Observable<PagedResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
         }));
     }
 
-    protected processGetAllActive(response: HttpResponseBase): Observable<UniversityDtoPagedResultDto> {
+    protected processGetAllActive(response: HttpResponseBase): Observable<PagedResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -2116,7 +5324,7 @@ export class UniversityServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = UniversityDtoPagedResultDto.fromJS(resultData200);
+            result200 = PagedResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2131,7 +5339,7 @@ export class UniversityServiceProxy {
      * @param count (optional) 
      * @return OK
      */
-    getFeatured(count: number | undefined): Observable<UniversityDtoListResultDto> {
+    getFeatured(count: number | undefined): Observable<ListResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         let url_ = this.baseUrl + "/api/services/app/University/GetFeatured?";
         if (count === null)
             throw new Error("The parameter 'count' cannot be null.");
@@ -2154,14 +5362,14 @@ export class UniversityServiceProxy {
                 try {
                     return this.processGetFeatured(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<UniversityDtoListResultDto>;
+                    return _observableThrow(e) as any as Observable<ListResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<UniversityDtoListResultDto>;
+                return _observableThrow(response_) as any as Observable<ListResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
         }));
     }
 
-    protected processGetFeatured(response: HttpResponseBase): Observable<UniversityDtoListResultDto> {
+    protected processGetFeatured(response: HttpResponseBase): Observable<ListResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -2172,7 +5380,7 @@ export class UniversityServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = UniversityDtoListResultDto.fromJS(resultData200);
+            result200 = ListResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2342,6 +5550,118 @@ export class UniversityServiceProxy {
         }
         return _observableOf(null as any);
     }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    getUniversityDetail(id: number | undefined): Observable<UniversityDetailDto> {
+        let url_ = this.baseUrl + "/api/services/app/University/GetUniversityDetail?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetUniversityDetail(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetUniversityDetail(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<UniversityDetailDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<UniversityDetailDto>;
+        }));
+    }
+
+    protected processGetUniversityDetail(response: HttpResponseBase): Observable<UniversityDetailDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UniversityDetailDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param slug (optional) 
+     * @return OK
+     */
+    getUniversityDetailBySlug(slug: string | undefined): Observable<UniversityDetailDto> {
+        let url_ = this.baseUrl + "/api/services/app/University/GetUniversityDetailBySlug?";
+        if (slug === null)
+            throw new Error("The parameter 'slug' cannot be null.");
+        else if (slug !== undefined)
+            url_ += "slug=" + encodeURIComponent("" + slug) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetUniversityDetailBySlug(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetUniversityDetailBySlug(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<UniversityDetailDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<UniversityDetailDto>;
+        }));
+    }
+
+    protected processGetUniversityDetailBySlug(response: HttpResponseBase): Observable<UniversityDetailDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UniversityDetailDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
 }
 
 @Injectable()
@@ -2359,7 +5679,7 @@ export class UniversityContentServiceProxy {
      * @param universityId (optional) 
      * @return OK
      */
-    getByUniversityId(universityId: number | undefined): Observable<UniversityContentDtoListResultDto> {
+    getByUniversityId(universityId: number | undefined): Observable<ListResultDto_1OfOfUniversityContentDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         let url_ = this.baseUrl + "/api/services/app/UniversityContent/GetByUniversityId?";
         if (universityId === null)
             throw new Error("The parameter 'universityId' cannot be null.");
@@ -2382,14 +5702,14 @@ export class UniversityContentServiceProxy {
                 try {
                     return this.processGetByUniversityId(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<UniversityContentDtoListResultDto>;
+                    return _observableThrow(e) as any as Observable<ListResultDto_1OfOfUniversityContentDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<UniversityContentDtoListResultDto>;
+                return _observableThrow(response_) as any as Observable<ListResultDto_1OfOfUniversityContentDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
         }));
     }
 
-    protected processGetByUniversityId(response: HttpResponseBase): Observable<UniversityContentDtoListResultDto> {
+    protected processGetByUniversityId(response: HttpResponseBase): Observable<ListResultDto_1OfOfUniversityContentDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -2400,7 +5720,7 @@ export class UniversityContentServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = UniversityContentDtoListResultDto.fromJS(resultData200);
+            result200 = ListResultDto_1OfOfUniversityContentDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2591,7 +5911,7 @@ export class UniversityContentServiceProxy {
      * @param maxResultCount (optional) 
      * @return OK
      */
-    getAll(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<UniversityContentDtoPagedResultDto> {
+    getAll(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PagedResultDto_1OfOfUniversityContentDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         let url_ = this.baseUrl + "/api/services/app/UniversityContent/GetAll?";
         if (sorting === null)
             throw new Error("The parameter 'sorting' cannot be null.");
@@ -2622,14 +5942,14 @@ export class UniversityContentServiceProxy {
                 try {
                     return this.processGetAll(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<UniversityContentDtoPagedResultDto>;
+                    return _observableThrow(e) as any as Observable<PagedResultDto_1OfOfUniversityContentDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<UniversityContentDtoPagedResultDto>;
+                return _observableThrow(response_) as any as Observable<PagedResultDto_1OfOfUniversityContentDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
         }));
     }
 
-    protected processGetAll(response: HttpResponseBase): Observable<UniversityContentDtoPagedResultDto> {
+    protected processGetAll(response: HttpResponseBase): Observable<PagedResultDto_1OfOfUniversityContentDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -2640,7 +5960,7 @@ export class UniversityContentServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = UniversityContentDtoPagedResultDto.fromJS(resultData200);
+            result200 = PagedResultDto_1OfOfUniversityContentDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2817,6 +6137,458 @@ export class UniversityContentServiceProxy {
 }
 
 @Injectable()
+export class UniversityFAQServiceProxy {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    get(id: number | undefined): Observable<UniversityFAQDto> {
+        let url_ = this.baseUrl + "/api/services/app/UniversityFAQ/Get?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGet(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGet(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<UniversityFAQDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<UniversityFAQDto>;
+        }));
+    }
+
+    protected processGet(response: HttpResponseBase): Observable<UniversityFAQDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UniversityFAQDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param universityId (optional) 
+     * @return OK
+     */
+    getByUniversity(universityId: number | undefined): Observable<ListResultDto_1OfOfUniversityFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        let url_ = this.baseUrl + "/api/services/app/UniversityFAQ/GetByUniversity?";
+        if (universityId === null)
+            throw new Error("The parameter 'universityId' cannot be null.");
+        else if (universityId !== undefined)
+            url_ += "universityId=" + encodeURIComponent("" + universityId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetByUniversity(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetByUniversity(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ListResultDto_1OfOfUniversityFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ListResultDto_1OfOfUniversityFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+        }));
+    }
+
+    protected processGetByUniversity(response: HttpResponseBase): Observable<ListResultDto_1OfOfUniversityFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ListResultDto_1OfOfUniversityFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param universityId (optional) 
+     * @return OK
+     */
+    getPublishedByUniversity(universityId: number | undefined): Observable<ListResultDto_1OfOfUniversityFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        let url_ = this.baseUrl + "/api/services/app/UniversityFAQ/GetPublishedByUniversity?";
+        if (universityId === null)
+            throw new Error("The parameter 'universityId' cannot be null.");
+        else if (universityId !== undefined)
+            url_ += "universityId=" + encodeURIComponent("" + universityId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetPublishedByUniversity(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetPublishedByUniversity(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ListResultDto_1OfOfUniversityFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ListResultDto_1OfOfUniversityFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
+        }));
+    }
+
+    protected processGetPublishedByUniversity(response: HttpResponseBase): Observable<ListResultDto_1OfOfUniversityFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ListResultDto_1OfOfUniversityFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    create(body: CreateUniversityFAQDto | undefined): Observable<UniversityFAQDto> {
+        let url_ = this.baseUrl + "/api/services/app/UniversityFAQ/Create";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<UniversityFAQDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<UniversityFAQDto>;
+        }));
+    }
+
+    protected processCreate(response: HttpResponseBase): Observable<UniversityFAQDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UniversityFAQDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    update(body: UpdateUniversityFAQDto | undefined): Observable<UniversityFAQDto> {
+        let url_ = this.baseUrl + "/api/services/app/UniversityFAQ/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<UniversityFAQDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<UniversityFAQDto>;
+        }));
+    }
+
+    protected processUpdate(response: HttpResponseBase): Observable<UniversityFAQDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UniversityFAQDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    delete(id: number | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/UniversityFAQ/Delete?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDelete(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDelete(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDelete(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    reorder(body: FAQOrderDto2[] | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/services/app/UniversityFAQ/Reorder";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processReorder(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processReorder(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processReorder(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param id (optional) 
+     * @return OK
+     */
+    togglePublish(id: number | undefined): Observable<UniversityFAQDto> {
+        let url_ = this.baseUrl + "/api/services/app/UniversityFAQ/TogglePublish?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "text/plain"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processTogglePublish(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processTogglePublish(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<UniversityFAQDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<UniversityFAQDto>;
+        }));
+    }
+
+    protected processTogglePublish(response: HttpResponseBase): Observable<UniversityFAQDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = UniversityFAQDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
 export class UniversityProgramServiceProxy {
     private http: HttpClient;
     private baseUrl: string;
@@ -2831,7 +6603,7 @@ export class UniversityProgramServiceProxy {
      * @param universityId (optional) 
      * @return OK
      */
-    getByUniversityId(universityId: number | undefined): Observable<UniversityProgramDtoListResultDto> {
+    getByUniversityId(universityId: number | undefined): Observable<ListResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         let url_ = this.baseUrl + "/api/services/app/UniversityProgram/GetByUniversityId?";
         if (universityId === null)
             throw new Error("The parameter 'universityId' cannot be null.");
@@ -2854,14 +6626,14 @@ export class UniversityProgramServiceProxy {
                 try {
                     return this.processGetByUniversityId(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<UniversityProgramDtoListResultDto>;
+                    return _observableThrow(e) as any as Observable<ListResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<UniversityProgramDtoListResultDto>;
+                return _observableThrow(response_) as any as Observable<ListResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
         }));
     }
 
-    protected processGetByUniversityId(response: HttpResponseBase): Observable<UniversityProgramDtoListResultDto> {
+    protected processGetByUniversityId(response: HttpResponseBase): Observable<ListResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -2872,7 +6644,7 @@ export class UniversityProgramServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = UniversityProgramDtoListResultDto.fromJS(resultData200);
+            result200 = ListResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2890,7 +6662,7 @@ export class UniversityProgramServiceProxy {
      * @param maxResultCount (optional) 
      * @return OK
      */
-    getByLevel(level: ProgramLevel | undefined, sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<UniversityProgramDtoPagedResultDto> {
+    getByLevel(level: ProgramLevel | undefined, sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PagedResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         let url_ = this.baseUrl + "/api/services/app/UniversityProgram/GetByLevel?";
         if (level === null)
             throw new Error("The parameter 'level' cannot be null.");
@@ -2925,14 +6697,14 @@ export class UniversityProgramServiceProxy {
                 try {
                     return this.processGetByLevel(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<UniversityProgramDtoPagedResultDto>;
+                    return _observableThrow(e) as any as Observable<PagedResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<UniversityProgramDtoPagedResultDto>;
+                return _observableThrow(response_) as any as Observable<PagedResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
         }));
     }
 
-    protected processGetByLevel(response: HttpResponseBase): Observable<UniversityProgramDtoPagedResultDto> {
+    protected processGetByLevel(response: HttpResponseBase): Observable<PagedResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -2943,7 +6715,7 @@ export class UniversityProgramServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = UniversityProgramDtoPagedResultDto.fromJS(resultData200);
+            result200 = PagedResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2958,7 +6730,7 @@ export class UniversityProgramServiceProxy {
      * @param maxCount (optional) 
      * @return OK
      */
-    getFeatured(maxCount: number | undefined): Observable<UniversityProgramDtoListResultDto> {
+    getFeatured(maxCount: number | undefined): Observable<ListResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         let url_ = this.baseUrl + "/api/services/app/UniversityProgram/GetFeatured?";
         if (maxCount === null)
             throw new Error("The parameter 'maxCount' cannot be null.");
@@ -2981,14 +6753,14 @@ export class UniversityProgramServiceProxy {
                 try {
                     return this.processGetFeatured(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<UniversityProgramDtoListResultDto>;
+                    return _observableThrow(e) as any as Observable<ListResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<UniversityProgramDtoListResultDto>;
+                return _observableThrow(response_) as any as Observable<ListResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
         }));
     }
 
-    protected processGetFeatured(response: HttpResponseBase): Observable<UniversityProgramDtoListResultDto> {
+    protected processGetFeatured(response: HttpResponseBase): Observable<ListResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -2999,7 +6771,7 @@ export class UniversityProgramServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = UniversityProgramDtoListResultDto.fromJS(resultData200);
+            result200 = ListResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -3236,7 +7008,7 @@ export class UniversityProgramServiceProxy {
      * @param maxResultCount (optional) 
      * @return OK
      */
-    getAll(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<UniversityProgramDtoPagedResultDto> {
+    getAll(sorting: string | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PagedResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         let url_ = this.baseUrl + "/api/services/app/UniversityProgram/GetAll?";
         if (sorting === null)
             throw new Error("The parameter 'sorting' cannot be null.");
@@ -3267,14 +7039,14 @@ export class UniversityProgramServiceProxy {
                 try {
                     return this.processGetAll(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<UniversityProgramDtoPagedResultDto>;
+                    return _observableThrow(e) as any as Observable<PagedResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<UniversityProgramDtoPagedResultDto>;
+                return _observableThrow(response_) as any as Observable<PagedResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
         }));
     }
 
-    protected processGetAll(response: HttpResponseBase): Observable<UniversityProgramDtoPagedResultDto> {
+    protected processGetAll(response: HttpResponseBase): Observable<PagedResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3285,7 +7057,7 @@ export class UniversityProgramServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = UniversityProgramDtoPagedResultDto.fromJS(resultData200);
+            result200 = PagedResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -3528,7 +7300,7 @@ export class UserServiceProxy {
      * @param body (optional) 
      * @return OK
      */
-    activate(body: Int64EntityDto | undefined): Observable<void> {
+    activate(body: EntityDto_1OfOfInt64AndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798e | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/services/app/User/Activate";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -3580,7 +7352,7 @@ export class UserServiceProxy {
      * @param body (optional) 
      * @return OK
      */
-    deActivate(body: Int64EntityDto | undefined): Observable<void> {
+    deActivate(body: EntityDto_1OfOfInt64AndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798e | undefined): Observable<void> {
         let url_ = this.baseUrl + "/api/services/app/User/DeActivate";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -3631,7 +7403,7 @@ export class UserServiceProxy {
     /**
      * @return OK
      */
-    getRoles(): Observable<RoleDtoListResultDto> {
+    getRoles(): Observable<ListResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         let url_ = this.baseUrl + "/api/services/app/User/GetRoles";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -3650,14 +7422,14 @@ export class UserServiceProxy {
                 try {
                     return this.processGetRoles(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<RoleDtoListResultDto>;
+                    return _observableThrow(e) as any as Observable<ListResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<RoleDtoListResultDto>;
+                return _observableThrow(response_) as any as Observable<ListResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
         }));
     }
 
-    protected processGetRoles(response: HttpResponseBase): Observable<RoleDtoListResultDto> {
+    protected processGetRoles(response: HttpResponseBase): Observable<ListResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3668,7 +7440,7 @@ export class UserServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = RoleDtoListResultDto.fromJS(resultData200);
+            result200 = ListResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -3908,7 +7680,7 @@ export class UserServiceProxy {
      * @param maxResultCount (optional) 
      * @return OK
      */
-    getAll(keyword: string | undefined, isActive: boolean | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<UserDtoPagedResultDto> {
+    getAll(keyword: string | undefined, isActive: boolean | undefined, skipCount: number | undefined, maxResultCount: number | undefined): Observable<PagedResultDto_1OfOfUserDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         let url_ = this.baseUrl + "/api/services/app/User/GetAll?";
         if (keyword === null)
             throw new Error("The parameter 'keyword' cannot be null.");
@@ -3943,14 +7715,14 @@ export class UserServiceProxy {
                 try {
                     return this.processGetAll(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<UserDtoPagedResultDto>;
+                    return _observableThrow(e) as any as Observable<PagedResultDto_1OfOfUserDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<UserDtoPagedResultDto>;
+                return _observableThrow(response_) as any as Observable<PagedResultDto_1OfOfUserDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null>;
         }));
     }
 
-    protected processGetAll(response: HttpResponseBase): Observable<UserDtoPagedResultDto> {
+    protected processGetAll(response: HttpResponseBase): Observable<PagedResultDto_1OfOfUserDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3961,7 +7733,7 @@ export class UserServiceProxy {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = UserDtoPagedResultDto.fromJS(resultData200);
+            result200 = PagedResultDto_1OfOfUserDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -3973,12 +7745,10 @@ export class UserServiceProxy {
     }
 }
 
-export class ApplicationInfoDto implements IApplicationInfoDto {
-    version: string | undefined;
-    releaseDate: moment.Moment;
-    features: { [key: string]: boolean; } | undefined;
+export class IsTenantAvailableInput implements IIsTenantAvailableInput {
+    tenancyName: string;
 
-    constructor(data?: IApplicationInfoDto) {
+    constructor(data?: IIsTenantAvailableInput) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -3989,51 +7759,2556 @@ export class ApplicationInfoDto implements IApplicationInfoDto {
 
     init(_data?: any) {
         if (_data) {
-            this.version = _data["version"];
-            this.releaseDate = _data["releaseDate"] ? moment(_data["releaseDate"].toString()) : <any>undefined;
-            if (_data["features"]) {
-                this.features = {} as any;
-                for (let key in _data["features"]) {
-                    if (_data["features"].hasOwnProperty(key))
-                        (<any>this.features)[key] = _data["features"][key];
-                }
-            }
+            this.tenancyName = _data["tenancyName"];
         }
     }
 
-    static fromJS(data: any): ApplicationInfoDto {
+    static fromJS(data: any): IsTenantAvailableInput {
         data = typeof data === 'object' ? data : {};
-        let result = new ApplicationInfoDto();
+        let result = new IsTenantAvailableInput();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["version"] = this.version;
-        data["releaseDate"] = this.releaseDate ? this.releaseDate.toISOString() : <any>undefined;
-        if (this.features) {
-            data["features"] = {};
-            for (let key in this.features) {
-                if (this.features.hasOwnProperty(key))
-                    (<any>data["features"])[key] = (<any>this.features)[key];
-            }
-        }
+        data["tenancyName"] = this.tenancyName;
         return data;
     }
 
-    clone(): ApplicationInfoDto {
+    clone(): IsTenantAvailableInput {
         const json = this.toJSON();
-        let result = new ApplicationInfoDto();
+        let result = new IsTenantAvailableInput();
         result.init(json);
         return result;
     }
 }
 
-export interface IApplicationInfoDto {
-    version: string | undefined;
-    releaseDate: moment.Moment;
-    features: { [key: string]: boolean; } | undefined;
+export interface IIsTenantAvailableInput {
+    tenancyName: string;
+}
+
+export class IsTenantAvailableOutput implements IIsTenantAvailableOutput {
+    state: TenantAvailabilityState;
+    tenantId: number | undefined;
+
+    constructor(data?: IIsTenantAvailableOutput) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.state = _data["state"];
+            this.tenantId = _data["tenantId"];
+        }
+    }
+
+    static fromJS(data: any): IsTenantAvailableOutput {
+        data = typeof data === 'object' ? data : {};
+        let result = new IsTenantAvailableOutput();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["state"] = this.state;
+        data["tenantId"] = this.tenantId;
+        return data;
+    }
+
+    clone(): IsTenantAvailableOutput {
+        const json = this.toJSON();
+        let result = new IsTenantAvailableOutput();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IIsTenantAvailableOutput {
+    state: TenantAvailabilityState;
+    tenantId: number | undefined;
+}
+
+export class RegisterInput implements IRegisterInput {
+    name: string;
+    surname: string;
+    userName: string;
+    emailAddress: string;
+    password: string;
+    captchaResponse: string | undefined;
+
+    constructor(data?: IRegisterInput) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.surname = _data["surname"];
+            this.userName = _data["userName"];
+            this.emailAddress = _data["emailAddress"];
+            this.password = _data["password"];
+            this.captchaResponse = _data["captchaResponse"];
+        }
+    }
+
+    static fromJS(data: any): RegisterInput {
+        data = typeof data === 'object' ? data : {};
+        let result = new RegisterInput();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["surname"] = this.surname;
+        data["userName"] = this.userName;
+        data["emailAddress"] = this.emailAddress;
+        data["password"] = this.password;
+        data["captchaResponse"] = this.captchaResponse;
+        return data;
+    }
+
+    clone(): RegisterInput {
+        const json = this.toJSON();
+        let result = new RegisterInput();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IRegisterInput {
+    name: string;
+    surname: string;
+    userName: string;
+    emailAddress: string;
+    password: string;
+    captchaResponse: string | undefined;
+}
+
+export class RegisterOutput implements IRegisterOutput {
+    canLogin: boolean;
+
+    constructor(data?: IRegisterOutput) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.canLogin = _data["canLogin"];
+        }
+    }
+
+    static fromJS(data: any): RegisterOutput {
+        data = typeof data === 'object' ? data : {};
+        let result = new RegisterOutput();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["canLogin"] = this.canLogin;
+        return data;
+    }
+
+    clone(): RegisterOutput {
+        const json = this.toJSON();
+        let result = new RegisterOutput();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IRegisterOutput {
+    canLogin: boolean;
+}
+
+export enum TenantAvailabilityState {
+    _1 = 1,
+    _2 = 2,
+    _3 = 3,
+}
+
+export class ChangeUiThemeInput implements IChangeUiThemeInput {
+    theme: string;
+
+    constructor(data?: IChangeUiThemeInput) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.theme = _data["theme"];
+        }
+    }
+
+    static fromJS(data: any): ChangeUiThemeInput {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChangeUiThemeInput();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["theme"] = this.theme;
+        return data;
+    }
+
+    clone(): ChangeUiThemeInput {
+        const json = this.toJSON();
+        let result = new ChangeUiThemeInput();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IChangeUiThemeInput {
+    theme: string;
+}
+
+export enum CourseLevel {
+    _0 = 0,
+    _1 = 1,
+    _2 = 2,
+    _3 = 3,
+    _4 = 4,
+    _5 = 5,
+    _6 = 6,
+    _99 = 99,
+}
+
+export enum CourseType {
+    _0 = 0,
+    _1 = 1,
+    _2 = 2,
+    _3 = 3,
+    _4 = 4,
+    _5 = 5,
+    _6 = 6,
+    _7 = 7,
+}
+
+export class CoursePricingDto implements ICoursePricingDto {
+    id: number;
+    creationTime: moment.Moment;
+    creatorUserId: number | undefined;
+    lastModificationTime: moment.Moment | undefined;
+    lastModifierUserId: number | undefined;
+    isDeleted: boolean;
+    deleterUserId: number | undefined;
+    deletionTime: moment.Moment | undefined;
+    languageCourseId: number;
+    courseName: string | undefined;
+    durationWeeks: number;
+    fee: number;
+    currencyId: number;
+    currencyCode: string | undefined;
+    currencySymbol: string | undefined;
+    feePerWeek: number | undefined;
+    registrationFee: number | undefined;
+    materialsFee: number | undefined;
+    examFee: number | undefined;
+    visaDurationWeeks: number | undefined;
+    visaProcessingFee: number | undefined;
+    hasDiscount: boolean;
+    discountPercentage: number | undefined;
+    discountAmount: number | undefined;
+    finalPrice: number | undefined;
+    promotionDescription: string | undefined;
+    promotionDescriptionAr: string | undefined;
+    isActive: boolean;
+    isMostPopular: boolean;
+    displayOrder: number;
+    notes: string | undefined;
+    notesAr: string | undefined;
+
+    constructor(data?: ICoursePricingDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.creationTime = _data["creationTime"] ? moment(_data["creationTime"].toString()) : <any>undefined;
+            this.creatorUserId = _data["creatorUserId"];
+            this.lastModificationTime = _data["lastModificationTime"] ? moment(_data["lastModificationTime"].toString()) : <any>undefined;
+            this.lastModifierUserId = _data["lastModifierUserId"];
+            this.isDeleted = _data["isDeleted"];
+            this.deleterUserId = _data["deleterUserId"];
+            this.deletionTime = _data["deletionTime"] ? moment(_data["deletionTime"].toString()) : <any>undefined;
+            this.languageCourseId = _data["languageCourseId"];
+            this.courseName = _data["courseName"];
+            this.durationWeeks = _data["durationWeeks"];
+            this.fee = _data["fee"];
+            this.currencyId = _data["currencyId"];
+            this.currencyCode = _data["currencyCode"];
+            this.currencySymbol = _data["currencySymbol"];
+            this.feePerWeek = _data["feePerWeek"];
+            this.registrationFee = _data["registrationFee"];
+            this.materialsFee = _data["materialsFee"];
+            this.examFee = _data["examFee"];
+            this.visaDurationWeeks = _data["visaDurationWeeks"];
+            this.visaProcessingFee = _data["visaProcessingFee"];
+            this.hasDiscount = _data["hasDiscount"];
+            this.discountPercentage = _data["discountPercentage"];
+            this.discountAmount = _data["discountAmount"];
+            this.finalPrice = _data["finalPrice"];
+            this.promotionDescription = _data["promotionDescription"];
+            this.promotionDescriptionAr = _data["promotionDescriptionAr"];
+            this.isActive = _data["isActive"];
+            this.isMostPopular = _data["isMostPopular"];
+            this.displayOrder = _data["displayOrder"];
+            this.notes = _data["notes"];
+            this.notesAr = _data["notesAr"];
+        }
+    }
+
+    static fromJS(data: any): CoursePricingDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CoursePricingDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
+        data["creatorUserId"] = this.creatorUserId;
+        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toISOString() : <any>undefined;
+        data["lastModifierUserId"] = this.lastModifierUserId;
+        data["isDeleted"] = this.isDeleted;
+        data["deleterUserId"] = this.deleterUserId;
+        data["deletionTime"] = this.deletionTime ? this.deletionTime.toISOString() : <any>undefined;
+        data["languageCourseId"] = this.languageCourseId;
+        data["courseName"] = this.courseName;
+        data["durationWeeks"] = this.durationWeeks;
+        data["fee"] = this.fee;
+        data["currencyId"] = this.currencyId;
+        data["currencyCode"] = this.currencyCode;
+        data["currencySymbol"] = this.currencySymbol;
+        data["feePerWeek"] = this.feePerWeek;
+        data["registrationFee"] = this.registrationFee;
+        data["materialsFee"] = this.materialsFee;
+        data["examFee"] = this.examFee;
+        data["visaDurationWeeks"] = this.visaDurationWeeks;
+        data["visaProcessingFee"] = this.visaProcessingFee;
+        data["hasDiscount"] = this.hasDiscount;
+        data["discountPercentage"] = this.discountPercentage;
+        data["discountAmount"] = this.discountAmount;
+        data["finalPrice"] = this.finalPrice;
+        data["promotionDescription"] = this.promotionDescription;
+        data["promotionDescriptionAr"] = this.promotionDescriptionAr;
+        data["isActive"] = this.isActive;
+        data["isMostPopular"] = this.isMostPopular;
+        data["displayOrder"] = this.displayOrder;
+        data["notes"] = this.notes;
+        data["notesAr"] = this.notesAr;
+        return data;
+    }
+
+    clone(): CoursePricingDto {
+        const json = this.toJSON();
+        let result = new CoursePricingDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICoursePricingDto {
+    id: number;
+    creationTime: moment.Moment;
+    creatorUserId: number | undefined;
+    lastModificationTime: moment.Moment | undefined;
+    lastModifierUserId: number | undefined;
+    isDeleted: boolean;
+    deleterUserId: number | undefined;
+    deletionTime: moment.Moment | undefined;
+    languageCourseId: number;
+    courseName: string | undefined;
+    durationWeeks: number;
+    fee: number;
+    currencyId: number;
+    currencyCode: string | undefined;
+    currencySymbol: string | undefined;
+    feePerWeek: number | undefined;
+    registrationFee: number | undefined;
+    materialsFee: number | undefined;
+    examFee: number | undefined;
+    visaDurationWeeks: number | undefined;
+    visaProcessingFee: number | undefined;
+    hasDiscount: boolean;
+    discountPercentage: number | undefined;
+    discountAmount: number | undefined;
+    finalPrice: number | undefined;
+    promotionDescription: string | undefined;
+    promotionDescriptionAr: string | undefined;
+    isActive: boolean;
+    isMostPopular: boolean;
+    displayOrder: number;
+    notes: string | undefined;
+    notesAr: string | undefined;
+}
+
+export class CreateCoursePricingDto implements ICreateCoursePricingDto {
+    languageCourseId: number;
+    durationWeeks: number;
+    fee: number;
+    currencyId: number;
+    feePerWeek: number | undefined;
+    registrationFee: number | undefined;
+    materialsFee: number | undefined;
+    examFee: number | undefined;
+    visaDurationWeeks: number | undefined;
+    visaProcessingFee: number | undefined;
+    hasDiscount: boolean;
+    discountPercentage: number | undefined;
+    discountAmount: number | undefined;
+    finalPrice: number | undefined;
+    promotionDescription: string | undefined;
+    promotionDescriptionAr: string | undefined;
+    isActive: boolean;
+    isMostPopular: boolean;
+    displayOrder: number;
+    notes: string | undefined;
+    notesAr: string | undefined;
+
+    constructor(data?: ICreateCoursePricingDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.languageCourseId = _data["languageCourseId"];
+            this.durationWeeks = _data["durationWeeks"];
+            this.fee = _data["fee"];
+            this.currencyId = _data["currencyId"];
+            this.feePerWeek = _data["feePerWeek"];
+            this.registrationFee = _data["registrationFee"];
+            this.materialsFee = _data["materialsFee"];
+            this.examFee = _data["examFee"];
+            this.visaDurationWeeks = _data["visaDurationWeeks"];
+            this.visaProcessingFee = _data["visaProcessingFee"];
+            this.hasDiscount = _data["hasDiscount"];
+            this.discountPercentage = _data["discountPercentage"];
+            this.discountAmount = _data["discountAmount"];
+            this.finalPrice = _data["finalPrice"];
+            this.promotionDescription = _data["promotionDescription"];
+            this.promotionDescriptionAr = _data["promotionDescriptionAr"];
+            this.isActive = _data["isActive"];
+            this.isMostPopular = _data["isMostPopular"];
+            this.displayOrder = _data["displayOrder"];
+            this.notes = _data["notes"];
+            this.notesAr = _data["notesAr"];
+        }
+    }
+
+    static fromJS(data: any): CreateCoursePricingDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateCoursePricingDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["languageCourseId"] = this.languageCourseId;
+        data["durationWeeks"] = this.durationWeeks;
+        data["fee"] = this.fee;
+        data["currencyId"] = this.currencyId;
+        data["feePerWeek"] = this.feePerWeek;
+        data["registrationFee"] = this.registrationFee;
+        data["materialsFee"] = this.materialsFee;
+        data["examFee"] = this.examFee;
+        data["visaDurationWeeks"] = this.visaDurationWeeks;
+        data["visaProcessingFee"] = this.visaProcessingFee;
+        data["hasDiscount"] = this.hasDiscount;
+        data["discountPercentage"] = this.discountPercentage;
+        data["discountAmount"] = this.discountAmount;
+        data["finalPrice"] = this.finalPrice;
+        data["promotionDescription"] = this.promotionDescription;
+        data["promotionDescriptionAr"] = this.promotionDescriptionAr;
+        data["isActive"] = this.isActive;
+        data["isMostPopular"] = this.isMostPopular;
+        data["displayOrder"] = this.displayOrder;
+        data["notes"] = this.notes;
+        data["notesAr"] = this.notesAr;
+        return data;
+    }
+
+    clone(): CreateCoursePricingDto {
+        const json = this.toJSON();
+        let result = new CreateCoursePricingDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateCoursePricingDto {
+    languageCourseId: number;
+    durationWeeks: number;
+    fee: number;
+    currencyId: number;
+    feePerWeek: number | undefined;
+    registrationFee: number | undefined;
+    materialsFee: number | undefined;
+    examFee: number | undefined;
+    visaDurationWeeks: number | undefined;
+    visaProcessingFee: number | undefined;
+    hasDiscount: boolean;
+    discountPercentage: number | undefined;
+    discountAmount: number | undefined;
+    finalPrice: number | undefined;
+    promotionDescription: string | undefined;
+    promotionDescriptionAr: string | undefined;
+    isActive: boolean;
+    isMostPopular: boolean;
+    displayOrder: number;
+    notes: string | undefined;
+    notesAr: string | undefined;
+}
+
+export class CreateLanguageCenterDto implements ICreateLanguageCenterDto {
+    name: string | undefined;
+    nameAr: string | undefined;
+    description: string | undefined;
+    descriptionAr: string | undefined;
+    aboutText: string | undefined;
+    aboutTextAr: string | undefined;
+    countryId: number | undefined;
+    cityId: number | undefined;
+    state: string | undefined;
+    address: string | undefined;
+    latitude: number | undefined;
+    longitude: number | undefined;
+    websiteUrl: string | undefined;
+    email: string | undefined;
+    phone: string | undefined;
+    whatsApp: string | undefined;
+    logoBlobId: string | undefined;
+    logoUrl: string | undefined;
+    coverImageBlobId: string | undefined;
+    galleryImages: string | undefined;
+    isAccredited: boolean;
+    accreditationBody: string | undefined;
+    accreditationNumber: string | undefined;
+    accreditationExpiryDate: moment.Moment | undefined;
+    registrationSteps: string | undefined;
+    requiredDocuments: string | undefined;
+    providesAccommodation: boolean;
+    accommodationTypes: string | undefined;
+    accommodationDetails: string | undefined;
+    accommodationDetailsAr: string | undefined;
+    slug: string | undefined;
+    slugAr: string | undefined;
+    metaDescription: string | undefined;
+    metaDescriptionAr: string | undefined;
+    isActive: boolean;
+    isFeatured: boolean;
+    rating: number;
+    displayOrder: number;
+
+    constructor(data?: ICreateLanguageCenterDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.nameAr = _data["nameAr"];
+            this.description = _data["description"];
+            this.descriptionAr = _data["descriptionAr"];
+            this.aboutText = _data["aboutText"];
+            this.aboutTextAr = _data["aboutTextAr"];
+            this.countryId = _data["countryId"];
+            this.cityId = _data["cityId"];
+            this.state = _data["state"];
+            this.address = _data["address"];
+            this.latitude = _data["latitude"];
+            this.longitude = _data["longitude"];
+            this.websiteUrl = _data["websiteUrl"];
+            this.email = _data["email"];
+            this.phone = _data["phone"];
+            this.whatsApp = _data["whatsApp"];
+            this.logoBlobId = _data["logoBlobId"];
+            this.logoUrl = _data["logoUrl"];
+            this.coverImageBlobId = _data["coverImageBlobId"];
+            this.galleryImages = _data["galleryImages"];
+            this.isAccredited = _data["isAccredited"];
+            this.accreditationBody = _data["accreditationBody"];
+            this.accreditationNumber = _data["accreditationNumber"];
+            this.accreditationExpiryDate = _data["accreditationExpiryDate"] ? moment(_data["accreditationExpiryDate"].toString()) : <any>undefined;
+            this.registrationSteps = _data["registrationSteps"];
+            this.requiredDocuments = _data["requiredDocuments"];
+            this.providesAccommodation = _data["providesAccommodation"];
+            this.accommodationTypes = _data["accommodationTypes"];
+            this.accommodationDetails = _data["accommodationDetails"];
+            this.accommodationDetailsAr = _data["accommodationDetailsAr"];
+            this.slug = _data["slug"];
+            this.slugAr = _data["slugAr"];
+            this.metaDescription = _data["metaDescription"];
+            this.metaDescriptionAr = _data["metaDescriptionAr"];
+            this.isActive = _data["isActive"];
+            this.isFeatured = _data["isFeatured"];
+            this.rating = _data["rating"];
+            this.displayOrder = _data["displayOrder"];
+        }
+    }
+
+    static fromJS(data: any): CreateLanguageCenterDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateLanguageCenterDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["nameAr"] = this.nameAr;
+        data["description"] = this.description;
+        data["descriptionAr"] = this.descriptionAr;
+        data["aboutText"] = this.aboutText;
+        data["aboutTextAr"] = this.aboutTextAr;
+        data["countryId"] = this.countryId;
+        data["cityId"] = this.cityId;
+        data["state"] = this.state;
+        data["address"] = this.address;
+        data["latitude"] = this.latitude;
+        data["longitude"] = this.longitude;
+        data["websiteUrl"] = this.websiteUrl;
+        data["email"] = this.email;
+        data["phone"] = this.phone;
+        data["whatsApp"] = this.whatsApp;
+        data["logoBlobId"] = this.logoBlobId;
+        data["logoUrl"] = this.logoUrl;
+        data["coverImageBlobId"] = this.coverImageBlobId;
+        data["galleryImages"] = this.galleryImages;
+        data["isAccredited"] = this.isAccredited;
+        data["accreditationBody"] = this.accreditationBody;
+        data["accreditationNumber"] = this.accreditationNumber;
+        data["accreditationExpiryDate"] = this.accreditationExpiryDate ? this.accreditationExpiryDate.toISOString() : <any>undefined;
+        data["registrationSteps"] = this.registrationSteps;
+        data["requiredDocuments"] = this.requiredDocuments;
+        data["providesAccommodation"] = this.providesAccommodation;
+        data["accommodationTypes"] = this.accommodationTypes;
+        data["accommodationDetails"] = this.accommodationDetails;
+        data["accommodationDetailsAr"] = this.accommodationDetailsAr;
+        data["slug"] = this.slug;
+        data["slugAr"] = this.slugAr;
+        data["metaDescription"] = this.metaDescription;
+        data["metaDescriptionAr"] = this.metaDescriptionAr;
+        data["isActive"] = this.isActive;
+        data["isFeatured"] = this.isFeatured;
+        data["rating"] = this.rating;
+        data["displayOrder"] = this.displayOrder;
+        return data;
+    }
+
+    clone(): CreateLanguageCenterDto {
+        const json = this.toJSON();
+        let result = new CreateLanguageCenterDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateLanguageCenterDto {
+    name: string | undefined;
+    nameAr: string | undefined;
+    description: string | undefined;
+    descriptionAr: string | undefined;
+    aboutText: string | undefined;
+    aboutTextAr: string | undefined;
+    countryId: number | undefined;
+    cityId: number | undefined;
+    state: string | undefined;
+    address: string | undefined;
+    latitude: number | undefined;
+    longitude: number | undefined;
+    websiteUrl: string | undefined;
+    email: string | undefined;
+    phone: string | undefined;
+    whatsApp: string | undefined;
+    logoBlobId: string | undefined;
+    logoUrl: string | undefined;
+    coverImageBlobId: string | undefined;
+    galleryImages: string | undefined;
+    isAccredited: boolean;
+    accreditationBody: string | undefined;
+    accreditationNumber: string | undefined;
+    accreditationExpiryDate: moment.Moment | undefined;
+    registrationSteps: string | undefined;
+    requiredDocuments: string | undefined;
+    providesAccommodation: boolean;
+    accommodationTypes: string | undefined;
+    accommodationDetails: string | undefined;
+    accommodationDetailsAr: string | undefined;
+    slug: string | undefined;
+    slugAr: string | undefined;
+    metaDescription: string | undefined;
+    metaDescriptionAr: string | undefined;
+    isActive: boolean;
+    isFeatured: boolean;
+    rating: number;
+    displayOrder: number;
+}
+
+export class CreateLanguageCenterFAQDto implements ICreateLanguageCenterFAQDto {
+    languageCenterId: number;
+    question: string | undefined;
+    questionAr: string | undefined;
+    answer: string | undefined;
+    answerAr: string | undefined;
+    category: string | undefined;
+    categoryAr: string | undefined;
+    displayOrder: number;
+    isPublished: boolean;
+    isFeatured: boolean;
+
+    constructor(data?: ICreateLanguageCenterFAQDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.languageCenterId = _data["languageCenterId"];
+            this.question = _data["question"];
+            this.questionAr = _data["questionAr"];
+            this.answer = _data["answer"];
+            this.answerAr = _data["answerAr"];
+            this.category = _data["category"];
+            this.categoryAr = _data["categoryAr"];
+            this.displayOrder = _data["displayOrder"];
+            this.isPublished = _data["isPublished"];
+            this.isFeatured = _data["isFeatured"];
+        }
+    }
+
+    static fromJS(data: any): CreateLanguageCenterFAQDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateLanguageCenterFAQDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["languageCenterId"] = this.languageCenterId;
+        data["question"] = this.question;
+        data["questionAr"] = this.questionAr;
+        data["answer"] = this.answer;
+        data["answerAr"] = this.answerAr;
+        data["category"] = this.category;
+        data["categoryAr"] = this.categoryAr;
+        data["displayOrder"] = this.displayOrder;
+        data["isPublished"] = this.isPublished;
+        data["isFeatured"] = this.isFeatured;
+        return data;
+    }
+
+    clone(): CreateLanguageCenterFAQDto {
+        const json = this.toJSON();
+        let result = new CreateLanguageCenterFAQDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateLanguageCenterFAQDto {
+    languageCenterId: number;
+    question: string | undefined;
+    questionAr: string | undefined;
+    answer: string | undefined;
+    answerAr: string | undefined;
+    category: string | undefined;
+    categoryAr: string | undefined;
+    displayOrder: number;
+    isPublished: boolean;
+    isFeatured: boolean;
+}
+
+export class CreateLanguageCourseDto implements ICreateLanguageCourseDto {
+    languageCenterId: number;
+    courseName: string | undefined;
+    courseNameAr: string | undefined;
+    description: string | undefined;
+    descriptionAr: string | undefined;
+    courseType: CourseType;
+    level: CourseLevel;
+    minAge: number | undefined;
+    maxAge: number | undefined;
+    classSize: number | undefined;
+    averageClassSize: number | undefined;
+    hoursPerWeek: number | undefined;
+    lessonsPerWeek: number | undefined;
+    lessonDurationMinutes: number | undefined;
+    startDates: string | undefined;
+    minDurationWeeks: number | undefined;
+    maxDurationWeeks: number | undefined;
+    includesMaterials: boolean;
+    includesCertificate: boolean;
+    certificateType: string | undefined;
+    includesPlacementTest: boolean;
+    highlights: string | undefined;
+    highlightsAr: string | undefined;
+    targetAudience: string | undefined;
+    targetAudienceAr: string | undefined;
+    isActive: boolean;
+    isFeatured: boolean;
+    displayOrder: number;
+
+    constructor(data?: ICreateLanguageCourseDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.languageCenterId = _data["languageCenterId"];
+            this.courseName = _data["courseName"];
+            this.courseNameAr = _data["courseNameAr"];
+            this.description = _data["description"];
+            this.descriptionAr = _data["descriptionAr"];
+            this.courseType = _data["courseType"];
+            this.level = _data["level"];
+            this.minAge = _data["minAge"];
+            this.maxAge = _data["maxAge"];
+            this.classSize = _data["classSize"];
+            this.averageClassSize = _data["averageClassSize"];
+            this.hoursPerWeek = _data["hoursPerWeek"];
+            this.lessonsPerWeek = _data["lessonsPerWeek"];
+            this.lessonDurationMinutes = _data["lessonDurationMinutes"];
+            this.startDates = _data["startDates"];
+            this.minDurationWeeks = _data["minDurationWeeks"];
+            this.maxDurationWeeks = _data["maxDurationWeeks"];
+            this.includesMaterials = _data["includesMaterials"];
+            this.includesCertificate = _data["includesCertificate"];
+            this.certificateType = _data["certificateType"];
+            this.includesPlacementTest = _data["includesPlacementTest"];
+            this.highlights = _data["highlights"];
+            this.highlightsAr = _data["highlightsAr"];
+            this.targetAudience = _data["targetAudience"];
+            this.targetAudienceAr = _data["targetAudienceAr"];
+            this.isActive = _data["isActive"];
+            this.isFeatured = _data["isFeatured"];
+            this.displayOrder = _data["displayOrder"];
+        }
+    }
+
+    static fromJS(data: any): CreateLanguageCourseDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateLanguageCourseDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["languageCenterId"] = this.languageCenterId;
+        data["courseName"] = this.courseName;
+        data["courseNameAr"] = this.courseNameAr;
+        data["description"] = this.description;
+        data["descriptionAr"] = this.descriptionAr;
+        data["courseType"] = this.courseType;
+        data["level"] = this.level;
+        data["minAge"] = this.minAge;
+        data["maxAge"] = this.maxAge;
+        data["classSize"] = this.classSize;
+        data["averageClassSize"] = this.averageClassSize;
+        data["hoursPerWeek"] = this.hoursPerWeek;
+        data["lessonsPerWeek"] = this.lessonsPerWeek;
+        data["lessonDurationMinutes"] = this.lessonDurationMinutes;
+        data["startDates"] = this.startDates;
+        data["minDurationWeeks"] = this.minDurationWeeks;
+        data["maxDurationWeeks"] = this.maxDurationWeeks;
+        data["includesMaterials"] = this.includesMaterials;
+        data["includesCertificate"] = this.includesCertificate;
+        data["certificateType"] = this.certificateType;
+        data["includesPlacementTest"] = this.includesPlacementTest;
+        data["highlights"] = this.highlights;
+        data["highlightsAr"] = this.highlightsAr;
+        data["targetAudience"] = this.targetAudience;
+        data["targetAudienceAr"] = this.targetAudienceAr;
+        data["isActive"] = this.isActive;
+        data["isFeatured"] = this.isFeatured;
+        data["displayOrder"] = this.displayOrder;
+        return data;
+    }
+
+    clone(): CreateLanguageCourseDto {
+        const json = this.toJSON();
+        let result = new CreateLanguageCourseDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateLanguageCourseDto {
+    languageCenterId: number;
+    courseName: string | undefined;
+    courseNameAr: string | undefined;
+    description: string | undefined;
+    descriptionAr: string | undefined;
+    courseType: CourseType;
+    level: CourseLevel;
+    minAge: number | undefined;
+    maxAge: number | undefined;
+    classSize: number | undefined;
+    averageClassSize: number | undefined;
+    hoursPerWeek: number | undefined;
+    lessonsPerWeek: number | undefined;
+    lessonDurationMinutes: number | undefined;
+    startDates: string | undefined;
+    minDurationWeeks: number | undefined;
+    maxDurationWeeks: number | undefined;
+    includesMaterials: boolean;
+    includesCertificate: boolean;
+    certificateType: string | undefined;
+    includesPlacementTest: boolean;
+    highlights: string | undefined;
+    highlightsAr: string | undefined;
+    targetAudience: string | undefined;
+    targetAudienceAr: string | undefined;
+    isActive: boolean;
+    isFeatured: boolean;
+    displayOrder: number;
+}
+
+export class FAQOrderDto implements IFAQOrderDto {
+    id: number;
+    displayOrder: number;
+
+    constructor(data?: IFAQOrderDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.displayOrder = _data["displayOrder"];
+        }
+    }
+
+    static fromJS(data: any): FAQOrderDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new FAQOrderDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["displayOrder"] = this.displayOrder;
+        return data;
+    }
+
+    clone(): FAQOrderDto {
+        const json = this.toJSON();
+        let result = new FAQOrderDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IFAQOrderDto {
+    id: number;
+    displayOrder: number;
+}
+
+export class LanguageCenterDetailDto implements ILanguageCenterDetailDto {
+    id: number;
+    creationTime: moment.Moment;
+    creatorUserId: number | undefined;
+    lastModificationTime: moment.Moment | undefined;
+    lastModifierUserId: number | undefined;
+    isDeleted: boolean;
+    deleterUserId: number | undefined;
+    deletionTime: moment.Moment | undefined;
+    name: string | undefined;
+    nameAr: string | undefined;
+    description: string | undefined;
+    descriptionAr: string | undefined;
+    aboutText: string | undefined;
+    aboutTextAr: string | undefined;
+    countryId: number | undefined;
+    countryName: string | undefined;
+    cityId: number | undefined;
+    cityName: string | undefined;
+    state: string | undefined;
+    address: string | undefined;
+    latitude: number | undefined;
+    longitude: number | undefined;
+    websiteUrl: string | undefined;
+    email: string | undefined;
+    phone: string | undefined;
+    whatsApp: string | undefined;
+    logoBlobId: string | undefined;
+    logoUrl: string | undefined;
+    coverImageBlobId: string | undefined;
+    galleryImages: string | undefined;
+    isAccredited: boolean;
+    accreditationBody: string | undefined;
+    accreditationNumber: string | undefined;
+    accreditationExpiryDate: moment.Moment | undefined;
+    registrationSteps: string | undefined;
+    requiredDocuments: string | undefined;
+    providesAccommodation: boolean;
+    accommodationTypes: string | undefined;
+    accommodationDetails: string | undefined;
+    accommodationDetailsAr: string | undefined;
+    slug: string | undefined;
+    slugAr: string | undefined;
+    metaDescription: string | undefined;
+    metaDescriptionAr: string | undefined;
+    isActive: boolean;
+    isFeatured: boolean;
+    rating: number;
+    displayOrder: number;
+    courses: ListResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null;
+    faQs: ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null;
+    totalCourses: number;
+    totalPublishedFAQs: number;
+
+    constructor(data?: ILanguageCenterDetailDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.creationTime = _data["creationTime"] ? moment(_data["creationTime"].toString()) : <any>undefined;
+            this.creatorUserId = _data["creatorUserId"];
+            this.lastModificationTime = _data["lastModificationTime"] ? moment(_data["lastModificationTime"].toString()) : <any>undefined;
+            this.lastModifierUserId = _data["lastModifierUserId"];
+            this.isDeleted = _data["isDeleted"];
+            this.deleterUserId = _data["deleterUserId"];
+            this.deletionTime = _data["deletionTime"] ? moment(_data["deletionTime"].toString()) : <any>undefined;
+            this.name = _data["name"];
+            this.nameAr = _data["nameAr"];
+            this.description = _data["description"];
+            this.descriptionAr = _data["descriptionAr"];
+            this.aboutText = _data["aboutText"];
+            this.aboutTextAr = _data["aboutTextAr"];
+            this.countryId = _data["countryId"];
+            this.countryName = _data["countryName"];
+            this.cityId = _data["cityId"];
+            this.cityName = _data["cityName"];
+            this.state = _data["state"];
+            this.address = _data["address"];
+            this.latitude = _data["latitude"];
+            this.longitude = _data["longitude"];
+            this.websiteUrl = _data["websiteUrl"];
+            this.email = _data["email"];
+            this.phone = _data["phone"];
+            this.whatsApp = _data["whatsApp"];
+            this.logoBlobId = _data["logoBlobId"];
+            this.logoUrl = _data["logoUrl"];
+            this.coverImageBlobId = _data["coverImageBlobId"];
+            this.galleryImages = _data["galleryImages"];
+            this.isAccredited = _data["isAccredited"];
+            this.accreditationBody = _data["accreditationBody"];
+            this.accreditationNumber = _data["accreditationNumber"];
+            this.accreditationExpiryDate = _data["accreditationExpiryDate"] ? moment(_data["accreditationExpiryDate"].toString()) : <any>undefined;
+            this.registrationSteps = _data["registrationSteps"];
+            this.requiredDocuments = _data["requiredDocuments"];
+            this.providesAccommodation = _data["providesAccommodation"];
+            this.accommodationTypes = _data["accommodationTypes"];
+            this.accommodationDetails = _data["accommodationDetails"];
+            this.accommodationDetailsAr = _data["accommodationDetailsAr"];
+            this.slug = _data["slug"];
+            this.slugAr = _data["slugAr"];
+            this.metaDescription = _data["metaDescription"];
+            this.metaDescriptionAr = _data["metaDescriptionAr"];
+            this.isActive = _data["isActive"];
+            this.isFeatured = _data["isFeatured"];
+            this.rating = _data["rating"];
+            this.displayOrder = _data["displayOrder"];
+            this.courses = _data["courses"] ? ListResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(_data["courses"]) : <any>undefined;
+            this.faQs = _data["faQs"] ? ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null.fromJS(_data["faQs"]) : <any>undefined;
+            this.totalCourses = _data["totalCourses"];
+            this.totalPublishedFAQs = _data["totalPublishedFAQs"];
+        }
+    }
+
+    static fromJS(data: any): LanguageCenterDetailDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new LanguageCenterDetailDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
+        data["creatorUserId"] = this.creatorUserId;
+        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toISOString() : <any>undefined;
+        data["lastModifierUserId"] = this.lastModifierUserId;
+        data["isDeleted"] = this.isDeleted;
+        data["deleterUserId"] = this.deleterUserId;
+        data["deletionTime"] = this.deletionTime ? this.deletionTime.toISOString() : <any>undefined;
+        data["name"] = this.name;
+        data["nameAr"] = this.nameAr;
+        data["description"] = this.description;
+        data["descriptionAr"] = this.descriptionAr;
+        data["aboutText"] = this.aboutText;
+        data["aboutTextAr"] = this.aboutTextAr;
+        data["countryId"] = this.countryId;
+        data["countryName"] = this.countryName;
+        data["cityId"] = this.cityId;
+        data["cityName"] = this.cityName;
+        data["state"] = this.state;
+        data["address"] = this.address;
+        data["latitude"] = this.latitude;
+        data["longitude"] = this.longitude;
+        data["websiteUrl"] = this.websiteUrl;
+        data["email"] = this.email;
+        data["phone"] = this.phone;
+        data["whatsApp"] = this.whatsApp;
+        data["logoBlobId"] = this.logoBlobId;
+        data["logoUrl"] = this.logoUrl;
+        data["coverImageBlobId"] = this.coverImageBlobId;
+        data["galleryImages"] = this.galleryImages;
+        data["isAccredited"] = this.isAccredited;
+        data["accreditationBody"] = this.accreditationBody;
+        data["accreditationNumber"] = this.accreditationNumber;
+        data["accreditationExpiryDate"] = this.accreditationExpiryDate ? this.accreditationExpiryDate.toISOString() : <any>undefined;
+        data["registrationSteps"] = this.registrationSteps;
+        data["requiredDocuments"] = this.requiredDocuments;
+        data["providesAccommodation"] = this.providesAccommodation;
+        data["accommodationTypes"] = this.accommodationTypes;
+        data["accommodationDetails"] = this.accommodationDetails;
+        data["accommodationDetailsAr"] = this.accommodationDetailsAr;
+        data["slug"] = this.slug;
+        data["slugAr"] = this.slugAr;
+        data["metaDescription"] = this.metaDescription;
+        data["metaDescriptionAr"] = this.metaDescriptionAr;
+        data["isActive"] = this.isActive;
+        data["isFeatured"] = this.isFeatured;
+        data["rating"] = this.rating;
+        data["displayOrder"] = this.displayOrder;
+        data["courses"] = this.courses ? this.courses.toJSON() : <any>undefined;
+        data["faQs"] = this.faQs ? this.faQs.toJSON() : <any>undefined;
+        data["totalCourses"] = this.totalCourses;
+        data["totalPublishedFAQs"] = this.totalPublishedFAQs;
+        return data;
+    }
+
+    clone(): LanguageCenterDetailDto {
+        const json = this.toJSON();
+        let result = new LanguageCenterDetailDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ILanguageCenterDetailDto {
+    id: number;
+    creationTime: moment.Moment;
+    creatorUserId: number | undefined;
+    lastModificationTime: moment.Moment | undefined;
+    lastModifierUserId: number | undefined;
+    isDeleted: boolean;
+    deleterUserId: number | undefined;
+    deletionTime: moment.Moment | undefined;
+    name: string | undefined;
+    nameAr: string | undefined;
+    description: string | undefined;
+    descriptionAr: string | undefined;
+    aboutText: string | undefined;
+    aboutTextAr: string | undefined;
+    countryId: number | undefined;
+    countryName: string | undefined;
+    cityId: number | undefined;
+    cityName: string | undefined;
+    state: string | undefined;
+    address: string | undefined;
+    latitude: number | undefined;
+    longitude: number | undefined;
+    websiteUrl: string | undefined;
+    email: string | undefined;
+    phone: string | undefined;
+    whatsApp: string | undefined;
+    logoBlobId: string | undefined;
+    logoUrl: string | undefined;
+    coverImageBlobId: string | undefined;
+    galleryImages: string | undefined;
+    isAccredited: boolean;
+    accreditationBody: string | undefined;
+    accreditationNumber: string | undefined;
+    accreditationExpiryDate: moment.Moment | undefined;
+    registrationSteps: string | undefined;
+    requiredDocuments: string | undefined;
+    providesAccommodation: boolean;
+    accommodationTypes: string | undefined;
+    accommodationDetails: string | undefined;
+    accommodationDetailsAr: string | undefined;
+    slug: string | undefined;
+    slugAr: string | undefined;
+    metaDescription: string | undefined;
+    metaDescriptionAr: string | undefined;
+    isActive: boolean;
+    isFeatured: boolean;
+    rating: number;
+    displayOrder: number;
+    courses: ListResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null;
+    faQs: ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null;
+    totalCourses: number;
+    totalPublishedFAQs: number;
+}
+
+export class LanguageCenterDto implements ILanguageCenterDto {
+    id: number;
+    creationTime: moment.Moment;
+    creatorUserId: number | undefined;
+    lastModificationTime: moment.Moment | undefined;
+    lastModifierUserId: number | undefined;
+    isDeleted: boolean;
+    deleterUserId: number | undefined;
+    deletionTime: moment.Moment | undefined;
+    name: string | undefined;
+    nameAr: string | undefined;
+    description: string | undefined;
+    descriptionAr: string | undefined;
+    aboutText: string | undefined;
+    aboutTextAr: string | undefined;
+    countryId: number | undefined;
+    countryName: string | undefined;
+    cityId: number | undefined;
+    cityName: string | undefined;
+    state: string | undefined;
+    address: string | undefined;
+    latitude: number | undefined;
+    longitude: number | undefined;
+    websiteUrl: string | undefined;
+    email: string | undefined;
+    phone: string | undefined;
+    whatsApp: string | undefined;
+    logoBlobId: string | undefined;
+    logoUrl: string | undefined;
+    coverImageBlobId: string | undefined;
+    galleryImages: string | undefined;
+    isAccredited: boolean;
+    accreditationBody: string | undefined;
+    accreditationNumber: string | undefined;
+    accreditationExpiryDate: moment.Moment | undefined;
+    registrationSteps: string | undefined;
+    requiredDocuments: string | undefined;
+    providesAccommodation: boolean;
+    accommodationTypes: string | undefined;
+    accommodationDetails: string | undefined;
+    accommodationDetailsAr: string | undefined;
+    slug: string | undefined;
+    slugAr: string | undefined;
+    metaDescription: string | undefined;
+    metaDescriptionAr: string | undefined;
+    isActive: boolean;
+    isFeatured: boolean;
+    rating: number;
+    displayOrder: number;
+
+    constructor(data?: ILanguageCenterDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.creationTime = _data["creationTime"] ? moment(_data["creationTime"].toString()) : <any>undefined;
+            this.creatorUserId = _data["creatorUserId"];
+            this.lastModificationTime = _data["lastModificationTime"] ? moment(_data["lastModificationTime"].toString()) : <any>undefined;
+            this.lastModifierUserId = _data["lastModifierUserId"];
+            this.isDeleted = _data["isDeleted"];
+            this.deleterUserId = _data["deleterUserId"];
+            this.deletionTime = _data["deletionTime"] ? moment(_data["deletionTime"].toString()) : <any>undefined;
+            this.name = _data["name"];
+            this.nameAr = _data["nameAr"];
+            this.description = _data["description"];
+            this.descriptionAr = _data["descriptionAr"];
+            this.aboutText = _data["aboutText"];
+            this.aboutTextAr = _data["aboutTextAr"];
+            this.countryId = _data["countryId"];
+            this.countryName = _data["countryName"];
+            this.cityId = _data["cityId"];
+            this.cityName = _data["cityName"];
+            this.state = _data["state"];
+            this.address = _data["address"];
+            this.latitude = _data["latitude"];
+            this.longitude = _data["longitude"];
+            this.websiteUrl = _data["websiteUrl"];
+            this.email = _data["email"];
+            this.phone = _data["phone"];
+            this.whatsApp = _data["whatsApp"];
+            this.logoBlobId = _data["logoBlobId"];
+            this.logoUrl = _data["logoUrl"];
+            this.coverImageBlobId = _data["coverImageBlobId"];
+            this.galleryImages = _data["galleryImages"];
+            this.isAccredited = _data["isAccredited"];
+            this.accreditationBody = _data["accreditationBody"];
+            this.accreditationNumber = _data["accreditationNumber"];
+            this.accreditationExpiryDate = _data["accreditationExpiryDate"] ? moment(_data["accreditationExpiryDate"].toString()) : <any>undefined;
+            this.registrationSteps = _data["registrationSteps"];
+            this.requiredDocuments = _data["requiredDocuments"];
+            this.providesAccommodation = _data["providesAccommodation"];
+            this.accommodationTypes = _data["accommodationTypes"];
+            this.accommodationDetails = _data["accommodationDetails"];
+            this.accommodationDetailsAr = _data["accommodationDetailsAr"];
+            this.slug = _data["slug"];
+            this.slugAr = _data["slugAr"];
+            this.metaDescription = _data["metaDescription"];
+            this.metaDescriptionAr = _data["metaDescriptionAr"];
+            this.isActive = _data["isActive"];
+            this.isFeatured = _data["isFeatured"];
+            this.rating = _data["rating"];
+            this.displayOrder = _data["displayOrder"];
+        }
+    }
+
+    static fromJS(data: any): LanguageCenterDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new LanguageCenterDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
+        data["creatorUserId"] = this.creatorUserId;
+        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toISOString() : <any>undefined;
+        data["lastModifierUserId"] = this.lastModifierUserId;
+        data["isDeleted"] = this.isDeleted;
+        data["deleterUserId"] = this.deleterUserId;
+        data["deletionTime"] = this.deletionTime ? this.deletionTime.toISOString() : <any>undefined;
+        data["name"] = this.name;
+        data["nameAr"] = this.nameAr;
+        data["description"] = this.description;
+        data["descriptionAr"] = this.descriptionAr;
+        data["aboutText"] = this.aboutText;
+        data["aboutTextAr"] = this.aboutTextAr;
+        data["countryId"] = this.countryId;
+        data["countryName"] = this.countryName;
+        data["cityId"] = this.cityId;
+        data["cityName"] = this.cityName;
+        data["state"] = this.state;
+        data["address"] = this.address;
+        data["latitude"] = this.latitude;
+        data["longitude"] = this.longitude;
+        data["websiteUrl"] = this.websiteUrl;
+        data["email"] = this.email;
+        data["phone"] = this.phone;
+        data["whatsApp"] = this.whatsApp;
+        data["logoBlobId"] = this.logoBlobId;
+        data["logoUrl"] = this.logoUrl;
+        data["coverImageBlobId"] = this.coverImageBlobId;
+        data["galleryImages"] = this.galleryImages;
+        data["isAccredited"] = this.isAccredited;
+        data["accreditationBody"] = this.accreditationBody;
+        data["accreditationNumber"] = this.accreditationNumber;
+        data["accreditationExpiryDate"] = this.accreditationExpiryDate ? this.accreditationExpiryDate.toISOString() : <any>undefined;
+        data["registrationSteps"] = this.registrationSteps;
+        data["requiredDocuments"] = this.requiredDocuments;
+        data["providesAccommodation"] = this.providesAccommodation;
+        data["accommodationTypes"] = this.accommodationTypes;
+        data["accommodationDetails"] = this.accommodationDetails;
+        data["accommodationDetailsAr"] = this.accommodationDetailsAr;
+        data["slug"] = this.slug;
+        data["slugAr"] = this.slugAr;
+        data["metaDescription"] = this.metaDescription;
+        data["metaDescriptionAr"] = this.metaDescriptionAr;
+        data["isActive"] = this.isActive;
+        data["isFeatured"] = this.isFeatured;
+        data["rating"] = this.rating;
+        data["displayOrder"] = this.displayOrder;
+        return data;
+    }
+
+    clone(): LanguageCenterDto {
+        const json = this.toJSON();
+        let result = new LanguageCenterDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ILanguageCenterDto {
+    id: number;
+    creationTime: moment.Moment;
+    creatorUserId: number | undefined;
+    lastModificationTime: moment.Moment | undefined;
+    lastModifierUserId: number | undefined;
+    isDeleted: boolean;
+    deleterUserId: number | undefined;
+    deletionTime: moment.Moment | undefined;
+    name: string | undefined;
+    nameAr: string | undefined;
+    description: string | undefined;
+    descriptionAr: string | undefined;
+    aboutText: string | undefined;
+    aboutTextAr: string | undefined;
+    countryId: number | undefined;
+    countryName: string | undefined;
+    cityId: number | undefined;
+    cityName: string | undefined;
+    state: string | undefined;
+    address: string | undefined;
+    latitude: number | undefined;
+    longitude: number | undefined;
+    websiteUrl: string | undefined;
+    email: string | undefined;
+    phone: string | undefined;
+    whatsApp: string | undefined;
+    logoBlobId: string | undefined;
+    logoUrl: string | undefined;
+    coverImageBlobId: string | undefined;
+    galleryImages: string | undefined;
+    isAccredited: boolean;
+    accreditationBody: string | undefined;
+    accreditationNumber: string | undefined;
+    accreditationExpiryDate: moment.Moment | undefined;
+    registrationSteps: string | undefined;
+    requiredDocuments: string | undefined;
+    providesAccommodation: boolean;
+    accommodationTypes: string | undefined;
+    accommodationDetails: string | undefined;
+    accommodationDetailsAr: string | undefined;
+    slug: string | undefined;
+    slugAr: string | undefined;
+    metaDescription: string | undefined;
+    metaDescriptionAr: string | undefined;
+    isActive: boolean;
+    isFeatured: boolean;
+    rating: number;
+    displayOrder: number;
+}
+
+export class LanguageCenterFAQDto implements ILanguageCenterFAQDto {
+    id: number;
+    creationTime: moment.Moment;
+    creatorUserId: number | undefined;
+    lastModificationTime: moment.Moment | undefined;
+    lastModifierUserId: number | undefined;
+    isDeleted: boolean;
+    deleterUserId: number | undefined;
+    deletionTime: moment.Moment | undefined;
+    languageCenterId: number;
+    languageCenterName: string | undefined;
+    question: string | undefined;
+    questionAr: string | undefined;
+    answer: string | undefined;
+    answerAr: string | undefined;
+    category: string | undefined;
+    categoryAr: string | undefined;
+    displayOrder: number;
+    isPublished: boolean;
+    isFeatured: boolean;
+    viewCount: number;
+    helpfulCount: number;
+    notHelpfulCount: number;
+
+    constructor(data?: ILanguageCenterFAQDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.creationTime = _data["creationTime"] ? moment(_data["creationTime"].toString()) : <any>undefined;
+            this.creatorUserId = _data["creatorUserId"];
+            this.lastModificationTime = _data["lastModificationTime"] ? moment(_data["lastModificationTime"].toString()) : <any>undefined;
+            this.lastModifierUserId = _data["lastModifierUserId"];
+            this.isDeleted = _data["isDeleted"];
+            this.deleterUserId = _data["deleterUserId"];
+            this.deletionTime = _data["deletionTime"] ? moment(_data["deletionTime"].toString()) : <any>undefined;
+            this.languageCenterId = _data["languageCenterId"];
+            this.languageCenterName = _data["languageCenterName"];
+            this.question = _data["question"];
+            this.questionAr = _data["questionAr"];
+            this.answer = _data["answer"];
+            this.answerAr = _data["answerAr"];
+            this.category = _data["category"];
+            this.categoryAr = _data["categoryAr"];
+            this.displayOrder = _data["displayOrder"];
+            this.isPublished = _data["isPublished"];
+            this.isFeatured = _data["isFeatured"];
+            this.viewCount = _data["viewCount"];
+            this.helpfulCount = _data["helpfulCount"];
+            this.notHelpfulCount = _data["notHelpfulCount"];
+        }
+    }
+
+    static fromJS(data: any): LanguageCenterFAQDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new LanguageCenterFAQDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
+        data["creatorUserId"] = this.creatorUserId;
+        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toISOString() : <any>undefined;
+        data["lastModifierUserId"] = this.lastModifierUserId;
+        data["isDeleted"] = this.isDeleted;
+        data["deleterUserId"] = this.deleterUserId;
+        data["deletionTime"] = this.deletionTime ? this.deletionTime.toISOString() : <any>undefined;
+        data["languageCenterId"] = this.languageCenterId;
+        data["languageCenterName"] = this.languageCenterName;
+        data["question"] = this.question;
+        data["questionAr"] = this.questionAr;
+        data["answer"] = this.answer;
+        data["answerAr"] = this.answerAr;
+        data["category"] = this.category;
+        data["categoryAr"] = this.categoryAr;
+        data["displayOrder"] = this.displayOrder;
+        data["isPublished"] = this.isPublished;
+        data["isFeatured"] = this.isFeatured;
+        data["viewCount"] = this.viewCount;
+        data["helpfulCount"] = this.helpfulCount;
+        data["notHelpfulCount"] = this.notHelpfulCount;
+        return data;
+    }
+
+    clone(): LanguageCenterFAQDto {
+        const json = this.toJSON();
+        let result = new LanguageCenterFAQDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ILanguageCenterFAQDto {
+    id: number;
+    creationTime: moment.Moment;
+    creatorUserId: number | undefined;
+    lastModificationTime: moment.Moment | undefined;
+    lastModifierUserId: number | undefined;
+    isDeleted: boolean;
+    deleterUserId: number | undefined;
+    deletionTime: moment.Moment | undefined;
+    languageCenterId: number;
+    languageCenterName: string | undefined;
+    question: string | undefined;
+    questionAr: string | undefined;
+    answer: string | undefined;
+    answerAr: string | undefined;
+    category: string | undefined;
+    categoryAr: string | undefined;
+    displayOrder: number;
+    isPublished: boolean;
+    isFeatured: boolean;
+    viewCount: number;
+    helpfulCount: number;
+    notHelpfulCount: number;
+}
+
+export class LanguageCourseDto implements ILanguageCourseDto {
+    id: number;
+    creationTime: moment.Moment;
+    creatorUserId: number | undefined;
+    lastModificationTime: moment.Moment | undefined;
+    lastModifierUserId: number | undefined;
+    isDeleted: boolean;
+    deleterUserId: number | undefined;
+    deletionTime: moment.Moment | undefined;
+    languageCenterId: number;
+    languageCenterName: string | undefined;
+    courseName: string | undefined;
+    courseNameAr: string | undefined;
+    description: string | undefined;
+    descriptionAr: string | undefined;
+    courseType: CourseType;
+    level: CourseLevel;
+    minAge: number | undefined;
+    maxAge: number | undefined;
+    classSize: number | undefined;
+    averageClassSize: number | undefined;
+    hoursPerWeek: number | undefined;
+    lessonsPerWeek: number | undefined;
+    lessonDurationMinutes: number | undefined;
+    startDates: string | undefined;
+    minDurationWeeks: number | undefined;
+    maxDurationWeeks: number | undefined;
+    includesMaterials: boolean;
+    includesCertificate: boolean;
+    certificateType: string | undefined;
+    includesPlacementTest: boolean;
+    highlights: string | undefined;
+    highlightsAr: string | undefined;
+    targetAudience: string | undefined;
+    targetAudienceAr: string | undefined;
+    isActive: boolean;
+    isFeatured: boolean;
+    displayOrder: number;
+
+    constructor(data?: ILanguageCourseDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.creationTime = _data["creationTime"] ? moment(_data["creationTime"].toString()) : <any>undefined;
+            this.creatorUserId = _data["creatorUserId"];
+            this.lastModificationTime = _data["lastModificationTime"] ? moment(_data["lastModificationTime"].toString()) : <any>undefined;
+            this.lastModifierUserId = _data["lastModifierUserId"];
+            this.isDeleted = _data["isDeleted"];
+            this.deleterUserId = _data["deleterUserId"];
+            this.deletionTime = _data["deletionTime"] ? moment(_data["deletionTime"].toString()) : <any>undefined;
+            this.languageCenterId = _data["languageCenterId"];
+            this.languageCenterName = _data["languageCenterName"];
+            this.courseName = _data["courseName"];
+            this.courseNameAr = _data["courseNameAr"];
+            this.description = _data["description"];
+            this.descriptionAr = _data["descriptionAr"];
+            this.courseType = _data["courseType"];
+            this.level = _data["level"];
+            this.minAge = _data["minAge"];
+            this.maxAge = _data["maxAge"];
+            this.classSize = _data["classSize"];
+            this.averageClassSize = _data["averageClassSize"];
+            this.hoursPerWeek = _data["hoursPerWeek"];
+            this.lessonsPerWeek = _data["lessonsPerWeek"];
+            this.lessonDurationMinutes = _data["lessonDurationMinutes"];
+            this.startDates = _data["startDates"];
+            this.minDurationWeeks = _data["minDurationWeeks"];
+            this.maxDurationWeeks = _data["maxDurationWeeks"];
+            this.includesMaterials = _data["includesMaterials"];
+            this.includesCertificate = _data["includesCertificate"];
+            this.certificateType = _data["certificateType"];
+            this.includesPlacementTest = _data["includesPlacementTest"];
+            this.highlights = _data["highlights"];
+            this.highlightsAr = _data["highlightsAr"];
+            this.targetAudience = _data["targetAudience"];
+            this.targetAudienceAr = _data["targetAudienceAr"];
+            this.isActive = _data["isActive"];
+            this.isFeatured = _data["isFeatured"];
+            this.displayOrder = _data["displayOrder"];
+        }
+    }
+
+    static fromJS(data: any): LanguageCourseDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new LanguageCourseDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
+        data["creatorUserId"] = this.creatorUserId;
+        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toISOString() : <any>undefined;
+        data["lastModifierUserId"] = this.lastModifierUserId;
+        data["isDeleted"] = this.isDeleted;
+        data["deleterUserId"] = this.deleterUserId;
+        data["deletionTime"] = this.deletionTime ? this.deletionTime.toISOString() : <any>undefined;
+        data["languageCenterId"] = this.languageCenterId;
+        data["languageCenterName"] = this.languageCenterName;
+        data["courseName"] = this.courseName;
+        data["courseNameAr"] = this.courseNameAr;
+        data["description"] = this.description;
+        data["descriptionAr"] = this.descriptionAr;
+        data["courseType"] = this.courseType;
+        data["level"] = this.level;
+        data["minAge"] = this.minAge;
+        data["maxAge"] = this.maxAge;
+        data["classSize"] = this.classSize;
+        data["averageClassSize"] = this.averageClassSize;
+        data["hoursPerWeek"] = this.hoursPerWeek;
+        data["lessonsPerWeek"] = this.lessonsPerWeek;
+        data["lessonDurationMinutes"] = this.lessonDurationMinutes;
+        data["startDates"] = this.startDates;
+        data["minDurationWeeks"] = this.minDurationWeeks;
+        data["maxDurationWeeks"] = this.maxDurationWeeks;
+        data["includesMaterials"] = this.includesMaterials;
+        data["includesCertificate"] = this.includesCertificate;
+        data["certificateType"] = this.certificateType;
+        data["includesPlacementTest"] = this.includesPlacementTest;
+        data["highlights"] = this.highlights;
+        data["highlightsAr"] = this.highlightsAr;
+        data["targetAudience"] = this.targetAudience;
+        data["targetAudienceAr"] = this.targetAudienceAr;
+        data["isActive"] = this.isActive;
+        data["isFeatured"] = this.isFeatured;
+        data["displayOrder"] = this.displayOrder;
+        return data;
+    }
+
+    clone(): LanguageCourseDto {
+        const json = this.toJSON();
+        let result = new LanguageCourseDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ILanguageCourseDto {
+    id: number;
+    creationTime: moment.Moment;
+    creatorUserId: number | undefined;
+    lastModificationTime: moment.Moment | undefined;
+    lastModifierUserId: number | undefined;
+    isDeleted: boolean;
+    deleterUserId: number | undefined;
+    deletionTime: moment.Moment | undefined;
+    languageCenterId: number;
+    languageCenterName: string | undefined;
+    courseName: string | undefined;
+    courseNameAr: string | undefined;
+    description: string | undefined;
+    descriptionAr: string | undefined;
+    courseType: CourseType;
+    level: CourseLevel;
+    minAge: number | undefined;
+    maxAge: number | undefined;
+    classSize: number | undefined;
+    averageClassSize: number | undefined;
+    hoursPerWeek: number | undefined;
+    lessonsPerWeek: number | undefined;
+    lessonDurationMinutes: number | undefined;
+    startDates: string | undefined;
+    minDurationWeeks: number | undefined;
+    maxDurationWeeks: number | undefined;
+    includesMaterials: boolean;
+    includesCertificate: boolean;
+    certificateType: string | undefined;
+    includesPlacementTest: boolean;
+    highlights: string | undefined;
+    highlightsAr: string | undefined;
+    targetAudience: string | undefined;
+    targetAudienceAr: string | undefined;
+    isActive: boolean;
+    isFeatured: boolean;
+    displayOrder: number;
+}
+
+export class UpdateCoursePricingDto implements IUpdateCoursePricingDto {
+    id: number;
+    languageCourseId: number;
+    durationWeeks: number;
+    fee: number;
+    currencyId: number;
+    feePerWeek: number | undefined;
+    registrationFee: number | undefined;
+    materialsFee: number | undefined;
+    examFee: number | undefined;
+    visaDurationWeeks: number | undefined;
+    visaProcessingFee: number | undefined;
+    hasDiscount: boolean;
+    discountPercentage: number | undefined;
+    discountAmount: number | undefined;
+    finalPrice: number | undefined;
+    promotionDescription: string | undefined;
+    promotionDescriptionAr: string | undefined;
+    isActive: boolean;
+    isMostPopular: boolean;
+    displayOrder: number;
+    notes: string | undefined;
+    notesAr: string | undefined;
+
+    constructor(data?: IUpdateCoursePricingDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.languageCourseId = _data["languageCourseId"];
+            this.durationWeeks = _data["durationWeeks"];
+            this.fee = _data["fee"];
+            this.currencyId = _data["currencyId"];
+            this.feePerWeek = _data["feePerWeek"];
+            this.registrationFee = _data["registrationFee"];
+            this.materialsFee = _data["materialsFee"];
+            this.examFee = _data["examFee"];
+            this.visaDurationWeeks = _data["visaDurationWeeks"];
+            this.visaProcessingFee = _data["visaProcessingFee"];
+            this.hasDiscount = _data["hasDiscount"];
+            this.discountPercentage = _data["discountPercentage"];
+            this.discountAmount = _data["discountAmount"];
+            this.finalPrice = _data["finalPrice"];
+            this.promotionDescription = _data["promotionDescription"];
+            this.promotionDescriptionAr = _data["promotionDescriptionAr"];
+            this.isActive = _data["isActive"];
+            this.isMostPopular = _data["isMostPopular"];
+            this.displayOrder = _data["displayOrder"];
+            this.notes = _data["notes"];
+            this.notesAr = _data["notesAr"];
+        }
+    }
+
+    static fromJS(data: any): UpdateCoursePricingDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateCoursePricingDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["languageCourseId"] = this.languageCourseId;
+        data["durationWeeks"] = this.durationWeeks;
+        data["fee"] = this.fee;
+        data["currencyId"] = this.currencyId;
+        data["feePerWeek"] = this.feePerWeek;
+        data["registrationFee"] = this.registrationFee;
+        data["materialsFee"] = this.materialsFee;
+        data["examFee"] = this.examFee;
+        data["visaDurationWeeks"] = this.visaDurationWeeks;
+        data["visaProcessingFee"] = this.visaProcessingFee;
+        data["hasDiscount"] = this.hasDiscount;
+        data["discountPercentage"] = this.discountPercentage;
+        data["discountAmount"] = this.discountAmount;
+        data["finalPrice"] = this.finalPrice;
+        data["promotionDescription"] = this.promotionDescription;
+        data["promotionDescriptionAr"] = this.promotionDescriptionAr;
+        data["isActive"] = this.isActive;
+        data["isMostPopular"] = this.isMostPopular;
+        data["displayOrder"] = this.displayOrder;
+        data["notes"] = this.notes;
+        data["notesAr"] = this.notesAr;
+        return data;
+    }
+
+    clone(): UpdateCoursePricingDto {
+        const json = this.toJSON();
+        let result = new UpdateCoursePricingDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IUpdateCoursePricingDto {
+    id: number;
+    languageCourseId: number;
+    durationWeeks: number;
+    fee: number;
+    currencyId: number;
+    feePerWeek: number | undefined;
+    registrationFee: number | undefined;
+    materialsFee: number | undefined;
+    examFee: number | undefined;
+    visaDurationWeeks: number | undefined;
+    visaProcessingFee: number | undefined;
+    hasDiscount: boolean;
+    discountPercentage: number | undefined;
+    discountAmount: number | undefined;
+    finalPrice: number | undefined;
+    promotionDescription: string | undefined;
+    promotionDescriptionAr: string | undefined;
+    isActive: boolean;
+    isMostPopular: boolean;
+    displayOrder: number;
+    notes: string | undefined;
+    notesAr: string | undefined;
+}
+
+export class UpdateLanguageCenterDto implements IUpdateLanguageCenterDto {
+    id: number;
+    name: string | undefined;
+    nameAr: string | undefined;
+    description: string | undefined;
+    descriptionAr: string | undefined;
+    aboutText: string | undefined;
+    aboutTextAr: string | undefined;
+    countryId: number | undefined;
+    cityId: number | undefined;
+    state: string | undefined;
+    address: string | undefined;
+    latitude: number | undefined;
+    longitude: number | undefined;
+    websiteUrl: string | undefined;
+    email: string | undefined;
+    phone: string | undefined;
+    whatsApp: string | undefined;
+    logoBlobId: string | undefined;
+    logoUrl: string | undefined;
+    coverImageBlobId: string | undefined;
+    galleryImages: string | undefined;
+    isAccredited: boolean;
+    accreditationBody: string | undefined;
+    accreditationNumber: string | undefined;
+    accreditationExpiryDate: moment.Moment | undefined;
+    registrationSteps: string | undefined;
+    requiredDocuments: string | undefined;
+    providesAccommodation: boolean;
+    accommodationTypes: string | undefined;
+    accommodationDetails: string | undefined;
+    accommodationDetailsAr: string | undefined;
+    slug: string | undefined;
+    slugAr: string | undefined;
+    metaDescription: string | undefined;
+    metaDescriptionAr: string | undefined;
+    isActive: boolean;
+    isFeatured: boolean;
+    rating: number;
+    displayOrder: number;
+
+    constructor(data?: IUpdateLanguageCenterDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.nameAr = _data["nameAr"];
+            this.description = _data["description"];
+            this.descriptionAr = _data["descriptionAr"];
+            this.aboutText = _data["aboutText"];
+            this.aboutTextAr = _data["aboutTextAr"];
+            this.countryId = _data["countryId"];
+            this.cityId = _data["cityId"];
+            this.state = _data["state"];
+            this.address = _data["address"];
+            this.latitude = _data["latitude"];
+            this.longitude = _data["longitude"];
+            this.websiteUrl = _data["websiteUrl"];
+            this.email = _data["email"];
+            this.phone = _data["phone"];
+            this.whatsApp = _data["whatsApp"];
+            this.logoBlobId = _data["logoBlobId"];
+            this.logoUrl = _data["logoUrl"];
+            this.coverImageBlobId = _data["coverImageBlobId"];
+            this.galleryImages = _data["galleryImages"];
+            this.isAccredited = _data["isAccredited"];
+            this.accreditationBody = _data["accreditationBody"];
+            this.accreditationNumber = _data["accreditationNumber"];
+            this.accreditationExpiryDate = _data["accreditationExpiryDate"] ? moment(_data["accreditationExpiryDate"].toString()) : <any>undefined;
+            this.registrationSteps = _data["registrationSteps"];
+            this.requiredDocuments = _data["requiredDocuments"];
+            this.providesAccommodation = _data["providesAccommodation"];
+            this.accommodationTypes = _data["accommodationTypes"];
+            this.accommodationDetails = _data["accommodationDetails"];
+            this.accommodationDetailsAr = _data["accommodationDetailsAr"];
+            this.slug = _data["slug"];
+            this.slugAr = _data["slugAr"];
+            this.metaDescription = _data["metaDescription"];
+            this.metaDescriptionAr = _data["metaDescriptionAr"];
+            this.isActive = _data["isActive"];
+            this.isFeatured = _data["isFeatured"];
+            this.rating = _data["rating"];
+            this.displayOrder = _data["displayOrder"];
+        }
+    }
+
+    static fromJS(data: any): UpdateLanguageCenterDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateLanguageCenterDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["nameAr"] = this.nameAr;
+        data["description"] = this.description;
+        data["descriptionAr"] = this.descriptionAr;
+        data["aboutText"] = this.aboutText;
+        data["aboutTextAr"] = this.aboutTextAr;
+        data["countryId"] = this.countryId;
+        data["cityId"] = this.cityId;
+        data["state"] = this.state;
+        data["address"] = this.address;
+        data["latitude"] = this.latitude;
+        data["longitude"] = this.longitude;
+        data["websiteUrl"] = this.websiteUrl;
+        data["email"] = this.email;
+        data["phone"] = this.phone;
+        data["whatsApp"] = this.whatsApp;
+        data["logoBlobId"] = this.logoBlobId;
+        data["logoUrl"] = this.logoUrl;
+        data["coverImageBlobId"] = this.coverImageBlobId;
+        data["galleryImages"] = this.galleryImages;
+        data["isAccredited"] = this.isAccredited;
+        data["accreditationBody"] = this.accreditationBody;
+        data["accreditationNumber"] = this.accreditationNumber;
+        data["accreditationExpiryDate"] = this.accreditationExpiryDate ? this.accreditationExpiryDate.toISOString() : <any>undefined;
+        data["registrationSteps"] = this.registrationSteps;
+        data["requiredDocuments"] = this.requiredDocuments;
+        data["providesAccommodation"] = this.providesAccommodation;
+        data["accommodationTypes"] = this.accommodationTypes;
+        data["accommodationDetails"] = this.accommodationDetails;
+        data["accommodationDetailsAr"] = this.accommodationDetailsAr;
+        data["slug"] = this.slug;
+        data["slugAr"] = this.slugAr;
+        data["metaDescription"] = this.metaDescription;
+        data["metaDescriptionAr"] = this.metaDescriptionAr;
+        data["isActive"] = this.isActive;
+        data["isFeatured"] = this.isFeatured;
+        data["rating"] = this.rating;
+        data["displayOrder"] = this.displayOrder;
+        return data;
+    }
+
+    clone(): UpdateLanguageCenterDto {
+        const json = this.toJSON();
+        let result = new UpdateLanguageCenterDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IUpdateLanguageCenterDto {
+    id: number;
+    name: string | undefined;
+    nameAr: string | undefined;
+    description: string | undefined;
+    descriptionAr: string | undefined;
+    aboutText: string | undefined;
+    aboutTextAr: string | undefined;
+    countryId: number | undefined;
+    cityId: number | undefined;
+    state: string | undefined;
+    address: string | undefined;
+    latitude: number | undefined;
+    longitude: number | undefined;
+    websiteUrl: string | undefined;
+    email: string | undefined;
+    phone: string | undefined;
+    whatsApp: string | undefined;
+    logoBlobId: string | undefined;
+    logoUrl: string | undefined;
+    coverImageBlobId: string | undefined;
+    galleryImages: string | undefined;
+    isAccredited: boolean;
+    accreditationBody: string | undefined;
+    accreditationNumber: string | undefined;
+    accreditationExpiryDate: moment.Moment | undefined;
+    registrationSteps: string | undefined;
+    requiredDocuments: string | undefined;
+    providesAccommodation: boolean;
+    accommodationTypes: string | undefined;
+    accommodationDetails: string | undefined;
+    accommodationDetailsAr: string | undefined;
+    slug: string | undefined;
+    slugAr: string | undefined;
+    metaDescription: string | undefined;
+    metaDescriptionAr: string | undefined;
+    isActive: boolean;
+    isFeatured: boolean;
+    rating: number;
+    displayOrder: number;
+}
+
+export class UpdateLanguageCenterFAQDto implements IUpdateLanguageCenterFAQDto {
+    id: number;
+    languageCenterId: number;
+    question: string | undefined;
+    questionAr: string | undefined;
+    answer: string | undefined;
+    answerAr: string | undefined;
+    category: string | undefined;
+    categoryAr: string | undefined;
+    displayOrder: number;
+    isPublished: boolean;
+    isFeatured: boolean;
+
+    constructor(data?: IUpdateLanguageCenterFAQDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.languageCenterId = _data["languageCenterId"];
+            this.question = _data["question"];
+            this.questionAr = _data["questionAr"];
+            this.answer = _data["answer"];
+            this.answerAr = _data["answerAr"];
+            this.category = _data["category"];
+            this.categoryAr = _data["categoryAr"];
+            this.displayOrder = _data["displayOrder"];
+            this.isPublished = _data["isPublished"];
+            this.isFeatured = _data["isFeatured"];
+        }
+    }
+
+    static fromJS(data: any): UpdateLanguageCenterFAQDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateLanguageCenterFAQDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["languageCenterId"] = this.languageCenterId;
+        data["question"] = this.question;
+        data["questionAr"] = this.questionAr;
+        data["answer"] = this.answer;
+        data["answerAr"] = this.answerAr;
+        data["category"] = this.category;
+        data["categoryAr"] = this.categoryAr;
+        data["displayOrder"] = this.displayOrder;
+        data["isPublished"] = this.isPublished;
+        data["isFeatured"] = this.isFeatured;
+        return data;
+    }
+
+    clone(): UpdateLanguageCenterFAQDto {
+        const json = this.toJSON();
+        let result = new UpdateLanguageCenterFAQDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IUpdateLanguageCenterFAQDto {
+    id: number;
+    languageCenterId: number;
+    question: string | undefined;
+    questionAr: string | undefined;
+    answer: string | undefined;
+    answerAr: string | undefined;
+    category: string | undefined;
+    categoryAr: string | undefined;
+    displayOrder: number;
+    isPublished: boolean;
+    isFeatured: boolean;
+}
+
+export class UpdateLanguageCourseDto implements IUpdateLanguageCourseDto {
+    id: number;
+    languageCenterId: number;
+    courseName: string | undefined;
+    courseNameAr: string | undefined;
+    description: string | undefined;
+    descriptionAr: string | undefined;
+    courseType: CourseType;
+    level: CourseLevel;
+    minAge: number | undefined;
+    maxAge: number | undefined;
+    classSize: number | undefined;
+    averageClassSize: number | undefined;
+    hoursPerWeek: number | undefined;
+    lessonsPerWeek: number | undefined;
+    lessonDurationMinutes: number | undefined;
+    startDates: string | undefined;
+    minDurationWeeks: number | undefined;
+    maxDurationWeeks: number | undefined;
+    includesMaterials: boolean;
+    includesCertificate: boolean;
+    certificateType: string | undefined;
+    includesPlacementTest: boolean;
+    highlights: string | undefined;
+    highlightsAr: string | undefined;
+    targetAudience: string | undefined;
+    targetAudienceAr: string | undefined;
+    isActive: boolean;
+    isFeatured: boolean;
+    displayOrder: number;
+
+    constructor(data?: IUpdateLanguageCourseDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.languageCenterId = _data["languageCenterId"];
+            this.courseName = _data["courseName"];
+            this.courseNameAr = _data["courseNameAr"];
+            this.description = _data["description"];
+            this.descriptionAr = _data["descriptionAr"];
+            this.courseType = _data["courseType"];
+            this.level = _data["level"];
+            this.minAge = _data["minAge"];
+            this.maxAge = _data["maxAge"];
+            this.classSize = _data["classSize"];
+            this.averageClassSize = _data["averageClassSize"];
+            this.hoursPerWeek = _data["hoursPerWeek"];
+            this.lessonsPerWeek = _data["lessonsPerWeek"];
+            this.lessonDurationMinutes = _data["lessonDurationMinutes"];
+            this.startDates = _data["startDates"];
+            this.minDurationWeeks = _data["minDurationWeeks"];
+            this.maxDurationWeeks = _data["maxDurationWeeks"];
+            this.includesMaterials = _data["includesMaterials"];
+            this.includesCertificate = _data["includesCertificate"];
+            this.certificateType = _data["certificateType"];
+            this.includesPlacementTest = _data["includesPlacementTest"];
+            this.highlights = _data["highlights"];
+            this.highlightsAr = _data["highlightsAr"];
+            this.targetAudience = _data["targetAudience"];
+            this.targetAudienceAr = _data["targetAudienceAr"];
+            this.isActive = _data["isActive"];
+            this.isFeatured = _data["isFeatured"];
+            this.displayOrder = _data["displayOrder"];
+        }
+    }
+
+    static fromJS(data: any): UpdateLanguageCourseDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateLanguageCourseDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["languageCenterId"] = this.languageCenterId;
+        data["courseName"] = this.courseName;
+        data["courseNameAr"] = this.courseNameAr;
+        data["description"] = this.description;
+        data["descriptionAr"] = this.descriptionAr;
+        data["courseType"] = this.courseType;
+        data["level"] = this.level;
+        data["minAge"] = this.minAge;
+        data["maxAge"] = this.maxAge;
+        data["classSize"] = this.classSize;
+        data["averageClassSize"] = this.averageClassSize;
+        data["hoursPerWeek"] = this.hoursPerWeek;
+        data["lessonsPerWeek"] = this.lessonsPerWeek;
+        data["lessonDurationMinutes"] = this.lessonDurationMinutes;
+        data["startDates"] = this.startDates;
+        data["minDurationWeeks"] = this.minDurationWeeks;
+        data["maxDurationWeeks"] = this.maxDurationWeeks;
+        data["includesMaterials"] = this.includesMaterials;
+        data["includesCertificate"] = this.includesCertificate;
+        data["certificateType"] = this.certificateType;
+        data["includesPlacementTest"] = this.includesPlacementTest;
+        data["highlights"] = this.highlights;
+        data["highlightsAr"] = this.highlightsAr;
+        data["targetAudience"] = this.targetAudience;
+        data["targetAudienceAr"] = this.targetAudienceAr;
+        data["isActive"] = this.isActive;
+        data["isFeatured"] = this.isFeatured;
+        data["displayOrder"] = this.displayOrder;
+        return data;
+    }
+
+    clone(): UpdateLanguageCourseDto {
+        const json = this.toJSON();
+        let result = new UpdateLanguageCourseDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IUpdateLanguageCourseDto {
+    id: number;
+    languageCenterId: number;
+    courseName: string | undefined;
+    courseNameAr: string | undefined;
+    description: string | undefined;
+    descriptionAr: string | undefined;
+    courseType: CourseType;
+    level: CourseLevel;
+    minAge: number | undefined;
+    maxAge: number | undefined;
+    classSize: number | undefined;
+    averageClassSize: number | undefined;
+    hoursPerWeek: number | undefined;
+    lessonsPerWeek: number | undefined;
+    lessonDurationMinutes: number | undefined;
+    startDates: string | undefined;
+    minDurationWeeks: number | undefined;
+    maxDurationWeeks: number | undefined;
+    includesMaterials: boolean;
+    includesCertificate: boolean;
+    certificateType: string | undefined;
+    includesPlacementTest: boolean;
+    highlights: string | undefined;
+    highlightsAr: string | undefined;
+    targetAudience: string | undefined;
+    targetAudienceAr: string | undefined;
+    isActive: boolean;
+    isFeatured: boolean;
+    displayOrder: number;
+}
+
+export class CityDto implements ICityDto {
+    id: number;
+    name: string | undefined;
+    nameAr: string | undefined;
+    countryId: number;
+    countryName: string | undefined;
+    countryNameAr: string | undefined;
+    isActive: boolean;
+
+    constructor(data?: ICityDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.nameAr = _data["nameAr"];
+            this.countryId = _data["countryId"];
+            this.countryName = _data["countryName"];
+            this.countryNameAr = _data["countryNameAr"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): CityDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CityDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["nameAr"] = this.nameAr;
+        data["countryId"] = this.countryId;
+        data["countryName"] = this.countryName;
+        data["countryNameAr"] = this.countryNameAr;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+
+    clone(): CityDto {
+        const json = this.toJSON();
+        let result = new CityDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICityDto {
+    id: number;
+    name: string | undefined;
+    nameAr: string | undefined;
+    countryId: number;
+    countryName: string | undefined;
+    countryNameAr: string | undefined;
+    isActive: boolean;
+}
+
+export class CountryDto implements ICountryDto {
+    id: number;
+    code: string | undefined;
+    name: string | undefined;
+    nameAr: string | undefined;
+    isActive: boolean;
+
+    constructor(data?: ICountryDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.code = _data["code"];
+            this.name = _data["name"];
+            this.nameAr = _data["nameAr"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): CountryDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CountryDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["code"] = this.code;
+        data["name"] = this.name;
+        data["nameAr"] = this.nameAr;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+
+    clone(): CountryDto {
+        const json = this.toJSON();
+        let result = new CountryDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICountryDto {
+    id: number;
+    code: string | undefined;
+    name: string | undefined;
+    nameAr: string | undefined;
+    isActive: boolean;
+}
+
+export class CurrencyDto implements ICurrencyDto {
+    id: number;
+    code: string | undefined;
+    name: string | undefined;
+    nameAr: string | undefined;
+    symbol: string | undefined;
+    isActive: boolean;
+
+    constructor(data?: ICurrencyDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.code = _data["code"];
+            this.name = _data["name"];
+            this.nameAr = _data["nameAr"];
+            this.symbol = _data["symbol"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): CurrencyDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CurrencyDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["code"] = this.code;
+        data["name"] = this.name;
+        data["nameAr"] = this.nameAr;
+        data["symbol"] = this.symbol;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+
+    clone(): CurrencyDto {
+        const json = this.toJSON();
+        let result = new CurrencyDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICurrencyDto {
+    id: number;
+    code: string | undefined;
+    name: string | undefined;
+    nameAr: string | undefined;
+    symbol: string | undefined;
+    isActive: boolean;
 }
 
 export class AuthenticateModel implements IAuthenticateModel {
@@ -4142,149 +10417,72 @@ export interface IAuthenticateResultModel {
     userId: number;
 }
 
-export class ChangePasswordDto implements IChangePasswordDto {
-    currentPassword: string;
-    newPassword: string;
-
-    constructor(data?: IChangePasswordDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.currentPassword = _data["currentPassword"];
-            this.newPassword = _data["newPassword"];
-        }
-    }
-
-    static fromJS(data: any): ChangePasswordDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new ChangePasswordDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["currentPassword"] = this.currentPassword;
-        data["newPassword"] = this.newPassword;
-        return data;
-    }
-
-    clone(): ChangePasswordDto {
-        const json = this.toJSON();
-        let result = new ChangePasswordDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IChangePasswordDto {
-    currentPassword: string;
-    newPassword: string;
-}
-
-export class ChangeUiThemeInput implements IChangeUiThemeInput {
-    theme: string;
-
-    constructor(data?: IChangeUiThemeInput) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.theme = _data["theme"];
-        }
-    }
-
-    static fromJS(data: any): ChangeUiThemeInput {
-        data = typeof data === 'object' ? data : {};
-        let result = new ChangeUiThemeInput();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["theme"] = this.theme;
-        return data;
-    }
-
-    clone(): ChangeUiThemeInput {
-        const json = this.toJSON();
-        let result = new ChangeUiThemeInput();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IChangeUiThemeInput {
-    theme: string;
-}
-
-export class ChangeUserLanguageDto implements IChangeUserLanguageDto {
-    languageName: string;
-
-    constructor(data?: IChangeUserLanguageDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.languageName = _data["languageName"];
-        }
-    }
-
-    static fromJS(data: any): ChangeUserLanguageDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new ChangeUserLanguageDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["languageName"] = this.languageName;
-        return data;
-    }
-
-    clone(): ChangeUserLanguageDto {
-        const json = this.toJSON();
-        let result = new ChangeUserLanguageDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IChangeUserLanguageDto {
-    languageName: string;
-}
-
-export class CityDto implements ICityDto {
-    id: number;
-    name: string | undefined;
-    nameAr: string | undefined;
-    countryId: number;
-    countryName: string | undefined;
-    countryNameAr: string | undefined;
+export class CreateTenantDto implements ICreateTenantDto {
+    tenancyName: string;
+    name: string;
+    adminEmailAddress: string;
+    connectionString: string | undefined;
     isActive: boolean;
 
-    constructor(data?: ICityDto) {
+    constructor(data?: ICreateTenantDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.tenancyName = _data["tenancyName"];
+            this.name = _data["name"];
+            this.adminEmailAddress = _data["adminEmailAddress"];
+            this.connectionString = _data["connectionString"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): CreateTenantDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateTenantDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["tenancyName"] = this.tenancyName;
+        data["name"] = this.name;
+        data["adminEmailAddress"] = this.adminEmailAddress;
+        data["connectionString"] = this.connectionString;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+
+    clone(): CreateTenantDto {
+        const json = this.toJSON();
+        let result = new CreateTenantDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateTenantDto {
+    tenancyName: string;
+    name: string;
+    adminEmailAddress: string;
+    connectionString: string | undefined;
+    isActive: boolean;
+}
+
+export class TenantDto implements ITenantDto {
+    id: number;
+    tenancyName: string;
+    name: string;
+    isActive: boolean;
+
+    constructor(data?: ITenantDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -4296,18 +10494,15 @@ export class CityDto implements ICityDto {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
+            this.tenancyName = _data["tenancyName"];
             this.name = _data["name"];
-            this.nameAr = _data["nameAr"];
-            this.countryId = _data["countryId"];
-            this.countryName = _data["countryName"];
-            this.countryNameAr = _data["countryNameAr"];
             this.isActive = _data["isActive"];
         }
     }
 
-    static fromJS(data: any): CityDto {
+    static fromJS(data: any): TenantDto {
         data = typeof data === 'object' ? data : {};
-        let result = new CityDto();
+        let result = new TenantDto();
         result.init(data);
         return result;
     }
@@ -4315,192 +10510,25 @@ export class CityDto implements ICityDto {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
+        data["tenancyName"] = this.tenancyName;
         data["name"] = this.name;
-        data["nameAr"] = this.nameAr;
-        data["countryId"] = this.countryId;
-        data["countryName"] = this.countryName;
-        data["countryNameAr"] = this.countryNameAr;
         data["isActive"] = this.isActive;
         return data;
     }
 
-    clone(): CityDto {
+    clone(): TenantDto {
         const json = this.toJSON();
-        let result = new CityDto();
+        let result = new TenantDto();
         result.init(json);
         return result;
     }
 }
 
-export interface ICityDto {
+export interface ITenantDto {
     id: number;
-    name: string | undefined;
-    nameAr: string | undefined;
-    countryId: number;
-    countryName: string | undefined;
-    countryNameAr: string | undefined;
+    tenancyName: string;
+    name: string;
     isActive: boolean;
-}
-
-export class CityDtoListResultDto implements ICityDtoListResultDto {
-    items: CityDto[] | undefined;
-
-    constructor(data?: ICityDtoListResultDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items.push(CityDto.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): CityDtoListResultDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new CityDtoListResultDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item.toJSON());
-        }
-        return data;
-    }
-
-    clone(): CityDtoListResultDto {
-        const json = this.toJSON();
-        let result = new CityDtoListResultDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface ICityDtoListResultDto {
-    items: CityDto[] | undefined;
-}
-
-export class CountryDto implements ICountryDto {
-    id: number;
-    code: string | undefined;
-    name: string | undefined;
-    nameAr: string | undefined;
-    isActive: boolean;
-
-    constructor(data?: ICountryDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.code = _data["code"];
-            this.name = _data["name"];
-            this.nameAr = _data["nameAr"];
-            this.isActive = _data["isActive"];
-        }
-    }
-
-    static fromJS(data: any): CountryDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new CountryDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["code"] = this.code;
-        data["name"] = this.name;
-        data["nameAr"] = this.nameAr;
-        data["isActive"] = this.isActive;
-        return data;
-    }
-
-    clone(): CountryDto {
-        const json = this.toJSON();
-        let result = new CountryDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface ICountryDto {
-    id: number;
-    code: string | undefined;
-    name: string | undefined;
-    nameAr: string | undefined;
-    isActive: boolean;
-}
-
-export class CountryDtoListResultDto implements ICountryDtoListResultDto {
-    items: CountryDto[] | undefined;
-
-    constructor(data?: ICountryDtoListResultDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items.push(CountryDto.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): CountryDtoListResultDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new CountryDtoListResultDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item.toJSON());
-        }
-        return data;
-    }
-
-    clone(): CountryDtoListResultDto {
-        const json = this.toJSON();
-        let result = new CountryDtoListResultDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface ICountryDtoListResultDto {
-    items: CountryDto[] | undefined;
 }
 
 export class CreateRoleDto implements ICreateRoleDto {
@@ -4570,14 +10598,12 @@ export interface ICreateRoleDto {
     grantedPermissions: string[] | undefined;
 }
 
-export class CreateTenantDto implements ICreateTenantDto {
-    tenancyName: string;
-    name: string;
-    adminEmailAddress: string;
-    connectionString: string | undefined;
-    isActive: boolean;
+export class FlatPermissionDto implements IFlatPermissionDto {
+    name: string | undefined;
+    displayName: string | undefined;
+    description: string | undefined;
 
-    constructor(data?: ICreateTenantDto) {
+    constructor(data?: IFlatPermissionDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -4588,45 +10614,783 @@ export class CreateTenantDto implements ICreateTenantDto {
 
     init(_data?: any) {
         if (_data) {
-            this.tenancyName = _data["tenancyName"];
             this.name = _data["name"];
-            this.adminEmailAddress = _data["adminEmailAddress"];
-            this.connectionString = _data["connectionString"];
-            this.isActive = _data["isActive"];
+            this.displayName = _data["displayName"];
+            this.description = _data["description"];
         }
     }
 
-    static fromJS(data: any): CreateTenantDto {
+    static fromJS(data: any): FlatPermissionDto {
         data = typeof data === 'object' ? data : {};
-        let result = new CreateTenantDto();
+        let result = new FlatPermissionDto();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["tenancyName"] = this.tenancyName;
         data["name"] = this.name;
-        data["adminEmailAddress"] = this.adminEmailAddress;
-        data["connectionString"] = this.connectionString;
-        data["isActive"] = this.isActive;
+        data["displayName"] = this.displayName;
+        data["description"] = this.description;
         return data;
     }
 
-    clone(): CreateTenantDto {
+    clone(): FlatPermissionDto {
         const json = this.toJSON();
-        let result = new CreateTenantDto();
+        let result = new FlatPermissionDto();
         result.init(json);
         return result;
     }
 }
 
-export interface ICreateTenantDto {
-    tenancyName: string;
+export interface IFlatPermissionDto {
+    name: string | undefined;
+    displayName: string | undefined;
+    description: string | undefined;
+}
+
+export class GetRoleForEditOutput implements IGetRoleForEditOutput {
+    role: RoleEditDto;
+    permissions: FlatPermissionDto[] | undefined;
+    grantedPermissionNames: string[] | undefined;
+
+    constructor(data?: IGetRoleForEditOutput) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.role = _data["role"] ? RoleEditDto.fromJS(_data["role"]) : <any>undefined;
+            if (Array.isArray(_data["permissions"])) {
+                this.permissions = [] as any;
+                for (let item of _data["permissions"])
+                    this.permissions.push(FlatPermissionDto.fromJS(item));
+            }
+            if (Array.isArray(_data["grantedPermissionNames"])) {
+                this.grantedPermissionNames = [] as any;
+                for (let item of _data["grantedPermissionNames"])
+                    this.grantedPermissionNames.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): GetRoleForEditOutput {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetRoleForEditOutput();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["role"] = this.role ? this.role.toJSON() : <any>undefined;
+        if (Array.isArray(this.permissions)) {
+            data["permissions"] = [];
+            for (let item of this.permissions)
+                data["permissions"].push(item.toJSON());
+        }
+        if (Array.isArray(this.grantedPermissionNames)) {
+            data["grantedPermissionNames"] = [];
+            for (let item of this.grantedPermissionNames)
+                data["grantedPermissionNames"].push(item);
+        }
+        return data;
+    }
+
+    clone(): GetRoleForEditOutput {
+        const json = this.toJSON();
+        let result = new GetRoleForEditOutput();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IGetRoleForEditOutput {
+    role: RoleEditDto;
+    permissions: FlatPermissionDto[] | undefined;
+    grantedPermissionNames: string[] | undefined;
+}
+
+export class PermissionDto implements IPermissionDto {
+    id: number;
+    name: string | undefined;
+    displayName: string | undefined;
+    description: string | undefined;
+
+    constructor(data?: IPermissionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.displayName = _data["displayName"];
+            this.description = _data["description"];
+        }
+    }
+
+    static fromJS(data: any): PermissionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PermissionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["displayName"] = this.displayName;
+        data["description"] = this.description;
+        return data;
+    }
+
+    clone(): PermissionDto {
+        const json = this.toJSON();
+        let result = new PermissionDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPermissionDto {
+    id: number;
+    name: string | undefined;
+    displayName: string | undefined;
+    description: string | undefined;
+}
+
+export class RoleDto implements IRoleDto {
+    id: number;
     name: string;
-    adminEmailAddress: string;
-    connectionString: string | undefined;
-    isActive: boolean;
+    displayName: string;
+    normalizedName: string | undefined;
+    description: string | undefined;
+    grantedPermissions: string[] | undefined;
+
+    constructor(data?: IRoleDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.displayName = _data["displayName"];
+            this.normalizedName = _data["normalizedName"];
+            this.description = _data["description"];
+            if (Array.isArray(_data["grantedPermissions"])) {
+                this.grantedPermissions = [] as any;
+                for (let item of _data["grantedPermissions"])
+                    this.grantedPermissions.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): RoleDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoleDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["displayName"] = this.displayName;
+        data["normalizedName"] = this.normalizedName;
+        data["description"] = this.description;
+        if (Array.isArray(this.grantedPermissions)) {
+            data["grantedPermissions"] = [];
+            for (let item of this.grantedPermissions)
+                data["grantedPermissions"].push(item);
+        }
+        return data;
+    }
+
+    clone(): RoleDto {
+        const json = this.toJSON();
+        let result = new RoleDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IRoleDto {
+    id: number;
+    name: string;
+    displayName: string;
+    normalizedName: string | undefined;
+    description: string | undefined;
+    grantedPermissions: string[] | undefined;
+}
+
+export class RoleEditDto implements IRoleEditDto {
+    id: number;
+    name: string;
+    displayName: string;
+    description: string | undefined;
+    isStatic: boolean;
+
+    constructor(data?: IRoleEditDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.displayName = _data["displayName"];
+            this.description = _data["description"];
+            this.isStatic = _data["isStatic"];
+        }
+    }
+
+    static fromJS(data: any): RoleEditDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoleEditDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["displayName"] = this.displayName;
+        data["description"] = this.description;
+        data["isStatic"] = this.isStatic;
+        return data;
+    }
+
+    clone(): RoleEditDto {
+        const json = this.toJSON();
+        let result = new RoleEditDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IRoleEditDto {
+    id: number;
+    name: string;
+    displayName: string;
+    description: string | undefined;
+    isStatic: boolean;
+}
+
+export class RoleListDto implements IRoleListDto {
+    id: number;
+    name: string | undefined;
+    displayName: string | undefined;
+    isStatic: boolean;
+    isDefault: boolean;
+    creationTime: moment.Moment;
+
+    constructor(data?: IRoleListDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.displayName = _data["displayName"];
+            this.isStatic = _data["isStatic"];
+            this.isDefault = _data["isDefault"];
+            this.creationTime = _data["creationTime"] ? moment(_data["creationTime"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): RoleListDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoleListDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["displayName"] = this.displayName;
+        data["isStatic"] = this.isStatic;
+        data["isDefault"] = this.isDefault;
+        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
+        return data;
+    }
+
+    clone(): RoleListDto {
+        const json = this.toJSON();
+        let result = new RoleListDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IRoleListDto {
+    id: number;
+    name: string | undefined;
+    displayName: string | undefined;
+    isStatic: boolean;
+    isDefault: boolean;
+    creationTime: moment.Moment;
+}
+
+export class ApplicationInfoDto implements IApplicationInfoDto {
+    version: string | undefined;
+    releaseDate: moment.Moment;
+    features: { [key: string]: boolean; } | undefined;
+
+    constructor(data?: IApplicationInfoDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.version = _data["version"];
+            this.releaseDate = _data["releaseDate"] ? moment(_data["releaseDate"].toString()) : <any>undefined;
+            if (_data["features"]) {
+                this.features = {} as any;
+                for (let key in _data["features"]) {
+                    if (_data["features"].hasOwnProperty(key))
+                        (<any>this.features)[key] = _data["features"][key];
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): ApplicationInfoDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ApplicationInfoDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["version"] = this.version;
+        data["releaseDate"] = this.releaseDate ? this.releaseDate.toISOString() : <any>undefined;
+        if (this.features) {
+            data["features"] = {};
+            for (let key in this.features) {
+                if (this.features.hasOwnProperty(key))
+                    (<any>data["features"])[key] = (<any>this.features)[key];
+            }
+        }
+        return data;
+    }
+
+    clone(): ApplicationInfoDto {
+        const json = this.toJSON();
+        let result = new ApplicationInfoDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IApplicationInfoDto {
+    version: string | undefined;
+    releaseDate: moment.Moment;
+    features: { [key: string]: boolean; } | undefined;
+}
+
+export class GetCurrentLoginInformationsOutput implements IGetCurrentLoginInformationsOutput {
+    application: ApplicationInfoDto;
+    user: UserLoginInfoDto;
+    tenant: TenantLoginInfoDto;
+
+    constructor(data?: IGetCurrentLoginInformationsOutput) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.application = _data["application"] ? ApplicationInfoDto.fromJS(_data["application"]) : <any>undefined;
+            this.user = _data["user"] ? UserLoginInfoDto.fromJS(_data["user"]) : <any>undefined;
+            this.tenant = _data["tenant"] ? TenantLoginInfoDto.fromJS(_data["tenant"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): GetCurrentLoginInformationsOutput {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetCurrentLoginInformationsOutput();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["application"] = this.application ? this.application.toJSON() : <any>undefined;
+        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
+        data["tenant"] = this.tenant ? this.tenant.toJSON() : <any>undefined;
+        return data;
+    }
+
+    clone(): GetCurrentLoginInformationsOutput {
+        const json = this.toJSON();
+        let result = new GetCurrentLoginInformationsOutput();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IGetCurrentLoginInformationsOutput {
+    application: ApplicationInfoDto;
+    user: UserLoginInfoDto;
+    tenant: TenantLoginInfoDto;
+}
+
+export class TenantLoginInfoDto implements ITenantLoginInfoDto {
+    id: number;
+    tenancyName: string | undefined;
+    name: string | undefined;
+
+    constructor(data?: ITenantLoginInfoDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.tenancyName = _data["tenancyName"];
+            this.name = _data["name"];
+        }
+    }
+
+    static fromJS(data: any): TenantLoginInfoDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TenantLoginInfoDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["tenancyName"] = this.tenancyName;
+        data["name"] = this.name;
+        return data;
+    }
+
+    clone(): TenantLoginInfoDto {
+        const json = this.toJSON();
+        let result = new TenantLoginInfoDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ITenantLoginInfoDto {
+    id: number;
+    tenancyName: string | undefined;
+    name: string | undefined;
+}
+
+export class UserLoginInfoDto implements IUserLoginInfoDto {
+    id: number;
+    name: string | undefined;
+    surname: string | undefined;
+    userName: string | undefined;
+    emailAddress: string | undefined;
+
+    constructor(data?: IUserLoginInfoDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.surname = _data["surname"];
+            this.userName = _data["userName"];
+            this.emailAddress = _data["emailAddress"];
+        }
+    }
+
+    static fromJS(data: any): UserLoginInfoDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserLoginInfoDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["surname"] = this.surname;
+        data["userName"] = this.userName;
+        data["emailAddress"] = this.emailAddress;
+        return data;
+    }
+
+    clone(): UserLoginInfoDto {
+        const json = this.toJSON();
+        let result = new UserLoginInfoDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IUserLoginInfoDto {
+    id: number;
+    name: string | undefined;
+    surname: string | undefined;
+    userName: string | undefined;
+    emailAddress: string | undefined;
+}
+
+export class DownloadFileOutput implements IDownloadFileOutput {
+    fileBytes: string | undefined;
+    fileName: string | undefined;
+    contentType: string | undefined;
+
+    constructor(data?: IDownloadFileOutput) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.fileBytes = _data["fileBytes"];
+            this.fileName = _data["fileName"];
+            this.contentType = _data["contentType"];
+        }
+    }
+
+    static fromJS(data: any): DownloadFileOutput {
+        data = typeof data === 'object' ? data : {};
+        let result = new DownloadFileOutput();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["fileBytes"] = this.fileBytes;
+        data["fileName"] = this.fileName;
+        data["contentType"] = this.contentType;
+        return data;
+    }
+
+    clone(): DownloadFileOutput {
+        const json = this.toJSON();
+        let result = new DownloadFileOutput();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IDownloadFileOutput {
+    fileBytes: string | undefined;
+    fileName: string | undefined;
+    contentType: string | undefined;
+}
+
+export class FileDto implements IFileDto {
+    id: string;
+    fileName: string | undefined;
+    contentType: string | undefined;
+    fileSize: number;
+    description: string | undefined;
+    category: string | undefined;
+    entityType: string | undefined;
+    entityId: number | undefined;
+    width: number | undefined;
+    height: number | undefined;
+    creationTime: moment.Moment;
+    creatorUserId: number | undefined;
+
+    constructor(data?: IFileDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.fileName = _data["fileName"];
+            this.contentType = _data["contentType"];
+            this.fileSize = _data["fileSize"];
+            this.description = _data["description"];
+            this.category = _data["category"];
+            this.entityType = _data["entityType"];
+            this.entityId = _data["entityId"];
+            this.width = _data["width"];
+            this.height = _data["height"];
+            this.creationTime = _data["creationTime"] ? moment(_data["creationTime"].toString()) : <any>undefined;
+            this.creatorUserId = _data["creatorUserId"];
+        }
+    }
+
+    static fromJS(data: any): FileDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new FileDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["fileName"] = this.fileName;
+        data["contentType"] = this.contentType;
+        data["fileSize"] = this.fileSize;
+        data["description"] = this.description;
+        data["category"] = this.category;
+        data["entityType"] = this.entityType;
+        data["entityId"] = this.entityId;
+        data["width"] = this.width;
+        data["height"] = this.height;
+        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
+        data["creatorUserId"] = this.creatorUserId;
+        return data;
+    }
+
+    clone(): FileDto {
+        const json = this.toJSON();
+        let result = new FileDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IFileDto {
+    id: string;
+    fileName: string | undefined;
+    contentType: string | undefined;
+    fileSize: number;
+    description: string | undefined;
+    category: string | undefined;
+    entityType: string | undefined;
+    entityId: number | undefined;
+    width: number | undefined;
+    height: number | undefined;
+    creationTime: moment.Moment;
+    creatorUserId: number | undefined;
+}
+
+export class UploadFileInput implements IUploadFileInput {
+    fileBytes: string;
+    fileName: string;
+    contentType: string;
+    description: string | undefined;
+    category: string | undefined;
+    entityType: string | undefined;
+    entityId: number | undefined;
+
+    constructor(data?: IUploadFileInput) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.fileBytes = _data["fileBytes"];
+            this.fileName = _data["fileName"];
+            this.contentType = _data["contentType"];
+            this.description = _data["description"];
+            this.category = _data["category"];
+            this.entityType = _data["entityType"];
+            this.entityId = _data["entityId"];
+        }
+    }
+
+    static fromJS(data: any): UploadFileInput {
+        data = typeof data === 'object' ? data : {};
+        let result = new UploadFileInput();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["fileBytes"] = this.fileBytes;
+        data["fileName"] = this.fileName;
+        data["contentType"] = this.contentType;
+        data["description"] = this.description;
+        data["category"] = this.category;
+        data["entityType"] = this.entityType;
+        data["entityId"] = this.entityId;
+        return data;
+    }
+
+    clone(): UploadFileInput {
+        const json = this.toJSON();
+        let result = new UploadFileInput();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IUploadFileInput {
+    fileBytes: string;
+    fileName: string;
+    contentType: string;
+    description: string | undefined;
+    category: string | undefined;
+    entityType: string | undefined;
+    entityId: number | undefined;
 }
 
 export class CreateUniversityContentDto implements ICreateUniversityContentDto {
@@ -4819,6 +11583,73 @@ export interface ICreateUniversityDto {
     displayOrder: number;
 }
 
+export class CreateUniversityFAQDto implements ICreateUniversityFAQDto {
+    universityId: number;
+    question: string;
+    questionAr: string;
+    answer: string;
+    answerAr: string;
+    displayOrder: number;
+    isPublished: boolean;
+
+    constructor(data?: ICreateUniversityFAQDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.universityId = _data["universityId"];
+            this.question = _data["question"];
+            this.questionAr = _data["questionAr"];
+            this.answer = _data["answer"];
+            this.answerAr = _data["answerAr"];
+            this.displayOrder = _data["displayOrder"];
+            this.isPublished = _data["isPublished"];
+        }
+    }
+
+    static fromJS(data: any): CreateUniversityFAQDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateUniversityFAQDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["universityId"] = this.universityId;
+        data["question"] = this.question;
+        data["questionAr"] = this.questionAr;
+        data["answer"] = this.answer;
+        data["answerAr"] = this.answerAr;
+        data["displayOrder"] = this.displayOrder;
+        data["isPublished"] = this.isPublished;
+        return data;
+    }
+
+    clone(): CreateUniversityFAQDto {
+        const json = this.toJSON();
+        let result = new CreateUniversityFAQDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateUniversityFAQDto {
+    universityId: number;
+    question: string;
+    questionAr: string;
+    answer: string;
+    answerAr: string;
+    displayOrder: number;
+    isPublished: boolean;
+}
+
 export class CreateUniversityProgramDto implements ICreateUniversityProgramDto {
     universityId: number;
     name: string;
@@ -4958,90 +11789,11 @@ export interface ICreateUniversityProgramDto {
     slugAr: string | undefined;
 }
 
-export class CreateUserDto implements ICreateUserDto {
-    userName: string;
-    name: string;
-    surname: string;
-    emailAddress: string;
-    isActive: boolean;
-    roleNames: string[] | undefined;
-    password: string;
-
-    constructor(data?: ICreateUserDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.userName = _data["userName"];
-            this.name = _data["name"];
-            this.surname = _data["surname"];
-            this.emailAddress = _data["emailAddress"];
-            this.isActive = _data["isActive"];
-            if (Array.isArray(_data["roleNames"])) {
-                this.roleNames = [] as any;
-                for (let item of _data["roleNames"])
-                    this.roleNames.push(item);
-            }
-            this.password = _data["password"];
-        }
-    }
-
-    static fromJS(data: any): CreateUserDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreateUserDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["userName"] = this.userName;
-        data["name"] = this.name;
-        data["surname"] = this.surname;
-        data["emailAddress"] = this.emailAddress;
-        data["isActive"] = this.isActive;
-        if (Array.isArray(this.roleNames)) {
-            data["roleNames"] = [];
-            for (let item of this.roleNames)
-                data["roleNames"].push(item);
-        }
-        data["password"] = this.password;
-        return data;
-    }
-
-    clone(): CreateUserDto {
-        const json = this.toJSON();
-        let result = new CreateUserDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface ICreateUserDto {
-    userName: string;
-    name: string;
-    surname: string;
-    emailAddress: string;
-    isActive: boolean;
-    roleNames: string[] | undefined;
-    password: string;
-}
-
-export class CurrencyDto implements ICurrencyDto {
+export class FAQOrderDto2 implements IFAQOrderDto2 {
     id: number;
-    code: string | undefined;
-    name: string | undefined;
-    nameAr: string | undefined;
-    symbol: string | undefined;
-    isActive: boolean;
+    displayOrder: number;
 
-    constructor(data?: ICurrencyDto) {
+    constructor(data?: IFAQOrderDto2) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -5053,17 +11805,13 @@ export class CurrencyDto implements ICurrencyDto {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
-            this.code = _data["code"];
-            this.name = _data["name"];
-            this.nameAr = _data["nameAr"];
-            this.symbol = _data["symbol"];
-            this.isActive = _data["isActive"];
+            this.displayOrder = _data["displayOrder"];
         }
     }
 
-    static fromJS(data: any): CurrencyDto {
+    static fromJS(data: any): FAQOrderDto2 {
         data = typeof data === 'object' ? data : {};
-        let result = new CurrencyDto();
+        let result = new FAQOrderDto2();
         result.init(data);
         return result;
     }
@@ -5071,148 +11819,35 @@ export class CurrencyDto implements ICurrencyDto {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
-        data["code"] = this.code;
-        data["name"] = this.name;
-        data["nameAr"] = this.nameAr;
-        data["symbol"] = this.symbol;
-        data["isActive"] = this.isActive;
+        data["displayOrder"] = this.displayOrder;
         return data;
     }
 
-    clone(): CurrencyDto {
+    clone(): FAQOrderDto2 {
         const json = this.toJSON();
-        let result = new CurrencyDto();
+        let result = new FAQOrderDto2();
         result.init(json);
         return result;
     }
 }
 
-export interface ICurrencyDto {
+export interface IFAQOrderDto2 {
     id: number;
-    code: string | undefined;
-    name: string | undefined;
-    nameAr: string | undefined;
-    symbol: string | undefined;
-    isActive: boolean;
+    displayOrder: number;
 }
 
-export class CurrencyDtoListResultDto implements ICurrencyDtoListResultDto {
-    items: CurrencyDto[] | undefined;
-
-    constructor(data?: ICurrencyDtoListResultDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items.push(CurrencyDto.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): CurrencyDtoListResultDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new CurrencyDtoListResultDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item.toJSON());
-        }
-        return data;
-    }
-
-    clone(): CurrencyDtoListResultDto {
-        const json = this.toJSON();
-        let result = new CurrencyDtoListResultDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface ICurrencyDtoListResultDto {
-    items: CurrencyDto[] | undefined;
-}
-
-export class DownloadFileOutput implements IDownloadFileOutput {
-    fileBytes: string | undefined;
-    fileName: string | undefined;
-    contentType: string | undefined;
-
-    constructor(data?: IDownloadFileOutput) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.fileBytes = _data["fileBytes"];
-            this.fileName = _data["fileName"];
-            this.contentType = _data["contentType"];
-        }
-    }
-
-    static fromJS(data: any): DownloadFileOutput {
-        data = typeof data === 'object' ? data : {};
-        let result = new DownloadFileOutput();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["fileBytes"] = this.fileBytes;
-        data["fileName"] = this.fileName;
-        data["contentType"] = this.contentType;
-        return data;
-    }
-
-    clone(): DownloadFileOutput {
-        const json = this.toJSON();
-        let result = new DownloadFileOutput();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IDownloadFileOutput {
-    fileBytes: string | undefined;
-    fileName: string | undefined;
-    contentType: string | undefined;
-}
-
-export class FileDto implements IFileDto {
+export class MediaItemDto implements IMediaItemDto {
     id: string;
-    fileName: string | undefined;
-    contentType: string | undefined;
-    fileSize: number;
+    url: string | undefined;
+    thumbnailUrl: string | undefined;
+    title: string | undefined;
+    titleAr: string | undefined;
     description: string | undefined;
-    category: string | undefined;
-    entityType: string | undefined;
-    entityId: number | undefined;
-    width: number | undefined;
-    height: number | undefined;
-    creationTime: moment.Moment;
-    creatorUserId: number | undefined;
+    descriptionAr: string | undefined;
+    displayOrder: number;
+    mediaType: string | undefined;
 
-    constructor(data?: IFileDto) {
+    constructor(data?: IMediaItemDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -5224,23 +11859,20 @@ export class FileDto implements IFileDto {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
-            this.fileName = _data["fileName"];
-            this.contentType = _data["contentType"];
-            this.fileSize = _data["fileSize"];
+            this.url = _data["url"];
+            this.thumbnailUrl = _data["thumbnailUrl"];
+            this.title = _data["title"];
+            this.titleAr = _data["titleAr"];
             this.description = _data["description"];
-            this.category = _data["category"];
-            this.entityType = _data["entityType"];
-            this.entityId = _data["entityId"];
-            this.width = _data["width"];
-            this.height = _data["height"];
-            this.creationTime = _data["creationTime"] ? moment(_data["creationTime"].toString()) : <any>undefined;
-            this.creatorUserId = _data["creatorUserId"];
+            this.descriptionAr = _data["descriptionAr"];
+            this.displayOrder = _data["displayOrder"];
+            this.mediaType = _data["mediaType"];
         }
     }
 
-    static fromJS(data: any): FileDto {
+    static fromJS(data: any): MediaItemDto {
         data = typeof data === 'object' ? data : {};
-        let result = new FileDto();
+        let result = new MediaItemDto();
         result.init(data);
         return result;
     }
@@ -5248,1144 +11880,35 @@ export class FileDto implements IFileDto {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
-        data["fileName"] = this.fileName;
-        data["contentType"] = this.contentType;
-        data["fileSize"] = this.fileSize;
+        data["url"] = this.url;
+        data["thumbnailUrl"] = this.thumbnailUrl;
+        data["title"] = this.title;
+        data["titleAr"] = this.titleAr;
         data["description"] = this.description;
-        data["category"] = this.category;
-        data["entityType"] = this.entityType;
-        data["entityId"] = this.entityId;
-        data["width"] = this.width;
-        data["height"] = this.height;
-        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
-        data["creatorUserId"] = this.creatorUserId;
+        data["descriptionAr"] = this.descriptionAr;
+        data["displayOrder"] = this.displayOrder;
+        data["mediaType"] = this.mediaType;
         return data;
     }
 
-    clone(): FileDto {
+    clone(): MediaItemDto {
         const json = this.toJSON();
-        let result = new FileDto();
+        let result = new MediaItemDto();
         result.init(json);
         return result;
     }
 }
 
-export interface IFileDto {
+export interface IMediaItemDto {
     id: string;
-    fileName: string | undefined;
-    contentType: string | undefined;
-    fileSize: number;
+    url: string | undefined;
+    thumbnailUrl: string | undefined;
+    title: string | undefined;
+    titleAr: string | undefined;
     description: string | undefined;
-    category: string | undefined;
-    entityType: string | undefined;
-    entityId: number | undefined;
-    width: number | undefined;
-    height: number | undefined;
-    creationTime: moment.Moment;
-    creatorUserId: number | undefined;
-}
-
-export class FlatPermissionDto implements IFlatPermissionDto {
-    name: string | undefined;
-    displayName: string | undefined;
-    description: string | undefined;
-
-    constructor(data?: IFlatPermissionDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.name = _data["name"];
-            this.displayName = _data["displayName"];
-            this.description = _data["description"];
-        }
-    }
-
-    static fromJS(data: any): FlatPermissionDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new FlatPermissionDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        data["displayName"] = this.displayName;
-        data["description"] = this.description;
-        return data;
-    }
-
-    clone(): FlatPermissionDto {
-        const json = this.toJSON();
-        let result = new FlatPermissionDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IFlatPermissionDto {
-    name: string | undefined;
-    displayName: string | undefined;
-    description: string | undefined;
-}
-
-export class GetCurrentLoginInformationsOutput implements IGetCurrentLoginInformationsOutput {
-    application: ApplicationInfoDto;
-    user: UserLoginInfoDto;
-    tenant: TenantLoginInfoDto;
-
-    constructor(data?: IGetCurrentLoginInformationsOutput) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.application = _data["application"] ? ApplicationInfoDto.fromJS(_data["application"]) : <any>undefined;
-            this.user = _data["user"] ? UserLoginInfoDto.fromJS(_data["user"]) : <any>undefined;
-            this.tenant = _data["tenant"] ? TenantLoginInfoDto.fromJS(_data["tenant"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): GetCurrentLoginInformationsOutput {
-        data = typeof data === 'object' ? data : {};
-        let result = new GetCurrentLoginInformationsOutput();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["application"] = this.application ? this.application.toJSON() : <any>undefined;
-        data["user"] = this.user ? this.user.toJSON() : <any>undefined;
-        data["tenant"] = this.tenant ? this.tenant.toJSON() : <any>undefined;
-        return data;
-    }
-
-    clone(): GetCurrentLoginInformationsOutput {
-        const json = this.toJSON();
-        let result = new GetCurrentLoginInformationsOutput();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IGetCurrentLoginInformationsOutput {
-    application: ApplicationInfoDto;
-    user: UserLoginInfoDto;
-    tenant: TenantLoginInfoDto;
-}
-
-export class GetRoleForEditOutput implements IGetRoleForEditOutput {
-    role: RoleEditDto;
-    permissions: FlatPermissionDto[] | undefined;
-    grantedPermissionNames: string[] | undefined;
-
-    constructor(data?: IGetRoleForEditOutput) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.role = _data["role"] ? RoleEditDto.fromJS(_data["role"]) : <any>undefined;
-            if (Array.isArray(_data["permissions"])) {
-                this.permissions = [] as any;
-                for (let item of _data["permissions"])
-                    this.permissions.push(FlatPermissionDto.fromJS(item));
-            }
-            if (Array.isArray(_data["grantedPermissionNames"])) {
-                this.grantedPermissionNames = [] as any;
-                for (let item of _data["grantedPermissionNames"])
-                    this.grantedPermissionNames.push(item);
-            }
-        }
-    }
-
-    static fromJS(data: any): GetRoleForEditOutput {
-        data = typeof data === 'object' ? data : {};
-        let result = new GetRoleForEditOutput();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["role"] = this.role ? this.role.toJSON() : <any>undefined;
-        if (Array.isArray(this.permissions)) {
-            data["permissions"] = [];
-            for (let item of this.permissions)
-                data["permissions"].push(item.toJSON());
-        }
-        if (Array.isArray(this.grantedPermissionNames)) {
-            data["grantedPermissionNames"] = [];
-            for (let item of this.grantedPermissionNames)
-                data["grantedPermissionNames"].push(item);
-        }
-        return data;
-    }
-
-    clone(): GetRoleForEditOutput {
-        const json = this.toJSON();
-        let result = new GetRoleForEditOutput();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IGetRoleForEditOutput {
-    role: RoleEditDto;
-    permissions: FlatPermissionDto[] | undefined;
-    grantedPermissionNames: string[] | undefined;
-}
-
-export class Int64EntityDto implements IInt64EntityDto {
-    id: number;
-
-    constructor(data?: IInt64EntityDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-        }
-    }
-
-    static fromJS(data: any): Int64EntityDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new Int64EntityDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        return data;
-    }
-
-    clone(): Int64EntityDto {
-        const json = this.toJSON();
-        let result = new Int64EntityDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IInt64EntityDto {
-    id: number;
-}
-
-export class IsTenantAvailableInput implements IIsTenantAvailableInput {
-    tenancyName: string;
-
-    constructor(data?: IIsTenantAvailableInput) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.tenancyName = _data["tenancyName"];
-        }
-    }
-
-    static fromJS(data: any): IsTenantAvailableInput {
-        data = typeof data === 'object' ? data : {};
-        let result = new IsTenantAvailableInput();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["tenancyName"] = this.tenancyName;
-        return data;
-    }
-
-    clone(): IsTenantAvailableInput {
-        const json = this.toJSON();
-        let result = new IsTenantAvailableInput();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IIsTenantAvailableInput {
-    tenancyName: string;
-}
-
-export class IsTenantAvailableOutput implements IIsTenantAvailableOutput {
-    state: TenantAvailabilityState;
-    tenantId: number | undefined;
-
-    constructor(data?: IIsTenantAvailableOutput) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.state = _data["state"];
-            this.tenantId = _data["tenantId"];
-        }
-    }
-
-    static fromJS(data: any): IsTenantAvailableOutput {
-        data = typeof data === 'object' ? data : {};
-        let result = new IsTenantAvailableOutput();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["state"] = this.state;
-        data["tenantId"] = this.tenantId;
-        return data;
-    }
-
-    clone(): IsTenantAvailableOutput {
-        const json = this.toJSON();
-        let result = new IsTenantAvailableOutput();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IIsTenantAvailableOutput {
-    state: TenantAvailabilityState;
-    tenantId: number | undefined;
-}
-
-export class PermissionDto implements IPermissionDto {
-    id: number;
-    name: string | undefined;
-    displayName: string | undefined;
-    description: string | undefined;
-
-    constructor(data?: IPermissionDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-            this.displayName = _data["displayName"];
-            this.description = _data["description"];
-        }
-    }
-
-    static fromJS(data: any): PermissionDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new PermissionDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        data["displayName"] = this.displayName;
-        data["description"] = this.description;
-        return data;
-    }
-
-    clone(): PermissionDto {
-        const json = this.toJSON();
-        let result = new PermissionDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IPermissionDto {
-    id: number;
-    name: string | undefined;
-    displayName: string | undefined;
-    description: string | undefined;
-}
-
-export class PermissionDtoListResultDto implements IPermissionDtoListResultDto {
-    items: PermissionDto[] | undefined;
-
-    constructor(data?: IPermissionDtoListResultDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items.push(PermissionDto.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): PermissionDtoListResultDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new PermissionDtoListResultDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item.toJSON());
-        }
-        return data;
-    }
-
-    clone(): PermissionDtoListResultDto {
-        const json = this.toJSON();
-        let result = new PermissionDtoListResultDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IPermissionDtoListResultDto {
-    items: PermissionDto[] | undefined;
-}
-
-export enum ProgramLevel {
-    _1 = 1,
-    _2 = 2,
-    _3 = 3,
-    _4 = 4,
-    _5 = 5,
-    _6 = 6,
-    _7 = 7,
-    _99 = 99,
-}
-
-export class RegisterInput implements IRegisterInput {
-    name: string;
-    surname: string;
-    userName: string;
-    emailAddress: string;
-    password: string;
-    captchaResponse: string | undefined;
-
-    constructor(data?: IRegisterInput) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.name = _data["name"];
-            this.surname = _data["surname"];
-            this.userName = _data["userName"];
-            this.emailAddress = _data["emailAddress"];
-            this.password = _data["password"];
-            this.captchaResponse = _data["captchaResponse"];
-        }
-    }
-
-    static fromJS(data: any): RegisterInput {
-        data = typeof data === 'object' ? data : {};
-        let result = new RegisterInput();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["name"] = this.name;
-        data["surname"] = this.surname;
-        data["userName"] = this.userName;
-        data["emailAddress"] = this.emailAddress;
-        data["password"] = this.password;
-        data["captchaResponse"] = this.captchaResponse;
-        return data;
-    }
-
-    clone(): RegisterInput {
-        const json = this.toJSON();
-        let result = new RegisterInput();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IRegisterInput {
-    name: string;
-    surname: string;
-    userName: string;
-    emailAddress: string;
-    password: string;
-    captchaResponse: string | undefined;
-}
-
-export class RegisterOutput implements IRegisterOutput {
-    canLogin: boolean;
-
-    constructor(data?: IRegisterOutput) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.canLogin = _data["canLogin"];
-        }
-    }
-
-    static fromJS(data: any): RegisterOutput {
-        data = typeof data === 'object' ? data : {};
-        let result = new RegisterOutput();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["canLogin"] = this.canLogin;
-        return data;
-    }
-
-    clone(): RegisterOutput {
-        const json = this.toJSON();
-        let result = new RegisterOutput();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IRegisterOutput {
-    canLogin: boolean;
-}
-
-export class ResetPasswordDto implements IResetPasswordDto {
-    adminPassword: string;
-    userId: number;
-    newPassword: string;
-
-    constructor(data?: IResetPasswordDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.adminPassword = _data["adminPassword"];
-            this.userId = _data["userId"];
-            this.newPassword = _data["newPassword"];
-        }
-    }
-
-    static fromJS(data: any): ResetPasswordDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new ResetPasswordDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["adminPassword"] = this.adminPassword;
-        data["userId"] = this.userId;
-        data["newPassword"] = this.newPassword;
-        return data;
-    }
-
-    clone(): ResetPasswordDto {
-        const json = this.toJSON();
-        let result = new ResetPasswordDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IResetPasswordDto {
-    adminPassword: string;
-    userId: number;
-    newPassword: string;
-}
-
-export class RoleDto implements IRoleDto {
-    id: number;
-    name: string;
-    displayName: string;
-    normalizedName: string | undefined;
-    description: string | undefined;
-    grantedPermissions: string[] | undefined;
-
-    constructor(data?: IRoleDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-            this.displayName = _data["displayName"];
-            this.normalizedName = _data["normalizedName"];
-            this.description = _data["description"];
-            if (Array.isArray(_data["grantedPermissions"])) {
-                this.grantedPermissions = [] as any;
-                for (let item of _data["grantedPermissions"])
-                    this.grantedPermissions.push(item);
-            }
-        }
-    }
-
-    static fromJS(data: any): RoleDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new RoleDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        data["displayName"] = this.displayName;
-        data["normalizedName"] = this.normalizedName;
-        data["description"] = this.description;
-        if (Array.isArray(this.grantedPermissions)) {
-            data["grantedPermissions"] = [];
-            for (let item of this.grantedPermissions)
-                data["grantedPermissions"].push(item);
-        }
-        return data;
-    }
-
-    clone(): RoleDto {
-        const json = this.toJSON();
-        let result = new RoleDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IRoleDto {
-    id: number;
-    name: string;
-    displayName: string;
-    normalizedName: string | undefined;
-    description: string | undefined;
-    grantedPermissions: string[] | undefined;
-}
-
-export class RoleDtoListResultDto implements IRoleDtoListResultDto {
-    items: RoleDto[] | undefined;
-
-    constructor(data?: IRoleDtoListResultDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items.push(RoleDto.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): RoleDtoListResultDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new RoleDtoListResultDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item.toJSON());
-        }
-        return data;
-    }
-
-    clone(): RoleDtoListResultDto {
-        const json = this.toJSON();
-        let result = new RoleDtoListResultDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IRoleDtoListResultDto {
-    items: RoleDto[] | undefined;
-}
-
-export class RoleDtoPagedResultDto implements IRoleDtoPagedResultDto {
-    items: RoleDto[] | undefined;
-    totalCount: number;
-
-    constructor(data?: IRoleDtoPagedResultDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items.push(RoleDto.fromJS(item));
-            }
-            this.totalCount = _data["totalCount"];
-        }
-    }
-
-    static fromJS(data: any): RoleDtoPagedResultDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new RoleDtoPagedResultDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item.toJSON());
-        }
-        data["totalCount"] = this.totalCount;
-        return data;
-    }
-
-    clone(): RoleDtoPagedResultDto {
-        const json = this.toJSON();
-        let result = new RoleDtoPagedResultDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IRoleDtoPagedResultDto {
-    items: RoleDto[] | undefined;
-    totalCount: number;
-}
-
-export class RoleEditDto implements IRoleEditDto {
-    id: number;
-    name: string;
-    displayName: string;
-    description: string | undefined;
-    isStatic: boolean;
-
-    constructor(data?: IRoleEditDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-            this.displayName = _data["displayName"];
-            this.description = _data["description"];
-            this.isStatic = _data["isStatic"];
-        }
-    }
-
-    static fromJS(data: any): RoleEditDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new RoleEditDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        data["displayName"] = this.displayName;
-        data["description"] = this.description;
-        data["isStatic"] = this.isStatic;
-        return data;
-    }
-
-    clone(): RoleEditDto {
-        const json = this.toJSON();
-        let result = new RoleEditDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IRoleEditDto {
-    id: number;
-    name: string;
-    displayName: string;
-    description: string | undefined;
-    isStatic: boolean;
-}
-
-export class RoleListDto implements IRoleListDto {
-    id: number;
-    name: string | undefined;
-    displayName: string | undefined;
-    isStatic: boolean;
-    isDefault: boolean;
-    creationTime: moment.Moment;
-
-    constructor(data?: IRoleListDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-            this.displayName = _data["displayName"];
-            this.isStatic = _data["isStatic"];
-            this.isDefault = _data["isDefault"];
-            this.creationTime = _data["creationTime"] ? moment(_data["creationTime"].toString()) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): RoleListDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new RoleListDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        data["displayName"] = this.displayName;
-        data["isStatic"] = this.isStatic;
-        data["isDefault"] = this.isDefault;
-        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
-        return data;
-    }
-
-    clone(): RoleListDto {
-        const json = this.toJSON();
-        let result = new RoleListDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IRoleListDto {
-    id: number;
-    name: string | undefined;
-    displayName: string | undefined;
-    isStatic: boolean;
-    isDefault: boolean;
-    creationTime: moment.Moment;
-}
-
-export class RoleListDtoListResultDto implements IRoleListDtoListResultDto {
-    items: RoleListDto[] | undefined;
-
-    constructor(data?: IRoleListDtoListResultDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items.push(RoleListDto.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): RoleListDtoListResultDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new RoleListDtoListResultDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item.toJSON());
-        }
-        return data;
-    }
-
-    clone(): RoleListDtoListResultDto {
-        const json = this.toJSON();
-        let result = new RoleListDtoListResultDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IRoleListDtoListResultDto {
-    items: RoleListDto[] | undefined;
-}
-
-export enum StudyMode {
-    _1 = 1,
-    _2 = 2,
-    _3 = 3,
-    _4 = 4,
-    _5 = 5,
-    _6 = 6,
-    _7 = 7,
-}
-
-export enum TenantAvailabilityState {
-    _1 = 1,
-    _2 = 2,
-    _3 = 3,
-}
-
-export class TenantDto implements ITenantDto {
-    id: number;
-    tenancyName: string;
-    name: string;
-    isActive: boolean;
-
-    constructor(data?: ITenantDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.tenancyName = _data["tenancyName"];
-            this.name = _data["name"];
-            this.isActive = _data["isActive"];
-        }
-    }
-
-    static fromJS(data: any): TenantDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new TenantDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["tenancyName"] = this.tenancyName;
-        data["name"] = this.name;
-        data["isActive"] = this.isActive;
-        return data;
-    }
-
-    clone(): TenantDto {
-        const json = this.toJSON();
-        let result = new TenantDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface ITenantDto {
-    id: number;
-    tenancyName: string;
-    name: string;
-    isActive: boolean;
-}
-
-export class TenantDtoPagedResultDto implements ITenantDtoPagedResultDto {
-    items: TenantDto[] | undefined;
-    totalCount: number;
-
-    constructor(data?: ITenantDtoPagedResultDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items.push(TenantDto.fromJS(item));
-            }
-            this.totalCount = _data["totalCount"];
-        }
-    }
-
-    static fromJS(data: any): TenantDtoPagedResultDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new TenantDtoPagedResultDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item.toJSON());
-        }
-        data["totalCount"] = this.totalCount;
-        return data;
-    }
-
-    clone(): TenantDtoPagedResultDto {
-        const json = this.toJSON();
-        let result = new TenantDtoPagedResultDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface ITenantDtoPagedResultDto {
-    items: TenantDto[] | undefined;
-    totalCount: number;
-}
-
-export class TenantLoginInfoDto implements ITenantLoginInfoDto {
-    id: number;
-    tenancyName: string | undefined;
-    name: string | undefined;
-
-    constructor(data?: ITenantLoginInfoDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.tenancyName = _data["tenancyName"];
-            this.name = _data["name"];
-        }
-    }
-
-    static fromJS(data: any): TenantLoginInfoDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new TenantLoginInfoDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["tenancyName"] = this.tenancyName;
-        data["name"] = this.name;
-        return data;
-    }
-
-    clone(): TenantLoginInfoDto {
-        const json = this.toJSON();
-        let result = new TenantLoginInfoDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface ITenantLoginInfoDto {
-    id: number;
-    tenancyName: string | undefined;
-    name: string | undefined;
+    descriptionAr: string | undefined;
+    displayOrder: number;
+    mediaType: string | undefined;
 }
 
 export class UniversityContentDto implements IUniversityContentDto {
@@ -6495,10 +12018,43 @@ export interface IUniversityContentDto {
     isActive: boolean;
 }
 
-export class UniversityContentDtoListResultDto implements IUniversityContentDtoListResultDto {
-    items: UniversityContentDto[] | undefined;
+export class UniversityDetailDto implements IUniversityDetailDto {
+    id: number;
+    name: string | undefined;
+    nameAr: string | undefined;
+    slug: string | undefined;
+    slugAr: string | undefined;
+    logoUrl: string | undefined;
+    cityId: number | undefined;
+    cityName: string | undefined;
+    cityNameAr: string | undefined;
+    countryId: number | undefined;
+    countryName: string | undefined;
+    countryNameAr: string | undefined;
+    isFeatured: boolean;
+    rating: number | undefined;
+    establishedYear: number | undefined;
+    type: UniversityType;
+    isActive: boolean;
+    aboutText: string | undefined;
+    aboutTextAr: string | undefined;
+    logoBlobId: string | undefined;
+    coverImageBlobId: string | undefined;
+    coverImageUrl: string | undefined;
+    metaDescription: string | undefined;
+    metaDescriptionAr: string | undefined;
+    offerLetterFee: string | undefined;
+    intakeMonths: string[] | undefined;
+    programs: UniversityProgramDto[] | undefined;
+    contents: UniversityContentDto[] | undefined;
+    faQs: UniversityFAQDto[] | undefined;
+    gallery: MediaItemDto[] | undefined;
+    totalPrograms: number;
+    activePrograms: number;
+    creationTime: moment.Moment;
+    lastModificationTime: moment.Moment | undefined;
 
-    constructor(data?: IUniversityContentDtoListResultDto) {
+    constructor(data?: IUniversityDetailDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -6509,112 +12065,172 @@ export class UniversityContentDtoListResultDto implements IUniversityContentDtoL
 
     init(_data?: any) {
         if (_data) {
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items.push(UniversityContentDto.fromJS(item));
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.nameAr = _data["nameAr"];
+            this.slug = _data["slug"];
+            this.slugAr = _data["slugAr"];
+            this.logoUrl = _data["logoUrl"];
+            this.cityId = _data["cityId"];
+            this.cityName = _data["cityName"];
+            this.cityNameAr = _data["cityNameAr"];
+            this.countryId = _data["countryId"];
+            this.countryName = _data["countryName"];
+            this.countryNameAr = _data["countryNameAr"];
+            this.isFeatured = _data["isFeatured"];
+            this.rating = _data["rating"];
+            this.establishedYear = _data["establishedYear"];
+            this.type = _data["type"];
+            this.isActive = _data["isActive"];
+            this.aboutText = _data["aboutText"];
+            this.aboutTextAr = _data["aboutTextAr"];
+            this.logoBlobId = _data["logoBlobId"];
+            this.coverImageBlobId = _data["coverImageBlobId"];
+            this.coverImageUrl = _data["coverImageUrl"];
+            this.metaDescription = _data["metaDescription"];
+            this.metaDescriptionAr = _data["metaDescriptionAr"];
+            this.offerLetterFee = _data["offerLetterFee"];
+            if (Array.isArray(_data["intakeMonths"])) {
+                this.intakeMonths = [] as any;
+                for (let item of _data["intakeMonths"])
+                    this.intakeMonths.push(item);
             }
+            if (Array.isArray(_data["programs"])) {
+                this.programs = [] as any;
+                for (let item of _data["programs"])
+                    this.programs.push(UniversityProgramDto.fromJS(item));
+            }
+            if (Array.isArray(_data["contents"])) {
+                this.contents = [] as any;
+                for (let item of _data["contents"])
+                    this.contents.push(UniversityContentDto.fromJS(item));
+            }
+            if (Array.isArray(_data["faQs"])) {
+                this.faQs = [] as any;
+                for (let item of _data["faQs"])
+                    this.faQs.push(UniversityFAQDto.fromJS(item));
+            }
+            if (Array.isArray(_data["gallery"])) {
+                this.gallery = [] as any;
+                for (let item of _data["gallery"])
+                    this.gallery.push(MediaItemDto.fromJS(item));
+            }
+            this.totalPrograms = _data["totalPrograms"];
+            this.activePrograms = _data["activePrograms"];
+            this.creationTime = _data["creationTime"] ? moment(_data["creationTime"].toString()) : <any>undefined;
+            this.lastModificationTime = _data["lastModificationTime"] ? moment(_data["lastModificationTime"].toString()) : <any>undefined;
         }
     }
 
-    static fromJS(data: any): UniversityContentDtoListResultDto {
+    static fromJS(data: any): UniversityDetailDto {
         data = typeof data === 'object' ? data : {};
-        let result = new UniversityContentDtoListResultDto();
+        let result = new UniversityDetailDto();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item.toJSON());
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["nameAr"] = this.nameAr;
+        data["slug"] = this.slug;
+        data["slugAr"] = this.slugAr;
+        data["logoUrl"] = this.logoUrl;
+        data["cityId"] = this.cityId;
+        data["cityName"] = this.cityName;
+        data["cityNameAr"] = this.cityNameAr;
+        data["countryId"] = this.countryId;
+        data["countryName"] = this.countryName;
+        data["countryNameAr"] = this.countryNameAr;
+        data["isFeatured"] = this.isFeatured;
+        data["rating"] = this.rating;
+        data["establishedYear"] = this.establishedYear;
+        data["type"] = this.type;
+        data["isActive"] = this.isActive;
+        data["aboutText"] = this.aboutText;
+        data["aboutTextAr"] = this.aboutTextAr;
+        data["logoBlobId"] = this.logoBlobId;
+        data["coverImageBlobId"] = this.coverImageBlobId;
+        data["coverImageUrl"] = this.coverImageUrl;
+        data["metaDescription"] = this.metaDescription;
+        data["metaDescriptionAr"] = this.metaDescriptionAr;
+        data["offerLetterFee"] = this.offerLetterFee;
+        if (Array.isArray(this.intakeMonths)) {
+            data["intakeMonths"] = [];
+            for (let item of this.intakeMonths)
+                data["intakeMonths"].push(item);
         }
+        if (Array.isArray(this.programs)) {
+            data["programs"] = [];
+            for (let item of this.programs)
+                data["programs"].push(item.toJSON());
+        }
+        if (Array.isArray(this.contents)) {
+            data["contents"] = [];
+            for (let item of this.contents)
+                data["contents"].push(item.toJSON());
+        }
+        if (Array.isArray(this.faQs)) {
+            data["faQs"] = [];
+            for (let item of this.faQs)
+                data["faQs"].push(item.toJSON());
+        }
+        if (Array.isArray(this.gallery)) {
+            data["gallery"] = [];
+            for (let item of this.gallery)
+                data["gallery"].push(item.toJSON());
+        }
+        data["totalPrograms"] = this.totalPrograms;
+        data["activePrograms"] = this.activePrograms;
+        data["creationTime"] = this.creationTime ? this.creationTime.toISOString() : <any>undefined;
+        data["lastModificationTime"] = this.lastModificationTime ? this.lastModificationTime.toISOString() : <any>undefined;
         return data;
     }
 
-    clone(): UniversityContentDtoListResultDto {
+    clone(): UniversityDetailDto {
         const json = this.toJSON();
-        let result = new UniversityContentDtoListResultDto();
+        let result = new UniversityDetailDto();
         result.init(json);
         return result;
     }
 }
 
-export interface IUniversityContentDtoListResultDto {
-    items: UniversityContentDto[] | undefined;
-}
-
-export class UniversityContentDtoPagedResultDto implements IUniversityContentDtoPagedResultDto {
-    items: UniversityContentDto[] | undefined;
-    totalCount: number;
-
-    constructor(data?: IUniversityContentDtoPagedResultDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items.push(UniversityContentDto.fromJS(item));
-            }
-            this.totalCount = _data["totalCount"];
-        }
-    }
-
-    static fromJS(data: any): UniversityContentDtoPagedResultDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new UniversityContentDtoPagedResultDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item.toJSON());
-        }
-        data["totalCount"] = this.totalCount;
-        return data;
-    }
-
-    clone(): UniversityContentDtoPagedResultDto {
-        const json = this.toJSON();
-        let result = new UniversityContentDtoPagedResultDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IUniversityContentDtoPagedResultDto {
-    items: UniversityContentDto[] | undefined;
-    totalCount: number;
-}
-
-export enum UniversityContentType {
-    _1 = 1,
-    _2 = 2,
-    _3 = 3,
-    _4 = 4,
-    _5 = 5,
-    _6 = 6,
-    _7 = 7,
-    _8 = 8,
-    _9 = 9,
-    _10 = 10,
-    _11 = 11,
-    _12 = 12,
-    _99 = 99,
+export interface IUniversityDetailDto {
+    id: number;
+    name: string | undefined;
+    nameAr: string | undefined;
+    slug: string | undefined;
+    slugAr: string | undefined;
+    logoUrl: string | undefined;
+    cityId: number | undefined;
+    cityName: string | undefined;
+    cityNameAr: string | undefined;
+    countryId: number | undefined;
+    countryName: string | undefined;
+    countryNameAr: string | undefined;
+    isFeatured: boolean;
+    rating: number | undefined;
+    establishedYear: number | undefined;
+    type: UniversityType;
+    isActive: boolean;
+    aboutText: string | undefined;
+    aboutTextAr: string | undefined;
+    logoBlobId: string | undefined;
+    coverImageBlobId: string | undefined;
+    coverImageUrl: string | undefined;
+    metaDescription: string | undefined;
+    metaDescriptionAr: string | undefined;
+    offerLetterFee: string | undefined;
+    intakeMonths: string[] | undefined;
+    programs: UniversityProgramDto[] | undefined;
+    contents: UniversityContentDto[] | undefined;
+    faQs: UniversityFAQDto[] | undefined;
+    gallery: MediaItemDto[] | undefined;
+    totalPrograms: number;
+    activePrograms: number;
+    creationTime: moment.Moment;
+    lastModificationTime: moment.Moment | undefined;
 }
 
 export class UniversityDto implements IUniversityDto {
@@ -6768,10 +12384,19 @@ export interface IUniversityDto {
     displayOrder: number;
 }
 
-export class UniversityDtoListResultDto implements IUniversityDtoListResultDto {
-    items: UniversityDto[] | undefined;
+export class UniversityFAQDto implements IUniversityFAQDto {
+    id: number;
+    universityId: number;
+    question: string | undefined;
+    questionAr: string | undefined;
+    answer: string | undefined;
+    answerAr: string | undefined;
+    displayOrder: number;
+    isPublished: boolean;
+    universityName: string | undefined;
+    universityNameAr: string | undefined;
 
-    constructor(data?: IUniversityDtoListResultDto) {
+    constructor(data?: IUniversityFAQDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -6782,96 +12407,60 @@ export class UniversityDtoListResultDto implements IUniversityDtoListResultDto {
 
     init(_data?: any) {
         if (_data) {
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items.push(UniversityDto.fromJS(item));
-            }
+            this.id = _data["id"];
+            this.universityId = _data["universityId"];
+            this.question = _data["question"];
+            this.questionAr = _data["questionAr"];
+            this.answer = _data["answer"];
+            this.answerAr = _data["answerAr"];
+            this.displayOrder = _data["displayOrder"];
+            this.isPublished = _data["isPublished"];
+            this.universityName = _data["universityName"];
+            this.universityNameAr = _data["universityNameAr"];
         }
     }
 
-    static fromJS(data: any): UniversityDtoListResultDto {
+    static fromJS(data: any): UniversityFAQDto {
         data = typeof data === 'object' ? data : {};
-        let result = new UniversityDtoListResultDto();
+        let result = new UniversityFAQDto();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item.toJSON());
-        }
+        data["id"] = this.id;
+        data["universityId"] = this.universityId;
+        data["question"] = this.question;
+        data["questionAr"] = this.questionAr;
+        data["answer"] = this.answer;
+        data["answerAr"] = this.answerAr;
+        data["displayOrder"] = this.displayOrder;
+        data["isPublished"] = this.isPublished;
+        data["universityName"] = this.universityName;
+        data["universityNameAr"] = this.universityNameAr;
         return data;
     }
 
-    clone(): UniversityDtoListResultDto {
+    clone(): UniversityFAQDto {
         const json = this.toJSON();
-        let result = new UniversityDtoListResultDto();
+        let result = new UniversityFAQDto();
         result.init(json);
         return result;
     }
 }
 
-export interface IUniversityDtoListResultDto {
-    items: UniversityDto[] | undefined;
-}
-
-export class UniversityDtoPagedResultDto implements IUniversityDtoPagedResultDto {
-    items: UniversityDto[] | undefined;
-    totalCount: number;
-
-    constructor(data?: IUniversityDtoPagedResultDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items.push(UniversityDto.fromJS(item));
-            }
-            this.totalCount = _data["totalCount"];
-        }
-    }
-
-    static fromJS(data: any): UniversityDtoPagedResultDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new UniversityDtoPagedResultDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item.toJSON());
-        }
-        data["totalCount"] = this.totalCount;
-        return data;
-    }
-
-    clone(): UniversityDtoPagedResultDto {
-        const json = this.toJSON();
-        let result = new UniversityDtoPagedResultDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IUniversityDtoPagedResultDto {
-    items: UniversityDto[] | undefined;
-    totalCount: number;
+export interface IUniversityFAQDto {
+    id: number;
+    universityId: number;
+    question: string | undefined;
+    questionAr: string | undefined;
+    answer: string | undefined;
+    answerAr: string | undefined;
+    displayOrder: number;
+    isPublished: boolean;
+    universityName: string | undefined;
+    universityNameAr: string | undefined;
 }
 
 export class UniversityProgramDto implements IUniversityProgramDto {
@@ -7067,118 +12656,6 @@ export interface IUniversityProgramDto {
     displayOrder: number;
     slug: string | undefined;
     slugAr: string | undefined;
-}
-
-export class UniversityProgramDtoListResultDto implements IUniversityProgramDtoListResultDto {
-    items: UniversityProgramDto[] | undefined;
-
-    constructor(data?: IUniversityProgramDtoListResultDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items.push(UniversityProgramDto.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): UniversityProgramDtoListResultDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new UniversityProgramDtoListResultDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item.toJSON());
-        }
-        return data;
-    }
-
-    clone(): UniversityProgramDtoListResultDto {
-        const json = this.toJSON();
-        let result = new UniversityProgramDtoListResultDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IUniversityProgramDtoListResultDto {
-    items: UniversityProgramDto[] | undefined;
-}
-
-export class UniversityProgramDtoPagedResultDto implements IUniversityProgramDtoPagedResultDto {
-    items: UniversityProgramDto[] | undefined;
-    totalCount: number;
-
-    constructor(data?: IUniversityProgramDtoPagedResultDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items.push(UniversityProgramDto.fromJS(item));
-            }
-            this.totalCount = _data["totalCount"];
-        }
-    }
-
-    static fromJS(data: any): UniversityProgramDtoPagedResultDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new UniversityProgramDtoPagedResultDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item.toJSON());
-        }
-        data["totalCount"] = this.totalCount;
-        return data;
-    }
-
-    clone(): UniversityProgramDtoPagedResultDto {
-        const json = this.toJSON();
-        let result = new UniversityProgramDtoPagedResultDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IUniversityProgramDtoPagedResultDto {
-    items: UniversityProgramDto[] | undefined;
-    totalCount: number;
-}
-
-export enum UniversityType {
-    _1 = 1,
-    _2 = 2,
-    _3 = 3,
 }
 
 export class UpdateUniversityContentDto implements IUpdateUniversityContentDto {
@@ -7379,6 +12856,73 @@ export interface IUpdateUniversityDto {
     displayOrder: number;
 }
 
+export class UpdateUniversityFAQDto implements IUpdateUniversityFAQDto {
+    id: number;
+    question: string;
+    questionAr: string;
+    answer: string;
+    answerAr: string;
+    displayOrder: number;
+    isPublished: boolean;
+
+    constructor(data?: IUpdateUniversityFAQDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.question = _data["question"];
+            this.questionAr = _data["questionAr"];
+            this.answer = _data["answer"];
+            this.answerAr = _data["answerAr"];
+            this.displayOrder = _data["displayOrder"];
+            this.isPublished = _data["isPublished"];
+        }
+    }
+
+    static fromJS(data: any): UpdateUniversityFAQDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateUniversityFAQDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["question"] = this.question;
+        data["questionAr"] = this.questionAr;
+        data["answer"] = this.answer;
+        data["answerAr"] = this.answerAr;
+        data["displayOrder"] = this.displayOrder;
+        data["isPublished"] = this.isPublished;
+        return data;
+    }
+
+    clone(): UpdateUniversityFAQDto {
+        const json = this.toJSON();
+        let result = new UpdateUniversityFAQDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IUpdateUniversityFAQDto {
+    id: number;
+    question: string;
+    questionAr: string;
+    answer: string;
+    answerAr: string;
+    displayOrder: number;
+    isPublished: boolean;
+}
+
 export class UpdateUniversityProgramDto implements IUpdateUniversityProgramDto {
     id: number;
     universityId: number;
@@ -7522,16 +13066,54 @@ export interface IUpdateUniversityProgramDto {
     slugAr: string | undefined;
 }
 
-export class UploadFileInput implements IUploadFileInput {
-    fileBytes: string;
-    fileName: string;
-    contentType: string;
-    description: string | undefined;
-    category: string | undefined;
-    entityType: string | undefined;
-    entityId: number | undefined;
+export enum ProgramLevel {
+    _1 = 1,
+    _2 = 2,
+    _3 = 3,
+    _4 = 4,
+    _5 = 5,
+    _6 = 6,
+    _7 = 7,
+    _99 = 99,
+}
 
-    constructor(data?: IUploadFileInput) {
+export enum StudyMode {
+    _1 = 1,
+    _2 = 2,
+    _3 = 3,
+    _4 = 4,
+    _5 = 5,
+    _6 = 6,
+    _7 = 7,
+}
+
+export enum UniversityContentType {
+    _1 = 1,
+    _2 = 2,
+    _3 = 3,
+    _4 = 4,
+    _5 = 5,
+    _6 = 6,
+    _7 = 7,
+    _8 = 8,
+    _9 = 9,
+    _10 = 10,
+    _11 = 11,
+    _12 = 12,
+    _99 = 99,
+}
+
+export enum UniversityType {
+    _1 = 1,
+    _2 = 2,
+    _3 = 3,
+}
+
+export class ChangePasswordDto implements IChangePasswordDto {
+    currentPassword: string;
+    newPassword: string;
+
+    constructor(data?: IChangePasswordDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -7542,51 +13124,205 @@ export class UploadFileInput implements IUploadFileInput {
 
     init(_data?: any) {
         if (_data) {
-            this.fileBytes = _data["fileBytes"];
-            this.fileName = _data["fileName"];
-            this.contentType = _data["contentType"];
-            this.description = _data["description"];
-            this.category = _data["category"];
-            this.entityType = _data["entityType"];
-            this.entityId = _data["entityId"];
+            this.currentPassword = _data["currentPassword"];
+            this.newPassword = _data["newPassword"];
         }
     }
 
-    static fromJS(data: any): UploadFileInput {
+    static fromJS(data: any): ChangePasswordDto {
         data = typeof data === 'object' ? data : {};
-        let result = new UploadFileInput();
+        let result = new ChangePasswordDto();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["fileBytes"] = this.fileBytes;
-        data["fileName"] = this.fileName;
-        data["contentType"] = this.contentType;
-        data["description"] = this.description;
-        data["category"] = this.category;
-        data["entityType"] = this.entityType;
-        data["entityId"] = this.entityId;
+        data["currentPassword"] = this.currentPassword;
+        data["newPassword"] = this.newPassword;
         return data;
     }
 
-    clone(): UploadFileInput {
+    clone(): ChangePasswordDto {
         const json = this.toJSON();
-        let result = new UploadFileInput();
+        let result = new ChangePasswordDto();
         result.init(json);
         return result;
     }
 }
 
-export interface IUploadFileInput {
-    fileBytes: string;
-    fileName: string;
-    contentType: string;
-    description: string | undefined;
-    category: string | undefined;
-    entityType: string | undefined;
-    entityId: number | undefined;
+export interface IChangePasswordDto {
+    currentPassword: string;
+    newPassword: string;
+}
+
+export class ChangeUserLanguageDto implements IChangeUserLanguageDto {
+    languageName: string;
+
+    constructor(data?: IChangeUserLanguageDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.languageName = _data["languageName"];
+        }
+    }
+
+    static fromJS(data: any): ChangeUserLanguageDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ChangeUserLanguageDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["languageName"] = this.languageName;
+        return data;
+    }
+
+    clone(): ChangeUserLanguageDto {
+        const json = this.toJSON();
+        let result = new ChangeUserLanguageDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IChangeUserLanguageDto {
+    languageName: string;
+}
+
+export class CreateUserDto implements ICreateUserDto {
+    userName: string;
+    name: string;
+    surname: string;
+    emailAddress: string;
+    isActive: boolean;
+    roleNames: string[] | undefined;
+    password: string;
+
+    constructor(data?: ICreateUserDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userName = _data["userName"];
+            this.name = _data["name"];
+            this.surname = _data["surname"];
+            this.emailAddress = _data["emailAddress"];
+            this.isActive = _data["isActive"];
+            if (Array.isArray(_data["roleNames"])) {
+                this.roleNames = [] as any;
+                for (let item of _data["roleNames"])
+                    this.roleNames.push(item);
+            }
+            this.password = _data["password"];
+        }
+    }
+
+    static fromJS(data: any): CreateUserDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateUserDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userName"] = this.userName;
+        data["name"] = this.name;
+        data["surname"] = this.surname;
+        data["emailAddress"] = this.emailAddress;
+        data["isActive"] = this.isActive;
+        if (Array.isArray(this.roleNames)) {
+            data["roleNames"] = [];
+            for (let item of this.roleNames)
+                data["roleNames"].push(item);
+        }
+        data["password"] = this.password;
+        return data;
+    }
+
+    clone(): CreateUserDto {
+        const json = this.toJSON();
+        let result = new CreateUserDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICreateUserDto {
+    userName: string;
+    name: string;
+    surname: string;
+    emailAddress: string;
+    isActive: boolean;
+    roleNames: string[] | undefined;
+    password: string;
+}
+
+export class ResetPasswordDto implements IResetPasswordDto {
+    adminPassword: string;
+    userId: number;
+    newPassword: string;
+
+    constructor(data?: IResetPasswordDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.adminPassword = _data["adminPassword"];
+            this.userId = _data["userId"];
+            this.newPassword = _data["newPassword"];
+        }
+    }
+
+    static fromJS(data: any): ResetPasswordDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ResetPasswordDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["adminPassword"] = this.adminPassword;
+        data["userId"] = this.userId;
+        data["newPassword"] = this.newPassword;
+        return data;
+    }
+
+    clone(): ResetPasswordDto {
+        const json = this.toJSON();
+        let result = new ResetPasswordDto();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IResetPasswordDto {
+    adminPassword: string;
+    userId: number;
+    newPassword: string;
 }
 
 export class UserDto implements IUserDto {
@@ -7676,11 +13412,1263 @@ export interface IUserDto {
     roleNames: string[] | undefined;
 }
 
-export class UserDtoPagedResultDto implements IUserDtoPagedResultDto {
+export class EntityDto_1OfOfInt64AndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798e implements IEntityDto_1OfOfInt64AndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798e {
+    id: number;
+
+    constructor(data?: IEntityDto_1OfOfInt64AndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798e) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+        }
+    }
+
+    static fromJS(data: any): EntityDto_1OfOfInt64AndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798e {
+        data = typeof data === 'object' ? data : {};
+        let result = new EntityDto_1OfOfInt64AndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798e();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        return data;
+    }
+
+    clone(): EntityDto_1OfOfInt64AndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798e {
+        const json = this.toJSON();
+        let result = new EntityDto_1OfOfInt64AndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798e();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IEntityDto_1OfOfInt64AndCoreLibAnd_0AndCulture_neutralAndPublicKeyToken_7cec85d7bea7798e {
+    id: number;
+}
+
+export class ListResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null implements IListResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: CoursePricingDto[] | undefined;
+
+    constructor(data?: IListResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(CoursePricingDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ListResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        data = typeof data === 'object' ? data : {};
+        let result = new ListResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): ListResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        const json = this.toJSON();
+        let result = new ListResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IListResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: CoursePricingDto[] | undefined;
+}
+
+export class ListResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null implements IListResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: LanguageCenterDto[] | undefined;
+
+    constructor(data?: IListResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(LanguageCenterDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ListResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        data = typeof data === 'object' ? data : {};
+        let result = new ListResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): ListResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        const json = this.toJSON();
+        let result = new ListResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IListResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: LanguageCenterDto[] | undefined;
+}
+
+export class ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null implements IListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: LanguageCenterFAQDto[] | undefined;
+
+    constructor(data?: IListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(LanguageCenterFAQDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        data = typeof data === 'object' ? data : {};
+        let result = new ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        const json = this.toJSON();
+        let result = new ListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IListResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: LanguageCenterFAQDto[] | undefined;
+}
+
+export class ListResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null implements IListResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: LanguageCourseDto[] | undefined;
+
+    constructor(data?: IListResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(LanguageCourseDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ListResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        data = typeof data === 'object' ? data : {};
+        let result = new ListResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): ListResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        const json = this.toJSON();
+        let result = new ListResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IListResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: LanguageCourseDto[] | undefined;
+}
+
+export class ListResultDto_1OfOfCityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null implements IListResultDto_1OfOfCityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: CityDto[] | undefined;
+
+    constructor(data?: IListResultDto_1OfOfCityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(CityDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ListResultDto_1OfOfCityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        data = typeof data === 'object' ? data : {};
+        let result = new ListResultDto_1OfOfCityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): ListResultDto_1OfOfCityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        const json = this.toJSON();
+        let result = new ListResultDto_1OfOfCityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IListResultDto_1OfOfCityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: CityDto[] | undefined;
+}
+
+export class ListResultDto_1OfOfCountryDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null implements IListResultDto_1OfOfCountryDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: CountryDto[] | undefined;
+
+    constructor(data?: IListResultDto_1OfOfCountryDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(CountryDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ListResultDto_1OfOfCountryDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        data = typeof data === 'object' ? data : {};
+        let result = new ListResultDto_1OfOfCountryDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): ListResultDto_1OfOfCountryDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        const json = this.toJSON();
+        let result = new ListResultDto_1OfOfCountryDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IListResultDto_1OfOfCountryDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: CountryDto[] | undefined;
+}
+
+export class ListResultDto_1OfOfCurrencyDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null implements IListResultDto_1OfOfCurrencyDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: CurrencyDto[] | undefined;
+
+    constructor(data?: IListResultDto_1OfOfCurrencyDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(CurrencyDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ListResultDto_1OfOfCurrencyDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        data = typeof data === 'object' ? data : {};
+        let result = new ListResultDto_1OfOfCurrencyDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): ListResultDto_1OfOfCurrencyDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        const json = this.toJSON();
+        let result = new ListResultDto_1OfOfCurrencyDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IListResultDto_1OfOfCurrencyDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: CurrencyDto[] | undefined;
+}
+
+export class ListResultDto_1OfOfPermissionDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null implements IListResultDto_1OfOfPermissionDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: PermissionDto[] | undefined;
+
+    constructor(data?: IListResultDto_1OfOfPermissionDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(PermissionDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ListResultDto_1OfOfPermissionDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        data = typeof data === 'object' ? data : {};
+        let result = new ListResultDto_1OfOfPermissionDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): ListResultDto_1OfOfPermissionDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        const json = this.toJSON();
+        let result = new ListResultDto_1OfOfPermissionDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IListResultDto_1OfOfPermissionDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: PermissionDto[] | undefined;
+}
+
+export class ListResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null implements IListResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: RoleDto[] | undefined;
+
+    constructor(data?: IListResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(RoleDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ListResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        data = typeof data === 'object' ? data : {};
+        let result = new ListResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): ListResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        const json = this.toJSON();
+        let result = new ListResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IListResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: RoleDto[] | undefined;
+}
+
+export class ListResultDto_1OfOfRoleListDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null implements IListResultDto_1OfOfRoleListDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: RoleListDto[] | undefined;
+
+    constructor(data?: IListResultDto_1OfOfRoleListDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(RoleListDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ListResultDto_1OfOfRoleListDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        data = typeof data === 'object' ? data : {};
+        let result = new ListResultDto_1OfOfRoleListDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): ListResultDto_1OfOfRoleListDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        const json = this.toJSON();
+        let result = new ListResultDto_1OfOfRoleListDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IListResultDto_1OfOfRoleListDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: RoleListDto[] | undefined;
+}
+
+export class ListResultDto_1OfOfUniversityContentDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null implements IListResultDto_1OfOfUniversityContentDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: UniversityContentDto[] | undefined;
+
+    constructor(data?: IListResultDto_1OfOfUniversityContentDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(UniversityContentDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ListResultDto_1OfOfUniversityContentDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        data = typeof data === 'object' ? data : {};
+        let result = new ListResultDto_1OfOfUniversityContentDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): ListResultDto_1OfOfUniversityContentDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        const json = this.toJSON();
+        let result = new ListResultDto_1OfOfUniversityContentDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IListResultDto_1OfOfUniversityContentDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: UniversityContentDto[] | undefined;
+}
+
+export class ListResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null implements IListResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: UniversityDto[] | undefined;
+
+    constructor(data?: IListResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(UniversityDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ListResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        data = typeof data === 'object' ? data : {};
+        let result = new ListResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): ListResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        const json = this.toJSON();
+        let result = new ListResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IListResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: UniversityDto[] | undefined;
+}
+
+export class ListResultDto_1OfOfUniversityFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null implements IListResultDto_1OfOfUniversityFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: UniversityFAQDto[] | undefined;
+
+    constructor(data?: IListResultDto_1OfOfUniversityFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(UniversityFAQDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ListResultDto_1OfOfUniversityFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        data = typeof data === 'object' ? data : {};
+        let result = new ListResultDto_1OfOfUniversityFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): ListResultDto_1OfOfUniversityFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        const json = this.toJSON();
+        let result = new ListResultDto_1OfOfUniversityFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IListResultDto_1OfOfUniversityFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: UniversityFAQDto[] | undefined;
+}
+
+export class ListResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null implements IListResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: UniversityProgramDto[] | undefined;
+
+    constructor(data?: IListResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(UniversityProgramDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): ListResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        data = typeof data === 'object' ? data : {};
+        let result = new ListResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        return data;
+    }
+
+    clone(): ListResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        const json = this.toJSON();
+        let result = new ListResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IListResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: UniversityProgramDto[] | undefined;
+}
+
+export class PagedResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null implements IPagedResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: CoursePricingDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IPagedResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(CoursePricingDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): PagedResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        data = typeof data === 'object' ? data : {};
+        let result = new PagedResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): PagedResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        const json = this.toJSON();
+        let result = new PagedResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPagedResultDto_1OfOfCoursePricingDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: CoursePricingDto[] | undefined;
+    totalCount: number;
+}
+
+export class PagedResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null implements IPagedResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: LanguageCenterDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IPagedResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(LanguageCenterDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): PagedResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        data = typeof data === 'object' ? data : {};
+        let result = new PagedResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): PagedResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        const json = this.toJSON();
+        let result = new PagedResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPagedResultDto_1OfOfLanguageCenterDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: LanguageCenterDto[] | undefined;
+    totalCount: number;
+}
+
+export class PagedResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null implements IPagedResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: LanguageCenterFAQDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IPagedResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(LanguageCenterFAQDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): PagedResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        data = typeof data === 'object' ? data : {};
+        let result = new PagedResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): PagedResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        const json = this.toJSON();
+        let result = new PagedResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPagedResultDto_1OfOfLanguageCenterFAQDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: LanguageCenterFAQDto[] | undefined;
+    totalCount: number;
+}
+
+export class PagedResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null implements IPagedResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: LanguageCourseDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IPagedResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(LanguageCourseDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): PagedResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        data = typeof data === 'object' ? data : {};
+        let result = new PagedResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): PagedResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        const json = this.toJSON();
+        let result = new PagedResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPagedResultDto_1OfOfLanguageCourseDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: LanguageCourseDto[] | undefined;
+    totalCount: number;
+}
+
+export class PagedResultDto_1OfOfTenantDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null implements IPagedResultDto_1OfOfTenantDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: TenantDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IPagedResultDto_1OfOfTenantDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(TenantDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): PagedResultDto_1OfOfTenantDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        data = typeof data === 'object' ? data : {};
+        let result = new PagedResultDto_1OfOfTenantDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): PagedResultDto_1OfOfTenantDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        const json = this.toJSON();
+        let result = new PagedResultDto_1OfOfTenantDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPagedResultDto_1OfOfTenantDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: TenantDto[] | undefined;
+    totalCount: number;
+}
+
+export class PagedResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null implements IPagedResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: RoleDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IPagedResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(RoleDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): PagedResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        data = typeof data === 'object' ? data : {};
+        let result = new PagedResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): PagedResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        const json = this.toJSON();
+        let result = new PagedResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPagedResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: RoleDto[] | undefined;
+    totalCount: number;
+}
+
+export class PagedResultDto_1OfOfUniversityContentDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null implements IPagedResultDto_1OfOfUniversityContentDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: UniversityContentDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IPagedResultDto_1OfOfUniversityContentDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(UniversityContentDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): PagedResultDto_1OfOfUniversityContentDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        data = typeof data === 'object' ? data : {};
+        let result = new PagedResultDto_1OfOfUniversityContentDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): PagedResultDto_1OfOfUniversityContentDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        const json = this.toJSON();
+        let result = new PagedResultDto_1OfOfUniversityContentDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPagedResultDto_1OfOfUniversityContentDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: UniversityContentDto[] | undefined;
+    totalCount: number;
+}
+
+export class PagedResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null implements IPagedResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: UniversityDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IPagedResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(UniversityDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): PagedResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        data = typeof data === 'object' ? data : {};
+        let result = new PagedResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): PagedResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        const json = this.toJSON();
+        let result = new PagedResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPagedResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: UniversityDto[] | undefined;
+    totalCount: number;
+}
+
+export class PagedResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null implements IPagedResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: UniversityProgramDto[] | undefined;
+    totalCount: number;
+
+    constructor(data?: IPagedResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items.push(UniversityProgramDto.fromJS(item));
+            }
+            this.totalCount = _data["totalCount"];
+        }
+    }
+
+    static fromJS(data: any): PagedResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        data = typeof data === 'object' ? data : {};
+        let result = new PagedResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item.toJSON());
+        }
+        data["totalCount"] = this.totalCount;
+        return data;
+    }
+
+    clone(): PagedResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+        const json = this.toJSON();
+        let result = new PagedResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IPagedResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
+    items: UniversityProgramDto[] | undefined;
+    totalCount: number;
+}
+
+export class PagedResultDto_1OfOfUserDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null implements IPagedResultDto_1OfOfUserDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
     items: UserDto[] | undefined;
     totalCount: number;
 
-    constructor(data?: IUserDtoPagedResultDto) {
+    constructor(data?: IPagedResultDto_1OfOfUserDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -7700,9 +14688,9 @@ export class UserDtoPagedResultDto implements IUserDtoPagedResultDto {
         }
     }
 
-    static fromJS(data: any): UserDtoPagedResultDto {
+    static fromJS(data: any): PagedResultDto_1OfOfUserDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
         data = typeof data === 'object' ? data : {};
-        let result = new UserDtoPagedResultDto();
+        let result = new PagedResultDto_1OfOfUserDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
         result.init(data);
         return result;
     }
@@ -7718,76 +14706,17 @@ export class UserDtoPagedResultDto implements IUserDtoPagedResultDto {
         return data;
     }
 
-    clone(): UserDtoPagedResultDto {
+    clone(): PagedResultDto_1OfOfUserDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
         const json = this.toJSON();
-        let result = new UserDtoPagedResultDto();
+        let result = new PagedResultDto_1OfOfUserDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null();
         result.init(json);
         return result;
     }
 }
 
-export interface IUserDtoPagedResultDto {
+export interface IPagedResultDto_1OfOfUserDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null {
     items: UserDto[] | undefined;
     totalCount: number;
-}
-
-export class UserLoginInfoDto implements IUserLoginInfoDto {
-    id: number;
-    name: string | undefined;
-    surname: string | undefined;
-    userName: string | undefined;
-    emailAddress: string | undefined;
-
-    constructor(data?: IUserLoginInfoDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-            this.surname = _data["surname"];
-            this.userName = _data["userName"];
-            this.emailAddress = _data["emailAddress"];
-        }
-    }
-
-    static fromJS(data: any): UserLoginInfoDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new UserLoginInfoDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        data["surname"] = this.surname;
-        data["userName"] = this.userName;
-        data["emailAddress"] = this.emailAddress;
-        return data;
-    }
-
-    clone(): UserLoginInfoDto {
-        const json = this.toJSON();
-        let result = new UserLoginInfoDto();
-        result.init(json);
-        return result;
-    }
-}
-
-export interface IUserLoginInfoDto {
-    id: number;
-    name: string | undefined;
-    surname: string | undefined;
-    userName: string | undefined;
-    emailAddress: string | undefined;
 }
 
 export class ApiException extends Error {
@@ -7836,3 +14765,10 @@ function blobToText(blob: any): Observable<string> {
         }
     });
 }
+// Type aliases for backward compatibility
+export type PermissionDtoListResultDto = ListResultDto_1OfOfPermissionDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null;
+export type RoleDtoPagedResultDto = PagedResultDto_1OfOfRoleDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null;
+export type TenantDtoPagedResultDto = PagedResultDto_1OfOfTenantDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null;
+export type UniversityDtoPagedResultDto = PagedResultDto_1OfOfUniversityDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null;
+export type UniversityProgramDtoPagedResultDto = PagedResultDto_1OfOfUniversityProgramDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null;
+export type UserDtoPagedResultDto = PagedResultDto_1OfOfUserDtoAndApplicationAnd_0AndCulture_neutralAndPublicKeyToken_null;

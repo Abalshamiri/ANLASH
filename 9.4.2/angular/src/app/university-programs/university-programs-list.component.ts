@@ -10,11 +10,13 @@ import {
 import { finalize } from 'rxjs/operators';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
 import { ProgramFormComponent } from './program-form.component';
+import { appModuleAnimation } from '@shared/animations/routerTransition';
 
 @Component({
     selector: 'app-university-programs-list',
     templateUrl: './university-programs-list.component.html',
-    styleUrls: ['./university-programs-list.component.css']
+    styleUrls: ['./university-programs-list.component.css'],
+    animations: [appModuleAnimation()]
 })
 export class UniversityProgramsListComponent extends AppComponentBase implements OnInit {
 

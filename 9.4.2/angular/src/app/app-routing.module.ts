@@ -55,13 +55,12 @@ import { AppComponent } from './app.component';
                         data: { permission: 'Pages.Universities' },
                         canActivate: [AppRouteGuard]
                     },
-                    // TODO: Re-enable after backend generates FAQs DTOs
-                    // {
-                    //     path: 'university-faqs',
-                    //     loadChildren: () => import('./university-faqs/university-faqs.module').then((m) => m.UniversityFaqsModule),
-                    //     data: { permission: 'Pages.Universities' },
-                    //     canActivate: [AppRouteGuard]
-                    // },
+                    {
+                        path: 'university-faqs',
+                        loadChildren: () => import('./university-faqs/university-faqs.module').then((m) => m.UniversityFaqsModule),
+                        data: { permission: 'Pages.Universities' },
+                        canActivate: [AppRouteGuard]
+                    },
                     {
                         path: 'university-contents',
                         loadChildren: () => import('./university-contents/university-contents.module').then((m) => m.UniversityContentsModule),

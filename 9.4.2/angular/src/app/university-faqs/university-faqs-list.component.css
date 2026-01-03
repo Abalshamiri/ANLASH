@@ -1,146 +1,242 @@
-/* FAQ Item Styling */
-.faq-item {
-    background: #fff;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    margin-bottom: 10px;
-    padding: 15px;
+/* ============================================
+   UNIVERSITY FAQs - PROFESSIONAL DASHBOARD
+   ============================================ */
+
+/* ===== HEADER SECTION ===== */
+.content-header {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    border-radius: 0 0 15px 15px;
+    box-shadow: 0 4px 15px rgba(240, 147, 251, 0.3);
+}
+
+.content-header h1 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.content-header .btn-primary {
+    background: white;
+    color: #f5576c;
+    border: none;
+    font-weight: 600;
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
     transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.faq-item:hover {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.faq-item.published {
-    border-left: 4px solid #28a745;
-}
-
-.faq-item:not(.published) {
-    border-left: 4px solid #6c757d;
-}
-
-/* Reorder Mode */
-.faq-item.reorder-mode {
-    cursor: move;
+.content-header .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
     background: #f8f9fa;
 }
 
-.faq-item.reorder-mode:hover {
-    background: #e9ecef;
+/* ===== FAQ ITEM STYLING ===== */
+.faq-item {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    padding: 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: flex-start;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-/* Drag Handle */
+.faq-item:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+.faq-item.published {
+    border-left: 5px solid #10b981;
+}
+
+.faq-item:not(.published) {
+    border-left: 5px solid #9ca3af;
+    opacity: 0.7;
+}
+
+/* ===== REORDER MODE ===== */
+.faq-item.reorder-mode {
+    cursor: move;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px dashed #f093fb;
+}
+
+.faq-item.reorder-mode:hover {
+    background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    border-color: #f5576c;
+}
+
+/* ===== DRAG HANDLE ===== */
 .drag-handle {
-    width: 40px;
+    width: 50px;
     text-align: center;
-    font-size: 20px;
-    color: #6c757d;
+    font-size: 24px;
+    color: #9ca3af;
     cursor: grab;
-    margin-right: 15px;
+    margin-right: 20px;
+    transition: all 0.2s ease;
+}
+
+.drag-handle:hover {
+    color: #f093fb;
+    transform: scale(1.1);
 }
 
 .drag-handle:active {
     cursor: grabbing;
+    color: #f5576c;
 }
 
-/* FAQ Content */
+/* ===== FAQ CONTENT ===== */
 .faq-content {
     flex: 1;
 }
 
 .faq-content h5 {
-    color: #333;
+    color: #1f2937;
     font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    line-height: 1.5;
 }
 
 .faq-content p {
-    color: #666;
-    font-size: 0.95em;
+    color: #6b7280;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 0;
 }
 
-/* CDK Drag Placeholder */
+/* ===== CDK DRAG & DROP ===== */
 .cdk-drag-preview {
-    background: #fff;
-    border: 2px dashed #007bff;
-    border-radius: 4px;
-    padding: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-    opacity: 0.8;
+    background: white;
+    border: 3px solid #f093fb;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(240, 147, 251, 0.4);
+    opacity: 0.9;
+    transform: rotate(2deg);
 }
 
 .cdk-drag-placeholder {
-    background: #e3f2fd;
-    border: 2px dashed #2196f3;
-    min-height: 60px;
+    background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+    border: 3px dashed #f093fb;
+    border-radius: 12px;
+    min-height: 80px;
+    opacity: 0.5;
 }
 
 .cdk-drag-animating {
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+    transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .cdk-drop-list-dragging .faq-item:not(.cdk-drag-placeholder) {
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+    transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Badges */
+/* ===== BADGES ===== */
 .badge {
     font-size: 0.85em;
-    padding: 0.35em 0.65em;
+    padding: 0.4em 0.8em;
+    border-radius: 6px;
+    font-weight: 500;
 }
 
-/* Buttons */
+.badge-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.badge-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+/* ===== BUTTONS & DROPDOWNS ===== */
 .btn-group {
     width: 100%;
 }
 
 .dropdown-menu {
-    min-width: 180px;
+    min-width: 200px;
+    border: none;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    padding: 0.5rem 0;
 }
 
 .dropdown-item {
     cursor: pointer;
-    padding: 0.5rem 1rem;
+    padding: 0.6rem 1.2rem;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
 }
 
 .dropdown-item:hover {
-    background-color: #f8f9fa;
+    background-color: #fce7f3;
+    padding-left: 1.5rem;
 }
 
 .dropdown-item.text-danger:hover {
-    background-color: #f8d7da;
+    background-color: #fee2e2;
+    color: #991b1b !important;
 }
 
 .dropdown-item i {
     width: 20px;
-    margin-right: 8px;
+    margin-right: 10px;
+    text-align: center;
 }
 
-/* Alert */
+/* ===== ALERT ===== */
 .alert-info {
-    border-left: 4px solid #17a2b8;
+    border-left: 5px solid #3b82f6;
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border-radius: 8px;
 }
 
-/* Empty State */
+/* ===== EMPTY STATE ===== */
 .fa-question-circle {
-    color: #dee2e6;
+    color: #e5e7eb;
+    opacity: 0.5;
 }
 
-/* Responsive */
+.text-center.py-4 p {
+    font-size: 1.1rem;
+    color: #6b7280;
+}
+
+/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
     .faq-item {
         flex-direction: column;
-        align-items: flex-start;
+        padding: 15px;
     }
 
     .drag-handle {
         margin-bottom: 10px;
+        margin-right: 0;
     }
 
     .btn-group {
         width: auto;
         margin-top: 10px;
     }
+}
+
+/* ===== SMOOTH ANIMATIONS ===== */
+.faq-item,
+.btn,
+.badge,
+.dropdown-menu {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
