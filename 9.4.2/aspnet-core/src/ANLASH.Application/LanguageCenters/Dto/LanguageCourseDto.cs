@@ -111,6 +111,8 @@ namespace ANLASH.LanguageCenters.Dto
     {
         public string Keyword { get; set; }
         public long? LanguageCenterId { get; set; }
+        public CourseType? CourseType { get; set; }
+        public CourseLevel? Level { get; set; }
         public bool? IsActive { get; set; }
         public bool? IsFeatured { get; set; }
     }

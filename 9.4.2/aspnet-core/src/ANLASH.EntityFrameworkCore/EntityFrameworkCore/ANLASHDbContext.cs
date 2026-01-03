@@ -45,6 +45,11 @@ namespace ANLASH.EntityFrameworkCore
         public DbSet<UniversityProgram> UniversityPrograms { get; set; }
 
         /// <summary>
+        /// الأسئلة الشائعة للجامعات - University FAQs
+        /// </summary>
+        public DbSet<UniversityFAQ> UniversityFAQs { get; set; }
+
+        /// <summary>
         /// الملفات المخزنة - Stored Files
         /// </summary>
         public DbSet<AppBinaryObject> AppBinaryObjects { get; set; }
@@ -346,6 +351,39 @@ namespace ANLASH.EntityFrameworkCore
                     .HasFilter("[Slug] IS NOT NULL AND [IsDeleted] = 0");
                 entity.HasIndex(p => p.SlugAr).IsUnique().HasDatabaseName("UQ_UniversityPrograms_SlugAr")
                     .HasFilter("[SlugAr] IS NOT NULL AND [IsDeleted] = 0");
+            });
+
+            #endregion
+
+            #region Configure UniversityFAQ Entity
+
+            modelBuilder.Entity<UniversityFAQ>(entity =>
+            {
+                entity.ToTable("UniversityFAQs");
+
+                // Primary Key
+                entity.HasKey(f => f.Id);
+
+                // Foreign Key to University
+                entity.HasOne(f => f.University)
+                    .WithMany(u => u.FAQs)
+                    .HasForeignKey(f => f.UniversityId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                // Required Fields
+                entity.Property(f => f.Question).IsRequired().HasMaxLength(500);
+                entity.Property(f => f.QuestionAr).IsRequired().HasMaxLength(500);
+                entity.Property(f => f.Answer).IsRequired().HasMaxLength(2000);
+                entity.Property(f => f.AnswerAr).IsRequired().HasMaxLength(2000);
+
+                // Default Values
+                entity.Property(f => f.IsPublished).HasDefaultValue(true);
+                entity.Property(f => f.DisplayOrder).HasDefaultValue(0);
+
+                // Indexes for Performance
+                entity.HasIndex(f => f.UniversityId).HasDatabaseName("IX_UniversityFAQs_UniversityId");
+                entity.HasIndex(f => f.IsPublished).HasDatabaseName("IX_UniversityFAQs_IsPublished");
+                entity.HasIndex(f => f.DisplayOrder).HasDatabaseName("IX_UniversityFAQs_DisplayOrder");
             });
 
             #endregion

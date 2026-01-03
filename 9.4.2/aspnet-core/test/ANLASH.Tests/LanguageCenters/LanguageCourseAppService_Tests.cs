@@ -166,7 +166,7 @@ namespace ANLASH.Tests.LanguageCenters
                 CourseType = CourseType.TestPreparation,
                 MaxResultCount = 10
             };
-            var result = await _languageCourseAppService.GetByCourseTypeAsync((int)CourseType.TestPreparation, input);
+            var result = await _languageCourseAppService.GetByCourseTypeAsync(CourseType.TestPreparation, input);
 
             // Assert
             result.ShouldNotBeNull();
@@ -197,7 +197,7 @@ namespace ANLASH.Tests.LanguageCenters
                 Level = CourseLevel.Advanced,
                 MaxResultCount = 10
             };
-            var result = await _languageCourseAppService.GetByLevelAsync((int)CourseLevel.Advanced, input);
+            var result = await _languageCourseAppService.GetByLevelAsync(CourseLevel.Advanced, input);
 
             // Assert
             result.ShouldNotBeNull();

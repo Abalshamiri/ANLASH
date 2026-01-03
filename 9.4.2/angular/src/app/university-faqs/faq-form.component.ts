@@ -1,4 +1,4 @@
-import { Component, OnInit, Injector, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, Injector, EventEmitter, Output, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AppComponentBase } from '@shared/app-component-base';
 import {
@@ -32,19 +32,26 @@ export class FaqFormComponent extends AppComponentBase implements OnInit {
         private fb: FormBuilder,
         private _faqService: UniversityFAQServiceProxy,
         private _universityService: UniversityServiceProxy,
-        public bsModalRef: BsModalRef
+        public bsModalRef: BsModalRef,
+        private cdr: ChangeDetectorRef
     ) {
         super(injector);
     }
 
     ngOnInit(): void {
         this.buildForm();
+
+        // Load universities first, then load FAQ if editing
         this.loadUniversities();
 
-        if (this.faqId) {
-            this.isEditMode = true;
-            this.loadFaq();
-        }
+        // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
+        setTimeout(() => {
+            if (this.faqId) {
+                this.isEditMode = true;
+                this.loadFaq();
+            }
+            this.cdr.detectChanges();
+        }, 0);
     }
 
     buildForm(): void {
@@ -62,13 +69,29 @@ export class FaqFormComponent extends AppComponentBase implements OnInit {
     loadUniversities(): void {
         this._universityService
             .getAll(
-                undefined, undefined, undefined, undefined,
-                undefined, true, undefined, undefined,
-                undefined, 0, 1000
+                undefined, // keyword
+                undefined, // type
+                undefined, // country
+                undefined, // city
+                undefined, // isAccredited
+                true,      // isActive - only active universities
+                undefined, // isFeatured
+                undefined, // sorting
+                undefined, // filter
+                0,         // skipCount
+                1000       // maxResultCount
             )
-            .subscribe(result => {
-                this.universities = result.items;
-            });
+            .subscribe(
+                result => {
+                    this.universities = result.items || [];
+                    console.log('Loaded universities:', this.universities.length);
+                    this.cdr.detectChanges();
+                },
+                error => {
+                    console.error('Error loading universities:', error);
+                    this.notify.error(this.l('ErrorLoadingUniversities'));
+                }
+            );
     }
 
     loadFaq(): void {
@@ -97,11 +120,17 @@ export class FaqFormComponent extends AppComponentBase implements OnInit {
             this._faqService
                 .update(dto)
                 .pipe(finalize(() => { this.saving = false; }))
-                .subscribe(() => {
-                    this.notify.success(this.l('SavedSuccessfully'));
-                    this.bsModalRef.hide();
-                    this.onSave.emit();
-                });
+                .subscribe(
+                    () => {
+                        this.notify.success(this.l('SavedSuccessfully'));
+                        this.bsModalRef.hide();
+                        this.onSave.emit();
+                    },
+                    (error) => {
+                        console.error('Error updating FAQ:', error);
+                        this.notify.error(error.message || this.l('ErrorUpdatingFAQ'));
+                    }
+                );
         } else {
             const dto = new CreateUniversityFAQDto();
             Object.assign(dto, formValue);
@@ -109,11 +138,17 @@ export class FaqFormComponent extends AppComponentBase implements OnInit {
             this._faqService
                 .create(dto)
                 .pipe(finalize(() => { this.saving = false; }))
-                .subscribe(() => {
-                    this.notify.success(this.l('SavedSuccessfully'));
-                    this.bsModalRef.hide();
-                    this.onSave.emit();
-                });
+                .subscribe(
+                    () => {
+                        this.notify.success(this.l('SavedSuccessfully'));
+                        this.bsModalRef.hide();
+                        this.onSave.emit();
+                    },
+                    (error) => {
+                        console.error('Error creating FAQ:', error);
+                        this.notify.error(error.message || this.l('ErrorCreatingFAQ'));
+                    }
+                );
         }
     }
 

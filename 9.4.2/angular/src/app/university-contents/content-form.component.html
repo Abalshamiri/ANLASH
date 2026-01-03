@@ -41,6 +41,34 @@
             </div>
         </div>
 
+        <!-- Title Fields -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>{{ 'Title' | localize }} (EN) *</label>
+                    <input type="text" class="form-control" formControlName="title"
+                        [class.is-invalid]="contentForm.get('title').invalid && contentForm.get('title').touched"
+                        placeholder="e.g., About Our University">
+                    <div class="invalid-feedback">
+                        {{ 'TitleIsRequired' | localize }} ({{ 'Maximum' | localize }}: 200 {{ 'Characters' | localize
+                        }})
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label>{{ 'Title' | localize }} (AR) *</label>
+                    <input type="text" class="form-control" formControlName="titleAr"
+                        [class.is-invalid]="contentForm.get('titleAr').invalid && contentForm.get('titleAr').touched"
+                        placeholder="مثال: عن جامعتنا" dir="rtl">
+                    <div class="invalid-feedback">
+                        {{ 'TitleIsRequired' | localize }} ({{ 'Maximum' | localize }}: 200 {{ 'Characters' | localize
+                        }})
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Content (English) -->
         <div class="form-group">
             <label>{{ 'Content' | localize }} (EN) *</label>

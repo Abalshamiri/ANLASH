@@ -1,4 +1,4 @@
-import { Component, OnInit, Injector, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, Injector, EventEmitter, Output, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AppComponentBase } from '@shared/app-component-base';
 import {
@@ -12,6 +12,7 @@ import {
 } from '@shared/service-proxies/service-proxies';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { finalize } from 'rxjs/operators';
+import * as moment from 'moment';
 
 @Component({
     selector: 'app-program-form',
@@ -48,7 +49,8 @@ export class ProgramFormComponent extends AppComponentBase implements OnInit {
         private fb: FormBuilder,
         private _programService: UniversityProgramServiceProxy,
         private _universityService: UniversityServiceProxy,
-        public bsModalRef: BsModalRef
+        public bsModalRef: BsModalRef,
+        private cdr: ChangeDetectorRef
     ) {
         super(injector);
     }
@@ -92,18 +94,24 @@ export class ProgramFormComponent extends AppComponentBase implements OnInit {
             isFeatured: [false]
         });
 
-        // Auto-generate slug on name change
+        // Auto-generate slug on name change (with setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError)
         this.programForm.get('name').valueChanges.subscribe(name => {
             if (name && !this.isEditMode) {
-                const slug = this.generateSlug(name);
-                this.programForm.patchValue({ slug }, { emitEvent: false });
+                setTimeout(() => {
+                    const slug = this.generateSlug(name);
+                    this.programForm.patchValue({ slug }, { emitEvent: false });
+                    this.cdr.detectChanges();
+                }, 0);
             }
         });
 
         this.programForm.get('nameAr').valueChanges.subscribe(nameAr => {
             if (nameAr && !this.isEditMode) {
-                const slugAr = this.generateSlug(nameAr);
-                this.programForm.patchValue({ slugAr }, { emitEvent: false });
+                setTimeout(() => {
+                    const slugAr = this.generateSlug(nameAr);
+                    this.programForm.patchValue({ slugAr }, { emitEvent: false });
+                    this.cdr.detectChanges();
+                }, 0);
             }
         });
     }
@@ -144,7 +152,12 @@ export class ProgramFormComponent extends AppComponentBase implements OnInit {
 
         this.saving = true;
 
-        const formValue = this.programForm.value;
+        const formValue = { ...this.programForm.value };
+
+        // Convert date string to proper Date object if needed
+        if (formValue.applicationDeadline && typeof formValue.applicationDeadline === 'string') {
+            formValue.applicationDeadline = moment(formValue.applicationDeadline).toDate();
+        }
 
         if (this.isEditMode) {
             const dto = new UpdateUniversityProgramDto();

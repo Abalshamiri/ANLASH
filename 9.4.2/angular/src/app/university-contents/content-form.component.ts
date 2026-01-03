@@ -62,8 +62,12 @@ export class ContentFormComponent extends AppComponentBase implements OnInit {
         this.contentForm = this.fb.group({
             universityId: [null, Validators.required],
             contentType: [null, Validators.required],
+            title: ['', [Validators.required, Validators.maxLength(200)]],
+            titleAr: ['', [Validators.required, Validators.maxLength(200)]],
             content: ['', [Validators.required, Validators.minLength(50)]],
-            contentAr: ['', [Validators.required, Validators.minLength(50)]]
+            contentAr: ['', [Validators.required, Validators.minLength(50)]],
+            displayOrder: [0],
+            isActive: [true]
         });
     }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -5,6 +6,7 @@ using Abp.Application.Services;
 using Abp.Application.Services.Dto;
 using Abp.Domain.Repositories;
 using Abp.Linq.Extensions;
+using Abp.UI;
 using ANLASH.Universities.Dto;
 
 namespace ANLASH.Universities
@@ -117,6 +119,68 @@ namespace ANLASH.Universities
             dto.ContentTypeName = entity.ContentType.ToString();
 
             return dto;
+        }
+
+        public override async Task<UniversityContentDto> CreateAsync(CreateUniversityContentDto input)
+        {
+            try
+            {
+                CheckCreatePermission();
+                Logger.Info($"Creating new Content for University ID: {input.UniversityId}, Type: {input.ContentType}");
+
+                var entity = ObjectMapper.Map<UniversityContent>(input);
+                var insertedEntity = await Repository.InsertAsync(entity);
+                await CurrentUnitOfWork.SaveChangesAsync();
+
+                Logger.Info($"Successfully created Content with ID: {insertedEntity.Id}");
+
+                return await GetAsync(new EntityDto<long>(insertedEntity.Id));
+            }
+            catch (UserFriendlyException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Error creating Content for University ID: {input.UniversityId}", ex);
+                throw new UserFriendlyException(
+                    L("ErrorCreatingContent"),
+                    "An error occurred while creating the content. Please check the logs for details."
+                );
+            }
+        }
+
+        public override async Task<UniversityContentDto> UpdateAsync(UpdateUniversityContentDto input)
+        {
+            try
+            {
+                CheckUpdatePermission();
+                Logger.Info($"Updating Content with ID: {input.Id}");
+
+                var entity = await Repository.FirstOrDefaultAsync(input.Id);
+                if (entity == null)
+                {
+                    Logger.Warn($"Content not found with ID: {input.Id}");
+                    throw new UserFriendlyException(L("ContentNotFound"));
+                }
+
+                ObjectMapper.Map(input, entity);
+                await Repository.UpdateAsync(entity);
+                await CurrentUnitOfWork.SaveChangesAsync();
+
+                Logger.Info($"Successfully updated Content with ID: {input.Id}");
+
+                return await GetAsync(input);
+            }
+            catch (UserFriendlyException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Error updating Content with ID: {input.Id}", ex);
+                throw new UserFriendlyException(L("ErrorUpdatingContent"));
+            }
         }
     }
 }

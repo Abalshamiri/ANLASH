@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -146,24 +147,64 @@ namespace ANLASH.Universities
 
         public override async Task<UniversityProgramDto> CreateAsync(CreateUniversityProgramDto input)
         {
-            CheckCreatePermission();
+            try
+            {
+                CheckCreatePermission();
+                Logger.Info($"Creating new Program for University ID: {input.UniversityId}");
 
-            var entity = ObjectMapper.Map<UniversityProgram>(input);
-            await Repository.InsertAsync(entity);
-            await CurrentUnitOfWork.SaveChangesAsync();
+                var entity = ObjectMapper.Map<UniversityProgram>(input);
+                var insertedEntity = await Repository.InsertAsync(entity);
+                await CurrentUnitOfWork.SaveChangesAsync();
 
-            return await GetAsync(new EntityDto<long>(entity.Id));
+                Logger.Info($"Successfully created Program with ID: {insertedEntity.Id}");
+
+                return await GetAsync(new EntityDto<long>(insertedEntity.Id));
+            }
+            catch (UserFriendlyException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Error creating Program for University ID: {input.UniversityId}", ex);
+                throw new UserFriendlyException(
+                    L("ErrorCreatingProgram"),
+                    "An error occurred while creating the program. Please check the logs for details."
+                );
+            }
         }
 
         public override async Task<UniversityProgramDto> UpdateAsync(UpdateUniversityProgramDto input)
         {
-            CheckUpdatePermission();
+            try
+            {
+                CheckUpdatePermission();
+                Logger.Info($"Updating Program with ID: {input.Id}");
 
-            var entity = await Repository.GetAsync(input.Id);
-            ObjectMapper.Map(input, entity);
-            await Repository.UpdateAsync(entity);
+                var entity = await Repository.FirstOrDefaultAsync(input.Id);
+                if (entity == null)
+                {
+                    Logger.Warn($"Program not found with ID: {input.Id}");
+                    throw new UserFriendlyException(L("ProgramNotFound"));
+                }
 
-            return await GetAsync(input);
+                ObjectMapper.Map(input, entity);
+                await Repository.UpdateAsync(entity);
+                await CurrentUnitOfWork.SaveChangesAsync();
+
+                Logger.Info($"Successfully updated Program with ID: {input.Id}");
+
+                return await GetAsync(input);
+            }
+            catch (UserFriendlyException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Error updating Program with ID: {input.Id}", ex);
+                throw new UserFriendlyException(L("ErrorUpdatingProgram"));
+            }
         }
     }
 }

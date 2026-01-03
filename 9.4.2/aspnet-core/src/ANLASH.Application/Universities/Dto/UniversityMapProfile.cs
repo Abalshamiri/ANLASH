@@ -37,7 +37,9 @@ namespace ANLASH.Universities.Dto
             CreateMap<UpdateUniversityContentDto, UniversityContent>();
 
             // UniversityFAQ Mappings
-            CreateMap<UniversityFAQ, UniversityFAQDto>();
+            CreateMap<UniversityFAQ, UniversityFAQDto>()
+                .ForMember(dest => dest.UniversityName, opt => opt.MapFrom(src => src.University != null ? src.University.Name : null))
+                .ForMember(dest => dest.UniversityNameAr, opt => opt.MapFrom(src => src.University != null ? src.University.NameAr : null));
             CreateMap<CreateUniversityFAQDto, UniversityFAQ>();
             CreateMap<UpdateUniversityFAQDto, UniversityFAQ>();
         }
