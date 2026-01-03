@@ -1,0 +1,194 @@
+/* ============================================
+   BRAND THEME - GREEN COLOR SCHEME
+   ============================================ */
+
+:root {
+    /* Brand Colors */
+    --brand-dark-green: #006241;
+    --brand-vibrant-green: #76BC21;
+    --brand-lime-green: #C4D600;
+    --brand-text-gray: #2D2926;
+    --brand-bg-light: #F8FAF5;
+
+    /* Derived Colors */
+    --brand-green-hover: #004d33;
+    --brand-green-light: rgba(0, 98, 65, 0.1);
+    --brand-green-shadow: rgba(0, 98, 65, 0.3);
+    --brand-vibrant-light: rgba(118, 188, 33, 0.1);
+    --brand-lime-shadow: rgba(196, 214, 0, 0.3);
+}
+
+/* ===== GLOBAL STYLES ===== */
+body {
+    background-color: var(--brand-bg-light);
+    color: var(--brand-text-gray);
+}
+
+/* ===== HEADINGS ===== */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: var(--brand-dark-green);
+}
+
+/* ===== LINKS ===== */
+a {
+    color: var(--brand-vibrant-green);
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: var(--brand-dark-green);
+    text-decoration: none;
+}
+
+/* ===== BUTTONS ===== */
+.btn-primary {
+    background: linear-gradient(135deg, var(--brand-dark-green) 0%, var(--brand-vibrant-green) 100%);
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background: linear-gradient(135deg, var(--brand-vibrant-green) 0%, var(--brand-dark-green) 100%);
+    box-shadow: 0 4px 12px var(--brand-green-shadow);
+    transform: translateY(-1px);
+}
+
+.btn-success {
+    background-color: var(--brand-vibrant-green);
+    border-color: var(--brand-vibrant-green);
+}
+
+.btn-success:hover {
+    background-color: var(--brand-dark-green);
+    border-color: var(--brand-dark-green);
+}
+
+.btn-warning {
+    background-color: var(--brand-lime-green);
+    border-color: var(--brand-lime-green);
+    color: var(--brand-text-gray);
+}
+
+.btn-warning:hover {
+    background-color: #b3c100;
+    border-color: #b3c100;
+    color: var(--brand-text-gray);
+}
+
+/* ===== BADGES ===== */
+.badge-primary {
+    background: var(--brand-dark-green);
+}
+
+.badge-success {
+    background: var(--brand-vibrant-green);
+}
+
+.badge-warning {
+    background: var(--brand-lime-green);
+    color: var(--brand-text-gray);
+}
+
+/* ===== CARDS ===== */
+.card {
+    background-color: white;
+    border: 1px solid #e9ecef;
+}
+
+.card-header {
+    background-color: var(--brand-bg-light);
+    border-bottom: 2px solid #e9ecef;
+}
+
+/* ===== TABLES ===== */
+.table thead {
+    background: linear-gradient(135deg, var(--brand-bg-light) 0%, #e9ecef 100%);
+}
+
+.table thead th {
+    color: var(--brand-dark-green);
+}
+
+.table tbody tr:hover {
+    background-color: var(--brand-green-light);
+}
+
+/* ===== FORMS ===== */
+.form-control:focus {
+    border-color: var(--brand-vibrant-green);
+    box-shadow: 0 0 0 0.2rem var(--brand-vibrant-light);
+}
+
+/* ===== PAGINATION ===== */
+.pagination .page-link {
+    color: var(--brand-vibrant-green);
+}
+
+.pagination .page-link:hover {
+    background-color: var(--brand-vibrant-green);
+    border-color: var(--brand-vibrant-green);
+    color: white;
+}
+
+.pagination .page-item.active .page-link {
+    background: linear-gradient(135deg, var(--brand-dark-green) 0%, var(--brand-vibrant-green) 100%);
+    border-color: var(--brand-dark-green);
+}
+
+/* ===== ALERTS ===== */
+.alert-success {
+    background-color: var(--brand-vibrant-light);
+    border-color: var(--brand-vibrant-green);
+    color: var(--brand-dark-green);
+}
+
+.alert-warning {
+    background-color: var(--brand-lime-shadow);
+    border-color: var(--brand-lime-green);
+    color: var(--brand-text-gray);
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar-menu .nav-link {
+    color: var(--brand-text-gray);
+}
+
+.sidebar-menu .nav-link:hover,
+.sidebar-menu .nav-link.active {
+    color: var(--brand-vibrant-green);
+    background-color: var(--brand-green-light);
+}
+
+/* ===== HEADER ===== */
+.main-header {
+    background: linear-gradient(135deg, var(--brand-dark-green) 0%, var(--brand-vibrant-green) 100%);
+}
+
+/* ===== DROPDOWNS ===== */
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: var(--brand-green-light);
+    color: var(--brand-dark-green);
+}
+
+/* ===== PROGRESS BARS ===== */
+.progress-bar {
+    background-color: var(--brand-vibrant-green);
+}
+
+/* ===== CUSTOM SCROLLBAR ===== */
+::-webkit-scrollbar-thumb {
+    background: var(--brand-vibrant-green);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--brand-dark-green);
+}

@@ -1,15 +1,15 @@
 /* ============================================
-   UNIVERSITY PROGRAMS - PROFESSIONAL DASHBOARD
+   UNIVERSITY PROGRAMS - GREEN BRAND THEME
    ============================================ */
 
 /* ===== HEADER SECTION ===== */
 .content-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #006241 0%, #76BC21 100%);
     color: white;
     padding: 2rem 0;
     margin-bottom: 2rem;
     border-radius: 0 0 15px 15px;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 98, 65, 0.3);
 }
 
 .content-header h1 {
@@ -21,7 +21,7 @@
 
 .content-header .btn-primary {
     background: white;
-    color: #667eea;
+    color: #006241;
     border: none;
     font-weight: 600;
     padding: 0.6rem 1.5rem;
@@ -33,7 +33,8 @@
 .content-header .btn-primary:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-    background: #f8f9fa;
+    background: #F8FAF5;
+    color: #76BC21;
 }
 
 /* ===== CARD STYLING ===== */
@@ -50,7 +51,7 @@
 
 /* ===== FILTERS SECTION ===== */
 .card-header {
-    background: #f8f9fa;
+    background: #F8FAF5;
     border-bottom: 2px solid #e9ecef;
     padding: 1.5rem;
     border-radius: 12px 12px 0 0 !important;
@@ -68,19 +69,19 @@
 }
 
 .card-header .form-control:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    border-color: #76BC21;
+    box-shadow: 0 0 0 0.2rem rgba(118, 188, 33, 0.25);
 }
 
 .card-header .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #006241 0%, #76BC21 100%);
     border: none;
     font-weight: 500;
 }
 
 .card-header .btn-primary:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 8px rgba(0, 98, 65, 0.3);
 }
 
 .card-header .btn-secondary {
@@ -104,13 +105,13 @@
 }
 
 .table thead {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    background: linear-gradient(135deg, #F8FAF5 0%, #e9ecef 100%);
 }
 
 .table th {
     border-top: none;
     border-bottom: 2px solid #dee2e6;
-    color: #495057;
+    color: #006241;
     font-weight: 600;
     font-size: 0.9rem;
     text-transform: uppercase;
@@ -123,6 +124,7 @@
     vertical-align: middle;
     padding: 1rem;
     border-top: 1px solid #f1f3f5;
+    color: #2D2926;
 }
 
 .table tbody tr {
@@ -130,7 +132,7 @@
 }
 
 .table tbody tr:hover {
-    background-color: #f8f9fa;
+    background-color: rgba(0, 98, 65, 0.05);
     transform: scale(1.01);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
@@ -145,23 +147,23 @@
 }
 
 .badge-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #006241 0%, #76BC21 100%);
     color: white;
 }
 
 .badge-info {
-    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    background: linear-gradient(135deg, #76BC21 0%, #C4D600 100%);
     color: white;
 }
 
 .badge-success {
-    background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+    background: linear-gradient(135deg, #76BC21 0%, #006241 100%);
     color: white;
 }
 
 .badge-warning {
-    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
-    color: #212529;
+    background: linear-gradient(135deg, #C4D600 0%, #b3c100 100%);
+    color: #2D2926;
 }
 
 .badge-secondary {
@@ -196,8 +198,9 @@
 }
 
 .dropdown-item:hover {
-    background-color: #f8f9fa;
+    background-color: rgba(0, 98, 65, 0.1);
     padding-left: 1.5rem;
+    color: #006241;
 }
 
 .dropdown-item.text-danger:hover {
@@ -222,6 +225,7 @@
 
 .fa-spinner {
     animation: spin 1s linear infinite;
+    color: #76BC21;
 }
 
 @keyframes spin {
@@ -252,7 +256,7 @@ table.busy {
 
 /* ===== PAGINATION ===== */
 .card-footer {
-    background: #f8f9fa;
+    background: #F8FAF5;
     border-top: 2px solid #e9ecef;
     padding: 1.25rem 1.5rem;
     border-radius: 0 0 12px 12px;
@@ -266,20 +270,20 @@ table.busy {
     border-radius: 6px;
     margin: 0 2px;
     border: 1px solid #dee2e6;
-    color: #667eea;
+    color: #76BC21;
     transition: all 0.2s ease;
 }
 
 .pagination .page-link:hover {
-    background-color: #667eea;
-    border-color: #667eea;
+    background-color: #76BC21;
+    border-color: #76BC21;
     color: white;
     transform: translateY(-1px);
 }
 
 .pagination .page-item.active .page-link {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-color: #667eea;
+    background: linear-gradient(135deg, #006241 0%, #76BC21 100%);
+    border-color: #006241;
 }
 
 /* ===== RESPONSIVE DESIGN ===== */
@@ -346,10 +350,10 @@ table.busy {
 }
 
 .table-responsive::-webkit-scrollbar-thumb {
-    background: #667eea;
+    background: #76BC21;
     border-radius: 10px;
 }
 
 .table-responsive::-webkit-scrollbar-thumb:hover {
-    background: #764ba2;
+    background: #006241;
 }

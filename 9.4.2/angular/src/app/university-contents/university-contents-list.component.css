@@ -1,15 +1,15 @@
 /* ============================================
-   UNIVERSITY CONTENTS - PROFESSIONAL DASHBOARD
+   UNIVERSITY CONTENTS - GREEN BRAND THEME
    ============================================ */
 
 /* ===== HEADER SECTION ===== */
 .content-header {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    background: linear-gradient(135deg, #006241 0%, #76BC21 100%);
     color: white;
     padding: 2rem 0;
     margin-bottom: 2rem;
     border-radius: 0 0 15px 15px;
-    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 98, 65, 0.3);
 }
 
 .content-header h1 {
@@ -21,7 +21,7 @@
 
 .content-header .btn-primary {
     background: white;
-    color: #4facfe;
+    color: #006241;
     border: none;
     font-weight: 600;
     padding: 0.6rem 1.5rem;
@@ -33,7 +33,8 @@
 .content-header .btn-primary:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-    background: #f8f9fa;
+    background: #F8FAF5;
+    color: #76BC21;
 }
 
 /* ===== CONTENT CARD ===== */
@@ -53,7 +54,7 @@
 
 /* ===== CONTENT HEADER ===== */
 .content-card-header {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    background: linear-gradient(135deg, #F8FAF5 0%, #e9ecef 100%);
     padding: 18px 20px;
     border-bottom: 2px solid #dee2e6;
     display: flex;
@@ -63,13 +64,13 @@
 
 .content-type-badge {
     font-weight: 600;
-    color: #1f2937;
+    color: #006241;
     font-size: 1.05rem;
 }
 
 .content-type-badge i {
     margin-right: 10px;
-    color: #4facfe;
+    color: #76BC21;
     font-size: 1.2rem;
 }
 
@@ -80,7 +81,7 @@
 }
 
 .content-body h5 {
-    color: #1f2937;
+    color: #006241;
     margin-bottom: 15px;
     font-size: 1.15rem;
     font-weight: 600;
@@ -88,20 +89,20 @@
 
 .content-preview {
     font-size: 0.95rem;
-    color: #6b7280;
+    color: #2D2926;
     line-height: 1.6;
 }
 
 .lang-section {
     padding: 15px;
-    background: #f8f9fa;
+    background: #F8FAF5;
     border-radius: 8px;
-    border-left: 4px solid #4facfe;
+    border-left: 4px solid #76BC21;
     margin-bottom: 15px;
 }
 
 .lang-section strong {
-    color: #1f2937;
+    color: #006241;
     display: block;
     margin-bottom: 10px;
     font-size: 0.9rem;
@@ -124,14 +125,14 @@
 }
 
 :host ::ng-deep .nav-link:hover {
-    color: #4facfe;
-    background: #f8f9fa;
+    color: #76BC21;
+    background: #F8FAF5;
 }
 
 :host ::ng-deep .nav-link.active {
-    color: #4facfe;
+    color: #006241;
     background: white;
-    border-bottom: 3px solid #4facfe;
+    border-bottom: 3px solid #76BC21;
     font-weight: 600;
 }
 
@@ -155,8 +156,9 @@
 }
 
 .dropdown-item:hover {
-    background-color: #e0f2fe;
+    background-color: rgba(0, 98, 65, 0.1);
     padding-left: 1.5rem;
+    color: #006241;
 }
 
 .dropdown-item.text-danger:hover {

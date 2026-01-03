@@ -63,9 +63,35 @@ export class SidebarMenuComponent extends AppComponentBase implements OnInit {
             ),
             new MenuItem(
                 this.l('Universities'),
-                '/app/universities',
+                '',
                 'fas fa-university',
-                'Pages.Universities'
+                'Pages.Universities',
+                [
+                    new MenuItem(
+                        this.l('AllUniversities'),
+                        '/app/universities',
+                        'fas fa-list',
+                        'Pages.Universities'
+                    ),
+                    new MenuItem(
+                        this.l('Programs'),
+                        '/app/university-programs',
+                        'fas fa-graduation-cap',
+                        'Pages.Universities'
+                    ),
+                    new MenuItem(
+                        this.l('FAQs'),
+                        '/app/university-faqs',
+                        'fas fa-question-circle',
+                        'Pages.Universities'
+                    ),
+                    new MenuItem(
+                        this.l('Contents'),
+                        '/app/university-contents',
+                        'fas fa-file-alt',
+                        'Pages.Universities'
+                    )
+                ]
             ),
             new MenuItem(this.l('MultiLevelMenu'), '', 'fas fa-circle', '', [
                 new MenuItem('ASP.NET Boilerplate', '', 'fas fa-dot-circle', '', [
